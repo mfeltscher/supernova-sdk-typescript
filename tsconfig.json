@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "outDir": "build/main",
+    "outDir": "build",
     "rootDir": "../",
     "baseUrl": "src",
     "moduleResolution": "node",
