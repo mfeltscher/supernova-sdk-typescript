@@ -36,7 +36,7 @@ export { DocumentationPageBlockImage } from '../src/model/documentation/blocks/S
 export { DocumentationPageOrderedList } from '../src/model/documentation/blocks/SDKDocumentationPageBlockOrderedList'
 export { DocumentationPageBlockQuote } from '../src/model/documentation/blocks/SDKDocumentationPageBlockQuote'
 export { DocumentationPageBlockRenderCode } from '../src/model/documentation/blocks/SDKDocumentationPageBlockRenderCode'
-export { DocumentationPageBlockShortcut } from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcut'
+export { DocumentationPageBlockShortcut, DocumentationPageBlockShortcutType } from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcut'
 export { DocumentationPageBlockShortcuts } from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcuts'
 export { DocumentationPageBlockText } from '../src/model/documentation/blocks/SDKDocumentationPageBlockText'
 export { DocumentationPageBlockToken } from '../src/model/documentation/blocks/SDKDocumentationPageBlockToken'
@@ -46,7 +46,7 @@ export { DocumentationPageUnorderedList } from '../src/model/documentation/block
 
 // Documentation / Custom Blocks
 export { DocumentationCustomBlock } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlock'
-export { DocumentationCustomBlockProperty } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlockProperty'
+export { DocumentationCustomBlockProperty, DocumentationCustomBlockPropertyType } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlockProperty'
 
 // Documentation / Item Partials
 export { DocumentationItemHeader } from '../src/model/documentation/configuration/SDKDocumentationItemHeader'
@@ -112,6 +112,6 @@ export { TypographyToken } from '../src/model/tokens/SDKTypographyToken'
 export { TextToken } from '../src/model/tokens/SDKTextToken'
 export { Token } from '../src/model/tokens/SDKToken'
 export { TokenProperty } from '../src/model/tokens/SDKTokenProperty'
-export { TokenValue, ColorTokenValue, BlurTokenValue, BorderTokenValue, FontTokenValue, GenericTokenValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TypographyTokenValue, TextTokenValue } from '../src/model/tokens/SDKTokenValue'
+export { TokenValue, ColorTokenValue, BlurTokenValue, BorderTokenValue, FontTokenValue, GenericTokenValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TypographyTokenValue, TextTokenValue, GradientStopValue } from '../src/model/tokens/SDKTokenValue'
 
 export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustomTokenProperty'
