@@ -27,6 +27,7 @@ export class Supernova {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
+  private useResolutionCache = true
   private apiKey: string
   private apiUrl: string
   private apiVersion: string
@@ -178,12 +179,24 @@ export class Supernova {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Settings
+
+  /** Enables or disables resolution cache. Because of potential amount of data processed extra when this cache is disabled, only do it when you have a good reason (like if you are building a long-running, client-side app). Cache is enabled by default. */
+  setResolutionCacheEnabled(isEnabled: boolean) {
+
+    this.useResolutionCache = isEnabled
+    this.dataBridge.cache = isEnabled
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Data core replication
 
   /** Use this to rebuild data core if the settings change. */
   rebuildBridge() {
 
     this.dataBridge = new DataBridge({
+      cache: this.useResolutionCache,
       apiUrl: this.apiUrl,
       apiVersion: this.apiVersion,
       accessToken: this.apiKey,
@@ -196,6 +209,7 @@ export class Supernova {
   newDataCore(): DataCore {
 
     let bridge = new DataBridge({
+      cache: this.useResolutionCache,
       apiUrl: this.apiUrl,
       apiVersion: this.apiVersion,
       accessToken: this.apiKey,

@@ -351,7 +351,9 @@ export class DataCore {
   async updateDocumentationData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core documentation settings
     this.documentation = await this.getDocumentation(designSystemId, designSystemVersion)
-    this.documentationSynced = true
+    if (this.bridge.cache) {
+      this.documentationSynced = true
+    }
   }
 
   private async getDocumentation(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Documentation> {
@@ -377,7 +379,9 @@ export class DataCore {
   async updateExporterBlockData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
     this.customBlocks = await this.getCustomBlocks(designSystemId, designSystemVersion)
-    this.customBlocksSynced = true
+    if (this.bridge.cache) {
+      this.customBlocksSynced = true
+    }
   }
 
   private async getCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomBlock>> {
@@ -407,7 +411,9 @@ export class DataCore {
   async updateTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
     this.tokens = await this.getTokens(designSystemId, designSystemVersion)
-    this.tokensSynced = true
+    if (this.bridge.cache) {
+      this.tokensSynced = true
+    }
   }
 
   private async getTokens(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Token>> {
@@ -440,7 +446,9 @@ export class DataCore {
   async updateTokenGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
     this.tokenGroups = await this.getTokenGroups(designSystemId, designSystemVersion)
-    this.tokenGroupsSynced = true
+    if (this.bridge.cache) {
+      this.tokenGroupsSynced = true
+    }
   }
 
   private async getTokenGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenGroup>> {
@@ -472,7 +480,9 @@ export class DataCore {
     let result = await this.getComponentsAndAssets(designSystemId, designSystemVersion)
     this.components = result.components
     this.assets = result.assets
-    this.componentAssetSynced = true
+    if (this.bridge.cache) {
+      this.componentAssetSynced = true
+    }
   }
 
   private async getComponentsAndAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<{ 
@@ -539,7 +549,9 @@ export class DataCore {
     let result = await this.getComponentAndAssetGroups(designSystemId, designSystemVersion, this.components, this.assets)
     this.componentGroups = result.componentGroups
     this.assetGroups = result.assetGroups
-    this.componentAssetGroupsSynced = true
+    if (this.bridge.cache) {
+      this.componentAssetGroupsSynced = true
+    }
   }
 
   private async getComponentAndAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion, components: Array<Component>, assets: Array<Asset>): Promise<{
@@ -581,7 +593,9 @@ export class DataCore {
   async updateDocumentationItemData(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
     // Download core design documentation item data
     this.documentationItems = await this.getDocumentationItems(designSystemId, designSystemVersion, blocks, configuration)
-    this.documentationItemsSynced = true
+    if (this.bridge.cache) {
+      this.documentationItemsSynced = true
+    }
   }
 
   private async getDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration): Promise<Array<DocumentationItem>> {

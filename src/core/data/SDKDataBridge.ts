@@ -21,6 +21,7 @@ export interface DataBridgeConfiguration {
   apiVersion: string
   accessToken: string
   target: string | null
+  cache: boolean
   requestHook: DataBridgeRequestHook | null
 }
 
@@ -32,6 +33,7 @@ export class DataBridge {
   // MARK: - Configuration
 
   authToken: string
+  cache: boolean
   dataCore: DataCore
   apiUrl: string
   apiVersion: string
@@ -41,6 +43,7 @@ export class DataBridge {
   // MARK: - Constructor
 
   constructor(conf: DataBridgeConfiguration) {
+    this.cache = conf.cache
     this.authToken = conf.accessToken
     this.apiUrl = conf.apiUrl
     this.apiVersion = conf.apiVersion
