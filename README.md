@@ -107,7 +107,7 @@ You can find full list of [what is possible, and how, here](https://github.com/S
 
 Supernova SDK works little bit differently than you would probably expect by default. Because of how complex the design system data is (as an example, a token can contain references to other tokens and can also be made of different types of tokens which can then be used in components...) the SDK does all necessary resolution for you beforehand. 
 
-To allow reuse of the data, the resolved results are cached and used in follow-up resolutions (for example, if you would first access your design tokens and then access documentation that uses the tokens, tokens would be reused). In many situations, this is what you wan. However, there are some cases where this behavior is not what you want, like longer-running sessions:
+To allow reuse of the data, the resolved results are cached and used in follow-up resolutions (for example, if you would first access your design tokens and then access documentation that uses the tokens, tokens would be reused). In many situations, this is what you want. However, there are some cases where this behavior is not what you want, like longer-running sessions:
 
 
 ### Longer-running sessions
