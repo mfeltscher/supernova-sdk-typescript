@@ -6,7 +6,25 @@ The Supernova SDK provides convenient access to the [Supernova.io](https://super
 
 ## Features
 
-TODO
+SDK comes with all functionality (all will come with more once it reaches general release) you need to build design system tooling you previously only dreamt of:
+
+- [x] Read API for `Tokens`, `Assets`, `Components`
+- [x] Read API for Account-level objects like `Workspaces`, `Design Systems`
+- [x] Support for `single-branded` and `multi-branded` `Design Systems`
+- [x] Read API for `Documentation`, including entire structure, content and configuration
+- [x] Rendering pipeline to export your assets as svg, png, pdf
+- [ ] (on release) Write API
+- [ ] (on release) Metadata API
+- [ ] (on release) Version management
+- [ ] (on release) Ability to invoke export routines
+
+And of course, features that make all developers happy!
+
+- [x] Fully Typescript-enabled code
+- [x] Fully documented objects and attributes
+- [x] Plug & play library design
+- [x] Performant even for large design systems with lot of data
+- [x] Extensive examples showing most of the capabilities
 
 ## Installing
 
@@ -80,75 +98,9 @@ Workspace 1
 
 To access the data, you first need to select which `Workspace`, `Design System` and `Version` (optionally `Brand`) you want to use.
 
+## Using SDK
 
-## Obtaining design system data instance
-
-Let's start by retrieving all workspaces we have available:
-
-```typescript
-const workspaces = await supernova.workspaces()
-```
-
-We can filter by id, workspace URL handle or even the workspace name. For all these steps, you'd usually create dropdown option so user has option to select it easily select. Once we have selected one workspace that we are looking for, we can download all design systems that belong to it:
-
-```typescript
-const workspace = workspaces[0]
-const designSystems = await workspace.designSystems()
-```
-
-We can also filter by different means, same as with workspaces. Finally, take one and download all versions that belong to it: 
-
-```typescript
-const designSystem = designSystem[0]
-const versions = await designSystem.versions()
-```
-
-Versions finally allow you to get to the data like `Tokens`, `Assets` or `Components`. You can also use `Version` to access the `Documentation` tree, containing all pages, groups, configuration and every piece of text you made. Finally, versions contain `Brands`.
-
-If you need the latest version everyone is building, instead of downloading all of them and checking `isActive` attribute, use convenience method of `DesignSystem` to fetch correct one for you:
-
-```typescript
-const version = await designSystem.activeVersion()
-```
-
-## Design system quick-selection
-
-If you are building tool for specific purpose and you know what design system you are targeting, you can also bypass all steps and just request specific version directly from `Supernova` object by calling:
-
-```typescript
-const version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
-```
-
-You can find IDs of specific design system and its version in the URL when you browse your design system:
-
-```
-https://cloud.supernova.io/ws/[WS_HANDLE]/ds/[DS_ID]/[DS_VERSION_ID]/...
-```
-
-## Obtaining design system elements
-
-Now that we have selected version, we can use it to download contents of our design system. Use category-specific methods to fetch them:
-
-```typescript
-const tokens = await version.tokens()
-for (let token of tokens) {
-    console.log(token.name)
-}
-```
-
-## Obtaining design system documentation
-
-If you want to access your design system documentation, first request documentation object on the version you are targeting:
-
-```typescript
-const documentation = await version.documentation()
-```
-
-Documentation object allows you to to access both structure and content of the docs, so you can fetch `pages()`, `groups()` and many more pieces of information your teams create.
-
-## Versions vs. Brands
-
-X
+You can find full list of [what is possible, and how, here](https://github.com/Supernova-Studio/sdk-typescript/tree/main/docs).
 
 
 ## Resolution Caching
@@ -156,6 +108,7 @@ X
 Supernova SDK works little bit differently than you would probably expect by default. Because of how complex the design system data is (as an example, a token can contain references to other tokens and can also be made of different types of tokens which can then be used in components...) the SDK does all necessary resolution for you beforehand. 
 
 To allow reuse of the data, the resolved results are cached and used in follow-up resolutions (for example, if you would first access your design tokens and then access documentation that uses the tokens, tokens would be reused). In many situations, this is what you wan. However, there are some cases where this behavior is not what you want, like longer-running sessions:
+
 
 ### Longer-running sessions
 
