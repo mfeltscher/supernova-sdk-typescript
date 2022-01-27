@@ -103,7 +103,7 @@ const tokens = await brand1.tokens()
 // [
 // Token (name=primary, brandId=1, value="ffffff")
 // ]
-const tokens = await brand1.tokens()
+const tokens = await brand2.tokens()
 // [
 // Token (name=primary, brandId=2, value="000000")
 // ]
