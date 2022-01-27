@@ -1,5 +1,9 @@
 <img src="https://github.com/Supernova-Studio/gatsby-documentation-site/blob/main/readme-icon.png?raw=true" alt="Supernova + Gatsby Starter Pack" style="max-width:100%; margin-bottom: 20px;" />
 
+<img alt="sdk-status" src="https://img.shields.io/badge/SDK%20Status-Beta-brightgreen" />
+<img alt="version" src="https://img.shields.io/badge/Version-1.6.15-blue" />
+
+
 # Supernova JS/TS SDK
 
 The Supernova SDK provides convenient access to the [Supernova.io](https://supernova.io) platform. It allows you to build design system tooling without worrying about building entire necessary infrastructure like syncing data from Figma, Storybook, writing entire documentation systems etc. - instead, you get all of this out of the box, and you can use the data coming from your single source of truth for any other purpose.
@@ -125,10 +129,11 @@ With cache disabled, every request will download all necessary information for e
 
 As this is still beta, we are working hard on improving it before the first official release. The following are areas we'd like to solve before general release:
 
-- [ ] Component API. This is already in progress, but we want to do more than simple listing of the data - stay tuned ^^
+- [ ] Component API
 - [ ] Write API
+- [ ] Metadata API
 - [ ] Automation triggers
-- [ ] Releasing more examples
+- [ ] More examples
 
 
 ## Contributions
