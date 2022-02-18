@@ -6,10 +6,10 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-import { ColorTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
+
+import { ColorTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

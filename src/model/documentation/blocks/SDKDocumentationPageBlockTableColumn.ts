@@ -6,10 +6,10 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-import { MeasureTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
+
+import { MeasureTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions

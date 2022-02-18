@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { MeasureTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
+import { MeasureTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
 import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"

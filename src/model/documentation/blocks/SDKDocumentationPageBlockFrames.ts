@@ -10,7 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ColorTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
+import { ColorTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
 import { FrameAlignment } from "../../enums/SDKFrameAlignment"
 import { FrameLayout } from "../../enums/SDKFrameLayout"
 import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
