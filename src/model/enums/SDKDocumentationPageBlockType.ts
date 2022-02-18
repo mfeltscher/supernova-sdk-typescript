@@ -31,5 +31,7 @@ export enum DocumentationPageBlockType {
   figmaFrames = 'FigmaFrames',
   custom = 'Custom',
   renderCode = 'RenderCode',
-  componentAssets = 'ComponentAssets'
+  componentAssets = 'ComponentAssets',
+  column = 'Column',
+  columnItem = 'ColumnItem'
 }
