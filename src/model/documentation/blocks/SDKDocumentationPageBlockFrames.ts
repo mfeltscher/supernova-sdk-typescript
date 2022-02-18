@@ -25,10 +25,11 @@ export interface DocumentationPageBlockFramesModel extends DocumentationPageBloc
     figmaFrames: Array<DocumentationPageBlockFrameModel>
     figmaFrameProperties: {
         alignment: FrameAlignment,
-        color?: {
+        backgroundColor?: {
             value: string | null
         },
-        layout: FrameLayout
+        layout: FrameLayout,
+        showTitles: boolean
     }
 }
 
@@ -41,9 +42,10 @@ export class DocumentationPageBlockFrames extends DocumentationPageBlock {
 
     frames: Array<DocumentationPageBlockFrame>
     properties: {
-        color: string | null
+        backgroundColor: string | null
         alignment: FrameAlignment,
-        layout: FrameLayout
+        layout: FrameLayout,
+        showTitles: boolean
     }
 
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -51,9 +53,10 @@ export class DocumentationPageBlockFrames extends DocumentationPageBlock {
 
     constructor(model: DocumentationPageBlockFramesModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
         super(model, customBlocks, configuration)
-        let color = model.figmaFrameProperties?.color?.value ?? null
+        let color = model.figmaFrameProperties?.backgroundColor?.value ?? null
         this.properties = {
-            color: color,
+            backgroundColor: color,
+            showTitles: model.figmaFrameProperties.showTitles,
             alignment: model.figmaFrameProperties?.alignment ?? FrameAlignment.center,
             layout: model.figmaFrameProperties?.layout ?? FrameLayout.c4
         }
