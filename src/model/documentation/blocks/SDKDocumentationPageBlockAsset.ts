@@ -21,7 +21,7 @@ export interface DocumentationPageBlockAssetModel {
 
     title?: string
     description?: string
-    color?: ColorTokenRemoteData // Will be changed to `backgroundColor`
+    backgroundColor?: ColorTokenRemoteData // Will be changed to `backgroundColor`
 }
 
 
@@ -49,6 +49,6 @@ export class DocumentationPageBlockAsset {
 
     this.title = model.title?.length > 0 ? model.title : null
     this.description = model.description?.length > 0 ? model.description : null
-    this.backgroundColor = model.color ?? blockBackgroundColor ?? null
+    this.backgroundColor = model.backgroundColor ?? blockBackgroundColor ?? null
   }
 }

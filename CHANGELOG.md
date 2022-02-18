@@ -2,7 +2,7 @@
 
 All notable changes to this SDK are mentioned here in this file.
 
-## [1.6.20] - 2022-18-02
+## [1.6.21] - 2022-18-02
 ### Data Model Fixes
 - Fixed `backgroundColor` computation for `Frames` and `Frame`
 - Fixed `backgroundColor` computation for `Assets` and `Asset`

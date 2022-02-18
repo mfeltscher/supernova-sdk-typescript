@@ -22,7 +22,7 @@ export interface DocumentationPageBlockFrameModel {
 
     title?: string
     description?: string
-    color?: ColorTokenRemoteData
+    backgroundColor?: ColorTokenRemoteData
 
     origin: {
         sourceFileName: string
@@ -61,6 +61,6 @@ export class DocumentationPageBlockFrame {
     this.title = model.title.length > 0 ? model.title : model.origin.title ?? null
     this.description = model.description.length > 0 ? model.description : null
     this.previewUrl = model.origin.previewUrl
-    this.backgroundColor = model.color ?? blockBackgroundColor ?? null
+    this.backgroundColor = model.backgroundColor ?? blockBackgroundColor ?? null
   }
 }
