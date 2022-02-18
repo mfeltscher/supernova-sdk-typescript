@@ -29,6 +29,9 @@ import { DocumentationPageBlockRenderCode, DocumentationPageBlockRenderCodeModel
 import { DocumentationPageBlockShortcuts, DocumentationPageBlockShortcutsModel } from "../blocks/SDKDocumentationPageBlockShortcuts"
 import { DocumentationPageBlockTab, DocumentationPageBlockTabModel } from "../blocks/SDKDocumentationPageBlockTab"
 import { DocumentationPageBlockTabItem, DocumentationPageBlockTabItemModel } from "../blocks/SDKDocumentationPageBlockTabItem"
+import { DocumentationPageBlockTable, DocumentationPageBlockTableModel } from "../blocks/SDKDocumentationPageBlockTable"
+import { DocumentationPageBlockTableCell, DocumentationPageBlockTableCellModel } from "../blocks/SDKDocumentationPageBlockTableCell"
+import { DocumentationPageBlockTableRow, DocumentationPageBlockTableRowModel } from "../blocks/SDKDocumentationPageBlockTableRow"
 import { DocumentationPageBlockText, DocumentationPageBlockTextModel } from "../blocks/SDKDocumentationPageBlockText"
 import { DocumentationPageBlockToken, DocumentationPageBlockTokenModel } from "../blocks/SDKDocumentationPageBlockToken"
 import { DocumentationPageBlockTokenGroup, DocumentationPageBlockTokenGroupModel } from "../blocks/SDKDocumentationPageBlockTokenGroup"
@@ -99,6 +102,12 @@ export class DocumentationBlockBuilder {
         return new DocumentationPageBlockTab(model as DocumentationPageBlockTabModel, customBlocks, configuration)
       case DocumentationPageBlockType.tabItem:
         return new DocumentationPageBlockTabItem(model as DocumentationPageBlockTabItemModel, customBlocks, configuration)
+      case DocumentationPageBlockType.table:
+        return new DocumentationPageBlockTable(model as DocumentationPageBlockTableModel, customBlocks, configuration)
+      case DocumentationPageBlockType.tableCell:
+        return new DocumentationPageBlockTableCell(model as DocumentationPageBlockTableCellModel, customBlocks, configuration)
+      case DocumentationPageBlockType.tableRow:
+        return new DocumentationPageBlockTableRow(model as DocumentationPageBlockTableRowModel, customBlocks, configuration)
     }
   }
 }
