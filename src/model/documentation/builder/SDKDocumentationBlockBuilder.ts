@@ -13,6 +13,8 @@ import { DocumentationPageBlockType } from "../../enums/SDKDocumentationPageBloc
 import { DocumentationPageBlockAssets, DocumentationPageBlockAssetsModel } from "../blocks/SDKDocumentationPageBlockAssets"
 import { DocumentationPageBlockCallout, DocumentationPageBlockCalloutModel } from "../blocks/SDKDocumentationPageBlockCallout"
 import { DocumentationPageBlockCode, DocumentationPageBlockCodeModel } from "../blocks/SDKDocumentationPageBlockCode"
+import { DocumentationPageBlockColumn, DocumentationPageBlockColumnModel } from "../blocks/SDKDocumentationPageBlockColumn"
+import { DocumentationPageBlockColumnItem, DocumentationPageBlockColumnItemModel } from "../blocks/SDKDocumentationPageBlockColumnItem"
 import { DocumentationPageBlockCustom, DocumentationPageBlockCustomModel } from "../blocks/SDKDocumentationPageBlockCustom"
 import { DocumentationPageBlockDivider, DocumentationPageBlockDividerModel } from "../blocks/SDKDocumentationPageBlockDivider"
 import { DocumentationPageBlockEmbedFigma, DocumentationPageBlockEmbedFigmaModel } from "../blocks/SDKDocumentationPageBlockEmbedFigma"
@@ -98,6 +100,10 @@ export class DocumentationBlockBuilder {
         return new DocumentationPageBlockCustom(model as DocumentationPageBlockCustomModel, customBlocks, configuration)
       case DocumentationPageBlockType.renderCode:
         return new DocumentationPageBlockRenderCode(model as DocumentationPageBlockRenderCodeModel, customBlocks, configuration)
+      case DocumentationPageBlockType.column:
+        return new DocumentationPageBlockColumn(model as DocumentationPageBlockColumnModel, customBlocks, configuration)
+      case DocumentationPageBlockType.columnItem:
+        return new DocumentationPageBlockColumnItem(model as DocumentationPageBlockColumnItemModel, customBlocks, configuration)
       case DocumentationPageBlockType.tab:
         return new DocumentationPageBlockTab(model as DocumentationPageBlockTabModel, customBlocks, configuration)
       case DocumentationPageBlockType.tabItem:
