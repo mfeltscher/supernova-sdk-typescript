@@ -6,6 +6,8 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
+import { ColorTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
@@ -19,9 +21,7 @@ export interface DocumentationPageBlockAssetModel {
 
     title?: string
     description?: string
-    backgroundColor?: {
-      value?: string | null
-    }
+    color?: ColorTokenRemoteData // Will be changed to `backgroundColor`
 }
 
 
@@ -38,17 +38,17 @@ export class DocumentationPageBlockAsset {
     title: string | null
     description: string | null
     previewUrl: string | null
-    backgroundColor: string | null
+    backgroundColor: ColorTokenRemoteData | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockAssetModel, color: string | null) {
+  constructor(model: DocumentationPageBlockAssetModel, blockBackgroundColor: ColorTokenRemoteData | null) {
     
     this.assetId = model.componentAssetId
 
     this.title = model.title?.length > 0 ? model.title : null
     this.description = model.description?.length > 0 ? model.description : null
-    this.backgroundColor = model.backgroundColor?.value ?? color ?? null
+    this.backgroundColor = model.color ?? blockBackgroundColor ?? null
   }
 }

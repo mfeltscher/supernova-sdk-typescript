@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { ColorTokenRemoteData } from "model/tokens/remote/SDKRemoteTokenData"
 import { FrameAlignment } from "../../enums/SDKFrameAlignment"
 import { FrameLayout } from "../../enums/SDKFrameLayout"
 import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
@@ -24,9 +25,7 @@ export interface DocumentationPageBlockAssetsModel extends DocumentationPageBloc
     componentAssets: Array<DocumentationPageBlockAssetModel>
     figmaFrameProperties: {
         alignment: FrameAlignment,
-        color?: {
-            value: string | null
-        },
+        color?: ColorTokenRemoteData,
         layout: FrameLayout
     }
 }
@@ -40,7 +39,7 @@ export class DocumentationPageBlockAssets extends DocumentationPageBlock {
 
     assets: Array<DocumentationPageBlockAsset>
     properties: {
-        color: string | null
+        backgroundColor: ColorTokenRemoteData | null // Will be changed to `backgroundColor`
         alignment: FrameAlignment,
         layout: FrameLayout
     }
@@ -51,9 +50,9 @@ export class DocumentationPageBlockAssets extends DocumentationPageBlock {
     constructor(model: DocumentationPageBlockAssetsModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
 
         super(model, customBlocks, configuration)
-        let color = model.figmaFrameProperties?.color?.value ?? null
+        let color = model.figmaFrameProperties?.color ?? null
         this.properties = {
-            color: color,
+            backgroundColor: color,
             alignment: model.figmaFrameProperties?.alignment ?? FrameAlignment.center,
             layout: model.figmaFrameProperties?.layout ?? FrameLayout.c4
         }
