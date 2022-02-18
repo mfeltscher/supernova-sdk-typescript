@@ -3,7 +3,7 @@
 All notable changes to this SDK are mentioned here in this file.
 
 
-## [1.6.17] - 2022-18-02
+## [1.6.18] - 2022-18-02
 ### Data Model Extension
 - Added new model definitions for `Table` (+`TableCell`, +`TableRow`) block
 - Added new model definitions for `Column` (+`ColumnItem`) block
