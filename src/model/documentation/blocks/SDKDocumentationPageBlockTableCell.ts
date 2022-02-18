@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { Alignment } from "../../enums/SDKAlignment"
 import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
@@ -19,6 +20,7 @@ import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocum
 
 export interface DocumentationPageBlockTableCellModel extends DocumentationPageBlockModel {
     columnId: string
+    alignment: Alignment
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -29,6 +31,7 @@ export class DocumentationPageBlockTableCell extends DocumentationPageBlock {
     // MARK: - Public properties
 
     columnId: string
+    alignment: Alignment
 
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
@@ -36,5 +39,6 @@ export class DocumentationPageBlockTableCell extends DocumentationPageBlock {
     constructor(model: DocumentationPageBlockTableCellModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
         super(model, customBlocks, configuration)
         this.columnId = model.columnId
+        this.alignment = model.alignment
     }
 }
