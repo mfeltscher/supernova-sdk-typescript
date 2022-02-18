@@ -27,6 +27,8 @@ import { DocumentationPageOrderedList } from "../blocks/SDKDocumentationPageBloc
 import { DocumentationPageBlockQuote, DocumentationPageBlockQuoteModel } from "../blocks/SDKDocumentationPageBlockQuote"
 import { DocumentationPageBlockRenderCode, DocumentationPageBlockRenderCodeModel } from "../blocks/SDKDocumentationPageBlockRenderCode"
 import { DocumentationPageBlockShortcuts, DocumentationPageBlockShortcutsModel } from "../blocks/SDKDocumentationPageBlockShortcuts"
+import { DocumentationPageBlockTab, DocumentationPageBlockTabModel } from "../blocks/SDKDocumentationPageBlockTab"
+import { DocumentationPageBlockTabItem, DocumentationPageBlockTabItemModel } from "../blocks/SDKDocumentationPageBlockTabItem"
 import { DocumentationPageBlockTable, DocumentationPageBlockTableModel } from "../blocks/SDKDocumentationPageBlockTable"
 import { DocumentationPageBlockTableCell, DocumentationPageBlockTableCellModel } from "../blocks/SDKDocumentationPageBlockTableCell"
 import { DocumentationPageBlockTableRow, DocumentationPageBlockTableRowModel } from "../blocks/SDKDocumentationPageBlockTableRow"
@@ -96,6 +98,10 @@ export class DocumentationBlockBuilder {
         return new DocumentationPageBlockCustom(model as DocumentationPageBlockCustomModel, customBlocks, configuration)
       case DocumentationPageBlockType.renderCode:
         return new DocumentationPageBlockRenderCode(model as DocumentationPageBlockRenderCodeModel, customBlocks, configuration)
+      case DocumentationPageBlockType.tab:
+        return new DocumentationPageBlockTab(model as DocumentationPageBlockTabModel, customBlocks, configuration)
+      case DocumentationPageBlockType.tabItem:
+        return new DocumentationPageBlockTabItem(model as DocumentationPageBlockTabItemModel, customBlocks, configuration)
       case DocumentationPageBlockType.table:
         return new DocumentationPageBlockTable(model as DocumentationPageBlockTableModel, customBlocks, configuration)
       case DocumentationPageBlockType.tableCell:

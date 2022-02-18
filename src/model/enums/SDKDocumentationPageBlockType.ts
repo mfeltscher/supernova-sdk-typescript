@@ -32,6 +32,8 @@ export enum DocumentationPageBlockType {
   custom = 'Custom',
   renderCode = 'RenderCode',
   componentAssets = 'ComponentAssets',
+  tab = 'Tab',
+  tabItem = 'TabItem',
   table = 'Table',
   tableCell = 'TableCell',
   tableRow = 'TableRow'
