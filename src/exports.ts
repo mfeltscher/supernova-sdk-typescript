@@ -43,6 +43,10 @@ export { DocumentationPageBlockToken } from '../src/model/documentation/blocks/S
 export { DocumentationPageBlockTokenGroup } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTokenGroup'
 export { DocumentationPageBlockTokenList } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTokenList'
 export { DocumentationPageUnorderedList } from '../src/model/documentation/blocks/SDKDocumentationPageBlockUnorderedList'
+export { DocumentationPageBlockTable } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTable'
+export { DocumentationPageBlockTableCell } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableCell'
+export { DocumentationPageBlockTableRow } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableRow'
+export { DocumentationPageBlockTableColumn } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableColumn'
 
 // Documentation / Custom Blocks
 export { DocumentationCustomBlock } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlock'
