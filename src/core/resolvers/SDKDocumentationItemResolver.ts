@@ -118,9 +118,13 @@ export class DocumentationItemResolver {
   }
 
   resolveBlockGroup(blocks: Array<DocumentationPageBlock>) {
+  
     // Ignore empty groups
     if (blocks.length === 0) {
       return
+    }
+    if (blocks.length === 1 && blocks[0] === undefined) {
+      throw new Error("The fuck?")
     }
 
     let blockType: DocumentationPageBlockType = null

@@ -43,7 +43,8 @@ export class DocumentationPageBlock {
 
   constructor(model: DocumentationPageBlockModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
     this.id = model.persistentId
-    this.children = model.children.map(c => DocumentationBlockBuilder.fromGenericModel(c, customBlocks, configuration))
+    // Map children. Children that are not supported by the data model natively should be ignored
+    this.children = model.children.map(c => DocumentationBlockBuilder.fromGenericModel(c, customBlocks, configuration)).filter(c => c !== undefined)
     this.type = model.type
     this.beginsTypeChain = true // Will be computed by resolver
     this.endsTypeChain = true // Will be computed by resolver

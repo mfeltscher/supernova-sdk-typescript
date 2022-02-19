@@ -34,7 +34,7 @@ export enum DocumentationPageBlockType {
   componentAssets = 'ComponentAssets',
   column = 'Column',
   columnItem = 'ColumnItem',
-  tab = 'Tab',
+  tabs = 'Tabs',
   tabItem = 'TabItem',
   table = 'Table',
   tableCell = 'TableCell',

@@ -104,7 +104,7 @@ export class DocumentationBlockBuilder {
         return new DocumentationPageBlockColumn(model as DocumentationPageBlockColumnModel, customBlocks, configuration)
       case DocumentationPageBlockType.columnItem:
         return new DocumentationPageBlockColumnItem(model as DocumentationPageBlockColumnItemModel, customBlocks, configuration)
-      case DocumentationPageBlockType.tab:
+      case DocumentationPageBlockType.tabs:
         return new DocumentationPageBlockTab(model as DocumentationPageBlockTabModel, customBlocks, configuration)
       case DocumentationPageBlockType.tabItem:
         return new DocumentationPageBlockTabItem(model as DocumentationPageBlockTabItemModel, customBlocks, configuration)
@@ -114,6 +114,8 @@ export class DocumentationBlockBuilder {
         return new DocumentationPageBlockTableCell(model as DocumentationPageBlockTableCellModel, customBlocks, configuration)
       case DocumentationPageBlockType.tableRow:
         return new DocumentationPageBlockTableRow(model as DocumentationPageBlockTableRowModel, customBlocks, configuration)
+      default:
+        throw new Error(`Unsupported native documentation block type ${model.type}, please add core definition of the block`)
     }
   }
 }
