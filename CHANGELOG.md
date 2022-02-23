@@ -2,6 +2,10 @@
 
 All notable changes to this SDK are mentioned here in this file.
 
+## [1.6.24] - 2022-23-02
+### Rendering variants
+- Added rendering variant to block definition under optional key `variantKey`. If defined, block can decide to render differently than default
+
 ## [1.6.23] - 2022-19-02
 ### Unit Tests
 - Improved runner for unit tests - running `npm run test:unit` will now properly detect all `spec.ts` files and will also auto-trash / auto-build the project

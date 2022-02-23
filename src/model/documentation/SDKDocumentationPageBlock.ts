@@ -23,6 +23,7 @@ export interface DocumentationPageBlockModel {
   designObjectId: string
   type: DocumentationPageBlockType
   children: Array<DocumentationPageBlockModel>
+  variantKey?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -37,6 +38,7 @@ export class DocumentationPageBlock {
   type: DocumentationPageBlockType
   beginsTypeChain: boolean
   endsTypeChain: boolean
+  variantKey: string
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -46,6 +48,7 @@ export class DocumentationPageBlock {
     // Map children. Children that are not supported by the data model natively should be ignored
     this.children = model.children.map(c => DocumentationBlockBuilder.fromGenericModel(c, customBlocks, configuration)).filter(c => c !== undefined)
     this.type = model.type
+    this.variantKey = model.variantKey ?? null
     this.beginsTypeChain = true // Will be computed by resolver
     this.endsTypeChain = true // Will be computed by resolver
   }
