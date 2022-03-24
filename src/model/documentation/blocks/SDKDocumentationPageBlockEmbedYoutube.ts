@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockEmbedGeneric, DocumentationPageBlockEmbedGenericModel } from "./SDKDocumentationPageBlockEmbedGeneric"
 
@@ -32,7 +32,7 @@ export class DocumentationPageBlockEmbedYoutube extends DocumentationPageBlockEm
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockEmbedYoutubeModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockEmbedYoutubeModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model, customBlocks, configuration)
   }
 }

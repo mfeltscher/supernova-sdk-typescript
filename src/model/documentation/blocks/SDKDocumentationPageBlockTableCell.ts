@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { Alignment } from "../../enums/SDKAlignment"
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -36,7 +36,7 @@ export class DocumentationPageBlockTableCell extends DocumentationPageBlock {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
 
-    constructor(model: DocumentationPageBlockTableCellModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+    constructor(model: DocumentationPageBlockTableCellModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
         super(model, customBlocks, configuration)
         this.columnId = model.columnId
         this.alignment = model.alignment

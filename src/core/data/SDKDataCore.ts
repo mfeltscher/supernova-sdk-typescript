@@ -15,7 +15,7 @@ import { RenderedAsset, RenderedAssetModel } from "../../model/assets/SDKRendere
 import { AssetFormat } from "../../model/enums/SDKAssetFormat"
 import { AssetScale } from "../../model/enums/SDKAssetScale"
 import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
-import { DocumentationCustomBlock, DocumentationCustomBlockModel } from "../../model/documentation/custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock, ExporterCustomBlockModel } from "../../model/exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../../model/documentation/SDKDocumentationConfiguration"
 import { DocumentationGroupModel } from "../../model/documentation/SDKDocumentationGroup"
 import { DocumentationItem } from "../../model/documentation/SDKDocumentationItem"
@@ -33,6 +33,7 @@ import { TokenResolver } from "../resolvers/SDKTokenResolver"
 import { DesignSystemVersion } from "../SDKDesignSystemVersion"
 import { Documentation, DocumentationModel } from "../SDKDocumentation"
 import { DataBridge } from "./SDKDataBridge"
+import { DocumentationCustomProperty, DocumentationCustomPropertyModel } from "model/exporters/custom_properties/SDKExporterConfigurationProperty"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -49,16 +50,18 @@ export class DataCore {
   private componentAssetGroupsSynced: boolean
   private documentationItemsSynced: boolean
   private documentationSynced: boolean
-  private customBlocksSynced: boolean
+  private ExporterCustomBlocksSynced: boolean
+  private documentationCustomPropertiesSynced: boolean
 
   // Synchronization mutexes
   private tokenMutex = new Mutex()
   private tokenGroupMutex = new Mutex()
   private componentAssetMutex = new Mutex()
   private componentAssetGroupMutex = new Mutex()
-  private docItemMutex = new Mutex()
+  private documentationItemMutex = new Mutex()
   private configurationMutex = new Mutex()
-  private customBlocksMutex = new Mutex()
+  private ExporterCustomBlocksMutex = new Mutex()
+  private documentationCustomPropertiesMutex = new Mutex()
 
   // Data store
   private tokens: Array<Token>
@@ -68,7 +71,8 @@ export class DataCore {
   private assets: Array<Asset>
   private assetGroups: Array<AssetGroup>
   private documentationItems: Array<DocumentationItem>
-  private customBlocks: Array<DocumentationCustomBlock>
+  private ExporterCustomBlocks: Array<ExporterCustomBlock>
+  private documentationCustomProperties: Array<DocumentationCustomProperty>
   private documentation: Documentation
 
   private bridge: DataBridge
@@ -88,6 +92,11 @@ export class DataCore {
 
     this.documentationItemsSynced = false
     this.documentationItems = new Array<DocumentationItem>()
+
+    this.ExporterCustomBlocksSynced = false
+    this.documentationCustomPropertiesSynced = false
+    this.ExporterCustomBlocks = new Array<ExporterCustomBlock>()
+    this.documentationCustomProperties = new Array<DocumentationCustomProperty>()
 
     this.componentAssetSynced = false
     this.components = new Array<Component>()
@@ -284,10 +293,10 @@ export class DataCore {
 
   async currentDesignSystemDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationItem>> {
     // Thread-lock the call
-    const release = await this.docItemMutex.acquire()
+    const release = await this.documentationItemMutex.acquire()
 
     // Acquire custom blocks and doc configuration first, so they can be used for resolution
-    let blocks = await this.currentDocumentationCustomBlocks(designSystemId, designSystemVersion)
+    let blocks = await this.currentExporterCustomBlocks(designSystemId, designSystemVersion)
     let documentation = (await this.currentDesignSystemDocumentation(designSystemId, designSystemVersion)).settings
 
     // Acquire data
@@ -318,30 +327,40 @@ export class DataCore {
     return this.documentation
   }
 
-  async currentDocumentationCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomBlock>> {
-    // Note: This is bit extraneous call, because we should be able to get the configuration
-    // from the exporter itself (we should get the entire contribution object). 
-    
-    // However, as it stands now, that is very complicated and requires more changes - ideally, the entire functionality
-    // of the DSM entity would need to move from the language lib, so the configuration object definition
-    // can be taken from "core", and that is not linked to this library
-
-    // We will improve this with release of separate  that will handle all of this
-    
+  async currentExporterCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlock>> {
+ 
     // Thread-lock the call
-    const release = await this.customBlocksMutex.acquire()
+    const release = await this.ExporterCustomBlocksMutex.acquire()
 
     // Acquire data
-    if (!this.customBlocksSynced) {
-      await this.updateExporterBlockData(designSystemId, designSystemVersion)
+    if (!this.ExporterCustomBlocksSynced) {
+      await this.updateExporterCustomBlocksData(designSystemId, designSystemVersion)
     }
 
     // Unlock the thread
     release()
 
     // Retrieve the data
-    return this.customBlocks
+    return this.ExporterCustomBlocks
   }
+
+  async currentDocumentationCustomProperties(exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomProperty>> {
+ 
+    // Thread-lock the call
+    const release = await this.documentationCustomPropertiesMutex.acquire()
+
+    // Acquire data
+    if (!this.documentationCustomPropertiesSynced) {
+      await this.updateDocumentationCustomPropertiesData(exporterId, designSystemVersion)
+    }
+
+    // Unlock the thread
+    release()
+
+    // Retrieve the data
+    return this.documentationCustomProperties
+  }
+
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -373,35 +392,68 @@ export class DataCore {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Configuration
+  // MARK: - Custom blocks
 
-  /** Prepare design system data for use for the entire design system, downloading and resolving all tokens */
-  async updateExporterBlockData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
+  /** Download all custom blocks provided by the currently active exporter */
+  async updateExporterCustomBlocksData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
-    this.customBlocks = await this.getCustomBlocks(designSystemId, designSystemVersion)
+    this.ExporterCustomBlocks = await this.getCustomBlocks(designSystemId, designSystemVersion)
     if (this.bridge.cache) {
-      this.customBlocksSynced = true
+      this.ExporterCustomBlocksSynced = true
     }
   }
 
-  private async getCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomBlock>> {
+  private async getExporterCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlock>> {
     // Download the raw token data and resolve them
     let rawBlocks = await this.getCustomBlockData(designSystemId, designSystemVersion)
     let resolvedBlocks = await this.resolveCustomBlockData(rawBlocks)
     return resolvedBlocks
   }
 
-  private async getCustomBlockData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomBlockModel>> {
+  private async getExporterCustomBlockData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlockModel>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = 'documentation/custom-blocks'
-    let result: Array<DocumentationCustomBlockModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).customBlocks
+    let result: Array<ExporterCustomBlockModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).customBlocks
     return result
   }
 
-  private async resolveCustomBlockData(
-    data: Array<DocumentationCustomBlockModel>
-  ): Promise<Array<DocumentationCustomBlock>> {
-    return data.map(b => new DocumentationCustomBlock(b))
+  private async resolveExporterCustomBlockData(
+    data: Array<ExporterCustomBlockModel>
+  ): Promise<Array<ExporterCustomBlock>> {
+    return data.map(b => new ExporterCustomBlock(b))
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Custom properties
+
+  /** Prepare design system data for use for the entire design system, downloading and resolving all tokens */
+  async updateDocumentationCustomPropertiesData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion) {
+    // Download core design system token data
+    this.documentationCustomProperties = await this.getDocumentationCustomProperties(designSystemId, exporterId, designSystemVersion)
+    if (this.bridge.cache) {
+      this.documentationCustomPropertiesSynced = true
+    }
+  }
+
+  private async getDocumentationCustomProperties(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomProperty>> {
+    // Download the raw token data and resolve them
+    let rawProperties = await this.getDocumentationCustomPropertiesData(designSystemId, designSystemVersion)
+    let resolvedProperties = await this.resolveDocumentationCustomPropertiesData(rawProperties)
+    return resolvedBlocks
+  }
+
+  private async getDocumentationCustomPropertiesData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationCustomPropertyModel>> {
+    // Download token data from the design system endpoint. This downloads tokens of all types
+    const endpoint = `exporter-properties/${exporterId}`
+    let result: Array<DocumentationCustomPropertyModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).customBlocks
+    return result
+  }
+
+  private async resolveDocumentationCustomPropertiesData(
+    data: Array<DocumentationCustomPropertyModel>,
+    values: Object
+  ): Promise<Array<ExporterCustomBlock>> {
+    return data.map(b => new ExporterCustomBlock(b))
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -590,7 +642,7 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Documentation Items
 
-  async updateDocumentationItemData(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  async updateDocumentationItemData(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     // Download core design documentation item data
     this.documentationItems = await this.getDocumentationItems(designSystemId, designSystemVersion, blocks, configuration)
     if (this.bridge.cache) {
@@ -598,7 +650,7 @@ export class DataCore {
     }
   }
 
-  private async getDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration): Promise<Array<DocumentationItem>> {
+  private async getDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration): Promise<Array<DocumentationItem>> {
     // Download the raw token data and resolve them
     let rawData = await this.getRawDocumentationItemData(designSystemId, designSystemVersion)
     let resolvedItems = await this.resolveDocumentationItemData(rawData.pageDetails, rawData.groupDetails, blocks, configuration)
@@ -625,7 +677,7 @@ export class DataCore {
   private async resolveDocumentationItemData(
     pageDetails: Array<DocumentationPageModel>,
     groupDetails: Array<DocumentationGroupModel>,
-    blocks: Array<DocumentationCustomBlock>,
+    blocks: Array<ExporterCustomBlock>,
     configuration: DocumentationConfiguration
   ): Promise<Array<DocumentationItem>> {
     let resolver = new DocumentationItemResolver(blocks, configuration)

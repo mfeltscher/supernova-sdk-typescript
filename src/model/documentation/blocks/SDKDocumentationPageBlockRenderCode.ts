@@ -12,7 +12,7 @@
 import { btoa } from "abab"
 import { Alignment } from "../../enums/SDKAlignment"
 import { Size } from "../../support/SDKSize"
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 import { DocumentationPageBlockTextModel } from "./SDKDocumentationPageBlockText"
@@ -74,7 +74,7 @@ export class DocumentationPageBlockRenderCode extends DocumentationPageBlock {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockRenderCodeModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockRenderCodeModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model, customBlocks, configuration)
     this.alignment = model.alignment
     this.backgroundColor = model.backgroundColor?.value ?? null

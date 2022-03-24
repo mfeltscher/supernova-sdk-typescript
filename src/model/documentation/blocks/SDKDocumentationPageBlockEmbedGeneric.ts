@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { SizeModel, Size } from "../../support/SDKSize"
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -39,7 +39,7 @@ export class DocumentationPageBlockEmbedGeneric extends DocumentationPageBlock {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockEmbedGenericModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockEmbedGenericModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model, customBlocks, configuration)
     this.url = model.url ?? null
     this.size = new Size(model.size ?? null)

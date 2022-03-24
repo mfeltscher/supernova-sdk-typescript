@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -29,7 +29,7 @@ export class DocumentationPageBlockDivider extends DocumentationPageBlock {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockDividerModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockDividerModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model, customBlocks, configuration)
   }
 }

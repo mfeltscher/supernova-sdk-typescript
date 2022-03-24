@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCustomBlock } from "../../model/documentation/custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../model/exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../../model/documentation/SDKDocumentationConfiguration"
 import { DocumentationGroupModel, DocumentationGroup } from "../../model/documentation/SDKDocumentationGroup"
 import { DocumentationItemModel, DocumentationItem } from "../../model/documentation/SDKDocumentationItem"
@@ -28,13 +28,13 @@ export class DocumentationItemResolver {
 
   hashedItems = new Map<string, DocumentationItemModel>()
   resolvedItems = new Map<string, DocumentationItem>()
-  customBlocks: Array<DocumentationCustomBlock>
+  customBlocks: Array<ExporterCustomBlock>
   configuration: DocumentationConfiguration
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     this.customBlocks = customBlocks
     this.configuration = configuration
   }

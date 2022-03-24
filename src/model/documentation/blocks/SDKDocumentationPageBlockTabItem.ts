@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -33,7 +33,7 @@ export class DocumentationPageBlockTabItem extends DocumentationPageBlock {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
 
-    constructor(model: DocumentationPageBlockTabItemModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+    constructor(model: DocumentationPageBlockTabItemModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
         super(model, customBlocks, configuration)
         this.caption = model.caption
     }

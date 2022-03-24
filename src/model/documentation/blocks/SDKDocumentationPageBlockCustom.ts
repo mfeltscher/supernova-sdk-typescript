@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -34,12 +34,12 @@ export class DocumentationPageBlockCustom extends DocumentationPageBlock {
 
   key: string
   properties: Object
-  block: DocumentationCustomBlock | null
+  block: ExporterCustomBlock | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockCustomModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockCustomModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model, customBlocks, configuration)
     this.key = model.customBlockKey
 

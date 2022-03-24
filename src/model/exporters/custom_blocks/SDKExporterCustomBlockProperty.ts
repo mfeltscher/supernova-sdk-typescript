@@ -1,5 +1,5 @@
 //
-//  SDKDocumentationCustomBlockProperty.ts
+//  SDKExporterCustomBlockProperty.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -13,15 +13,19 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface DocumentationCustomBlockPropertyModel {
+export interface ExporterCustomBlockPropertyModel {
   label: string
   key: string
-  type: DocumentationCustomBlockPropertyType
+
+  type: ExporterCustomBlockPropertyType
+  inputType: ExporterCustomBlockPropertyInputType
+  isMultiline: boolean
+  
   default?: string | number | boolean
   values: Array<string>
 }
 
-export enum DocumentationCustomBlockPropertyType {
+export enum ExporterCustomBlockPropertyType {
   string = 'string',
   number = 'number',
   boolean = 'boolean',
@@ -29,27 +33,40 @@ export enum DocumentationCustomBlockPropertyType {
   image = 'image'
 }
 
+export enum ExporterCustomBlockPropertyInputType {
+  plain = 'plain',
+  code = 'code'
+}
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class DocumentationCustomBlockProperty {
+export class ExporterCustomBlockProperty {
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
   label: string
   key: string
-  type: DocumentationCustomBlockPropertyType
+
+  type: ExporterCustomBlockPropertyType
+  inputType: ExporterCustomBlockPropertyInputType
+  isMultiline: boolean
+
   default: string | number | boolean | null
   values: Array<string>
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(data: DocumentationCustomBlockPropertyModel) {
+  constructor(data: ExporterCustomBlockPropertyModel) {
     this.label = data.label
     this.key = data.key
+
     this.type = data.type
+    this.inputType = data.inputType ?? ExporterCustomBlockPropertyInputType.plain
+    this.isMultiline = data.isMultiline
+
     this.default = data.default ?? null
     this.values = data.values ?? []
   }

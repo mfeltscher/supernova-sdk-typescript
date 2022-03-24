@@ -6,7 +6,8 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-import { DocumentationCustomBlock } from "../model/documentation/custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterConfigurationProperty } from "../model/exporters/custom_properties/SDKExporterConfigurationProperty"
+import { ExporterCustomBlock } from "../model/exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration, DocumentationConfigurationModel } from "../model/documentation/SDKDocumentationConfiguration"
 import { DocumentationGroup } from "../model/documentation/SDKDocumentationGroup"
 import { DocumentationItem } from "../model/documentation/SDKDocumentationItem"
@@ -91,8 +92,14 @@ export class Documentation {
   }
 
   /** All custom blocks that were registered with the active exporter configuration */
-  async customBlocks(): Promise<Array<DocumentationCustomBlock>> {
+  async customBlocks(): Promise<Array<ExporterCustomBlock>> {
 
-    return await this.version.dataCore.currentDocumentationCustomBlocks(this.version.designSystemId, this.version)
+    return await this.version.dataCore.currentExporterCustomBlocks(this.version.designSystemId, this.version)
+  }
+
+  /** All custom configuration properties that are defined within the active exporter package */
+  async customConfiguration(): Promise<Array<ExporterConfigurationProperty>> {
+
+    return await this.version.dataCore.currentDocumentationConfigurationProperties(this.version.designSystemId, this.version)
   }
 }

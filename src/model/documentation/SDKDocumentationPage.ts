@@ -11,7 +11,7 @@
 // MARK: - Imports
 
 import { DocumentationBlockBuilder } from "./builder/SDKDocumentationBlockBuilder"
-import { DocumentationCustomBlock } from "./custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "./SDKDocumentationConfiguration"
 import { DocumentationGroup } from "./SDKDocumentationGroup"
 import { DocumentationItemModel, DocumentationItem } from "./SDKDocumentationItem"
@@ -38,7 +38,7 @@ export class DocumentationPage extends DocumentationItem {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     super(model)
     if (model.blocks) {
       this.blocks = model.blocks.map(b => DocumentationBlockBuilder.fromGenericModel(b, customBlocks, configuration))

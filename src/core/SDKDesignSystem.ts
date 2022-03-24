@@ -25,9 +25,15 @@ export interface DesignSystemRemoteModel {
       description: string
     }
     workspaceId: string
-    isPublic: boolean
     basePrefixes: string[]
     sources: Array<FileRemoteModel>
+
+    isPublic: boolean
+    isMultibrand: boolean
+
+    docSlug: string
+    docUserSlug?: string
+    docExporterId: string
   }
 
 
@@ -54,6 +60,21 @@ export class DesignSystem {
     /** Sources that are used to feed the design system with the data (design & code) */
     sources: Array<File>
 
+    /** If enabled, parts of the design system can be accessed by public (for example, documentation site) */
+    isPublic: boolean
+
+    /** If set, signals that multibrand functionality is enabled for this design system */
+    isMultiBrand: boolean
+
+    /** Unique identifier of exporter package used for the documentation */
+    documentationExporterId: string
+
+    /** Documentation URL slug */
+    documentationSlug: string
+
+    /** Documentation URL slug - user override */
+    documentationUserSlug: string | null
+
     /** Internal: Engine */
     engine: Supernova
 
@@ -69,6 +90,12 @@ export class DesignSystem {
   
       this.name = model.meta.name
       this.description = model.meta.description
+
+      this.isMultiBrand = model.isMultibrand
+      this.isPublic = model.isPublic
+      this.documentationExporterId = model.docExporterId
+      this.documentationSlug = model.docSlug
+      this.documentationUserSlug = model.docUserSlug ?? null
       
       if (model.sources) {
         this.sources = model.sources.map(s => new File(s))

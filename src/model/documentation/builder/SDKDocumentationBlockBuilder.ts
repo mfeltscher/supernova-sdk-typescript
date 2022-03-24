@@ -39,7 +39,7 @@ import { DocumentationPageBlockToken, DocumentationPageBlockTokenModel } from ".
 import { DocumentationPageBlockTokenGroup, DocumentationPageBlockTokenGroupModel } from "../blocks/SDKDocumentationPageBlockTokenGroup"
 import { DocumentationPageBlockTokenList, DocumentationPageBlockTokenListModel } from "../blocks/SDKDocumentationPageBlockTokenList"
 import { DocumentationPageUnorderedList, DocumentationPageUnorderedListModel } from "../blocks/SDKDocumentationPageBlockUnorderedList"
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -54,7 +54,7 @@ export class DocumentationBlockBuilder {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static
 
-  static fromGenericModel(model: DocumentationPageBlockModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration): DocumentationPageBlock {
+  static fromGenericModel(model: DocumentationPageBlockModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration): DocumentationPageBlock {
     switch (model.type) {
       case DocumentationPageBlockType.text:
         return new DocumentationPageBlockText(model as DocumentationPageBlockTextModel, customBlocks, configuration)

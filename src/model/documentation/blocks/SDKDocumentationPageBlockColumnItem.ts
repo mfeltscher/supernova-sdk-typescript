@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { MeasureTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
-import { DocumentationCustomBlock } from "../custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
 
@@ -35,7 +35,7 @@ export class DocumentationPageBlockColumnItem extends DocumentationPageBlock {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
 
-    constructor(model: DocumentationPageBlockColumnItemModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+    constructor(model: DocumentationPageBlockColumnItemModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
         super(model, customBlocks, configuration)
         this.width = model.width
     }

@@ -53,8 +53,8 @@ export { DocumentationPageBlockTableRow } from '../src/model/documentation/block
 export { DocumentationPageBlockTableColumn } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableColumn'
 
 // Documentation / Custom Blocks
-export { DocumentationCustomBlock } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlock'
-export { DocumentationCustomBlockProperty, DocumentationCustomBlockPropertyType } from '../src/model/documentation/custom_blocks/SDKDocumentationCustomBlockProperty'
+export { ExporterCustomBlock } from './model/exporters/custom_blocks/SDKExporterCustomBlock'
+export { ExporterCustomBlockProperty, ExporterCustomBlockPropertyType } from './model/exporters/custom_blocks/SDKExporterCustomBlockProperty'
 
 // Documentation / Item Partials
 export { DocumentationItemHeader } from '../src/model/documentation/configuration/SDKDocumentationItemHeader'

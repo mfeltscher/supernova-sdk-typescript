@@ -11,7 +11,7 @@
 
 import { DocumentationPageBlockType } from "../enums/SDKDocumentationPageBlockType"
 import { DocumentationBlockBuilder } from "./builder/SDKDocumentationBlockBuilder"
-import { DocumentationCustomBlock } from "./custom_blocks/SDKDocumentationCustomBlock"
+import { ExporterCustomBlock } from "../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "./SDKDocumentationConfiguration"
 
 
@@ -43,7 +43,7 @@ export class DocumentationPageBlock {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageBlockModel, customBlocks: Array<DocumentationCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(model: DocumentationPageBlockModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
     this.id = model.persistentId
     // Map children. Children that are not supported by the data model natively should be ignored
     this.children = model.children.map(c => DocumentationBlockBuilder.fromGenericModel(c, customBlocks, configuration)).filter(c => c !== undefined)
