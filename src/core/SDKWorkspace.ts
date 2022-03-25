@@ -10,6 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { Exporter } from "../model/exporters/SDKExporter"
 import { Supernova } from "../core/SDKSupernova"
 import { DesignSystem } from "./SDKDesignSystem"
 
@@ -67,5 +68,11 @@ export class Workspace {
   async designSystems(): Promise<Array<DesignSystem>> {
 
     return this.engine.designSystems(this.id)
+  }
+
+  /** Fetches exporters which belong to this workspace. */
+  async exporters(): Promise<Array<Exporter>> {
+
+    return this.engine.exporters(this.id)
   }
 }

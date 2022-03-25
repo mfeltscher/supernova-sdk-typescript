@@ -23,6 +23,7 @@ import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { SupernovaError } from "./errors/SDKSupernovaError"
 import { Brand } from "./SDKBrand"
+import { DesignSystem } from "./SDKDesignSystem"
 import { Documentation } from "./SDKDocumentation"
 
 
@@ -55,8 +56,8 @@ export class DesignSystemVersion {
     /** Unique identifier of design system version */
     id: string
 
-    /** Unique identifier of the design system in which this version was created */
-    designSystemId: string
+    /** Design system in which this version was created */
+    designSystem: DesignSystem
 
     /** Design system version name */
     name: string
@@ -85,12 +86,12 @@ export class DesignSystemVersion {
     // --- --- --- --- --- --- --- --- --- --- 
     // MARK: - Constructor
 
-    constructor(engine: Supernova, model: DesignSystemVersionRemoteModel) {
+    constructor(engine: Supernova, designSystem: DesignSystem, model: DesignSystemVersionRemoteModel) {
 
         this.engine = engine
 
         this.id = model.id
-        this.designSystemId = model.designSystemId
+        this.designSystem = designSystem
 
         this.name = model.meta.name
         this.description = model.meta.description
@@ -111,7 +112,7 @@ export class DesignSystemVersion {
     async brands(): Promise<Array<Brand>> {
 
         // Fetch the authenticated user
-        const dsEndpoint = `design-systems/${this.designSystemId}/versions/${this.id}/brands`
+        const dsEndpoint = `design-systems/${this.designSystem.id}/versions/${this.id}/brands`
         let dsData = (await this.engine.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).brands
         if (!dsData) {
             throw SupernovaError.fromSDKError(`Unable to retrieve brands for design system version id ${this.id}`)
@@ -129,19 +130,19 @@ export class DesignSystemVersion {
     /** Fetches all tokens in this design system version. This method retrieves all groups defined across all brands */
     async tokens(): Promise<Array<Token>> {
 
-        return this.dataCore.currentDesignSystemTokens(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemTokens(this.designSystem.id, this)
     }
 
     /** Fetches all token groups in this design system version. This method retrieves all groups defined across all brands */
     async tokenGroups(): Promise<Array<TokenGroup>> {
 
-        return this.dataCore.currentDesignSystemTokenGroups(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemTokenGroups(this.designSystem.id, this)
     }
 
     /** Fetches root of the token group trees. This method returns all roots, one per each brand you have defined, ordered under separate TokenType, one array per category */
     async tokenGroupTrees(): Promise<Map<TokenType, Array<TokenGroup>>> {
 
-        let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystemId, this)
+        let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystem.id, this)
         let rootGroups = groups.filter(g => g.isRoot)
 
         let trees = new Map<TokenType, Array<TokenGroup>>()
@@ -161,19 +162,19 @@ export class DesignSystemVersion {
     /** Fetches all assets in this design system version for all defined brands  */
     async components(): Promise<Array<Component>> {
 
-        return this.dataCore.currentDesignSystemComponents(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemComponents(this.designSystem.id, this)
     }
 
     /** Fetches all component group in this design system version for all defined brands  */
     async componentGroups(): Promise<Array<ComponentGroup>> {
 
-        return this.dataCore.currentDesignSystemComponentGroups(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemComponentGroups(this.designSystem.id, this)
     }
 
     /** Fetches roots of the component group trees. This group will contain any other top-level groups that user created. This method returns all roots, one per each brand you have defined */
     async componentGroupTree(): Promise<Array<ComponentGroup>> {
 
-        let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemId, this)
+        let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystem.id, this)
         let rootGroups = groups.filter(g => g.isRoot)
         return rootGroups
     }
@@ -181,20 +182,20 @@ export class DesignSystemVersion {
     /** Fetches all assets in this design system version for all defined brands */
     async assets(): Promise<Array<Asset>> {
 
-        return this.dataCore.currentDesignSystemAssets(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemAssets(this.designSystem.id, this)
     }
 
 
     /** Fetches all asset groups and retrieve them as flat array. You can still access all children of groups with children accessor of group object. This method retrieves all groups across all brands */
     async assetGroups(): Promise<Array<AssetGroup>> {
 
-        return this.dataCore.currentDesignSystemAssetGroups(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemAssetGroups(this.designSystem.id, this)
     }
 
     /** Fetches root of the asset group trees. This group will contain any other top-level groups that user created. This method returns all roots, one per each brand you have defined */
     async assetGroupTrees(): Promise<Array<AssetGroup>> {
 
-        let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystemId, this)
+        let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystem.id, this)
         let rootGroups = groups.filter(g => g.isRoot)
         return rootGroups
     }
@@ -202,6 +203,6 @@ export class DesignSystemVersion {
     /** Fetches root documentation object containing the entire documentation structure. This will never be null as there is always documentation object attached to a specific design system version */
     async documentation(): Promise<Documentation> {
 
-        return this.dataCore.currentDesignSystemDocumentation(this.designSystemId, this)
+        return this.dataCore.currentDesignSystemDocumentation(this.designSystem, this)
     }
 }

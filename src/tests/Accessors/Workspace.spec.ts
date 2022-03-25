@@ -25,3 +25,14 @@ test('test_Workspace_designSystems', async t => {
     let designSystems = await workspace.designSystems()
     t.true(designSystems.length > 0)
 })
+
+
+test('test_Workspace_exporters', async t => {
+
+    // Fetch specific workspace
+    let workspace = await testInstance.workspace(TEST_DB_WORKSPACE_ID)
+
+    // Fetch all design systems
+    let exporters = await workspace.exporters()
+    t.true(exporters.length > 0)
+})

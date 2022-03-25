@@ -17,6 +17,7 @@ import { DesignSystem } from "./SDKDesignSystem"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { Workspace } from "./SDKWorkspace"
 import { SupernovaError } from "./errors/SDKSupernovaError"
+import { Exporter } from "../model/exporters/SDKExporter"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -128,6 +129,9 @@ export class Supernova {
   /** Fetches active design system version - the one to which all changes are being written currently. There is always one active version available for any provided design system. */
   async activeDesignSystemVersion(designSystemId: string): Promise<DesignSystemVersion | null> {
 
+    // Fetch design system
+    let ds = await this.designSystem(designSystemId)
+
     // Fetch the authenticated user
     const versionEndpoint = `design-systems/${designSystemId}/versions`
     let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).designSystemVersions
@@ -139,7 +143,7 @@ export class Supernova {
     for (let version of versionData) {
 
       if (version.isReadonly === false) {
-        return new DesignSystemVersion(this, version)
+        return new DesignSystemVersion(this, ds, version)
       }
     }
 
@@ -148,6 +152,9 @@ export class Supernova {
 
   /** Fetches all design system versions of provided design system */
   async designSystemVersions(designSystemId: string): Promise<Array<DesignSystemVersion>> {
+
+      // Fetch design system
+      let ds = await this.designSystem(designSystemId)
 
       // Fetch all versions belonging to one specific design system
       const versionEndpoint = `design-systems/${designSystemId}/versions`
@@ -158,7 +165,7 @@ export class Supernova {
 
       let versions = new Array<DesignSystemVersion>()
       for (let version of versionData) {
-        let v = new DesignSystemVersion(this, version)
+        let v = new DesignSystemVersion(this, ds, version)
         versions.push(v)
       }
 
@@ -168,6 +175,9 @@ export class Supernova {
   /** Fetches design system version by id */
   async designSystemVersion(designSystemId: string, versionId: string): Promise<DesignSystemVersion | null> {
 
+      // Fetch design system
+      let ds = await this.designSystem(designSystemId)
+
       // Fetch all versions belonging to one specific design system
       const versionEndpoint = `design-systems/${designSystemId}/versions/${versionId}`
       let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).designSystemVersion
@@ -175,7 +185,20 @@ export class Supernova {
         throw SupernovaError.fromSDKError(`Unable to retrieve design system version for id ${versionId}`)
       }
 
-      return new DesignSystemVersion(this, versionData)
+      return new DesignSystemVersion(this, ds, versionData)
+  }
+
+  /** Fetches exporters belonging to workspace by id */
+  async exporters(workspaceId: string): Promise<Array<Exporter>> {
+
+      // Fetch all versions belonging to one specific design system
+      const exporterEndpoint = `codegen/workspaces/${workspaceId}/exporters`
+      let exporterData = (await this.dataBridge.getDSMGenericDataFromEndpoint(exporterEndpoint)).exporters
+      if (!exporterData) {
+        throw SupernovaError.fromSDKError(`Unable to retrieve exporters for workspace id ${workspaceId}`)
+      }
+
+      return exporterData.map(e => new Exporter(e))
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

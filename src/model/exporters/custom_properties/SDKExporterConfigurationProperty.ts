@@ -1,5 +1,5 @@
 //
-//  SDKExporterCustomProperty.ts
+//  SDKExporterConfigurationProperty.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -13,21 +13,21 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ExporterCustomPropertyModel {
+export interface ExporterConfigurationPropertyModel {
     label: string
     description: string
     category: string
     key: string
 
-    type: ExporterCustomPropertyType
-    inputType: ExporterCustomPropertyInputType
+    type: ExporterConfigurationPropertyType
+    inputType: ExporterConfigurationPropertyInputType
     isMultiline: boolean
     
     default?: string | number | boolean
     values: Array<string>
   }
   
-  export enum ExporterCustomPropertyType {
+  export enum ExporterConfigurationPropertyType {
     string = 'string',
     number = 'number',
     boolean = 'boolean',
@@ -35,7 +35,7 @@ export interface ExporterCustomPropertyModel {
     image = 'image'
   }
 
-  export enum ExporterCustomPropertyInputType {
+  export enum ExporterConfigurationPropertyInputType {
     plain = 'plain',
     code = 'code'
   }
@@ -43,7 +43,7 @@ export interface ExporterCustomPropertyModel {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: -  Object Definition
   
-  export class ExporterCustomProperty {
+  export class ExporterConfigurationProperty {
   
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Public properties
@@ -53,8 +53,8 @@ export interface ExporterCustomPropertyModel {
     description: string
     key: string
 
-    type: ExporterCustomPropertyType
-    inputType: ExporterCustomPropertyInputType
+    type: ExporterConfigurationPropertyType
+    inputType: ExporterConfigurationPropertyInputType
     isMultiline: boolean
 
     default: string | number | boolean | null
@@ -64,18 +64,25 @@ export interface ExporterCustomPropertyModel {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
   
-    constructor(data: ExporterCustomPropertyModel, value: string | number | boolean | null) {
+    constructor(data: ExporterConfigurationPropertyModel, value: string | number | boolean | null) {
       this.label = data.label
       this.category = data.category
       this.description = data.description
       this.key = data.key
 
       this.type = data.type
-      this.inputType = data.inputType ?? ExporterCustomPropertyInputType.plain
+      this.inputType = data.inputType ?? ExporterConfigurationPropertyInputType.plain
       this.isMultiline = data.isMultiline
 
       this.default = data.default ?? null
       this.values = data.values ?? []
+      this.value = value ?? this.default
+    }
+  
+    // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+    // MARK: - Methods
+
+    updateValue(value: string | number | boolean | null) {
       this.value = value
     }
   }

@@ -94,7 +94,7 @@ export class Brand {
     /** Fetches all tokens available in this design system version belonging to this specific brand */
     async tokens(): Promise<Array<Token>> {
 
-      let tokens = await this.dataCore.currentDesignSystemTokens(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let tokens = await this.dataCore.currentDesignSystemTokens(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedTokens = tokens.filter(t => t.brandId === this.persistentId)
       return brandedTokens
     }
@@ -102,7 +102,7 @@ export class Brand {
     /** Fetches all token groups available in this design system version belonging to this specific brand */
     async tokenGroups(): Promise<Array<TokenGroup>> {
 
-      let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedGroups = groups.filter(g => g.brandId === this.persistentId)
       return brandedGroups
     }
@@ -110,7 +110,7 @@ export class Brand {
     /** Fetches root of the token group trees. This method returns roots specific to this brand, one group per category */
     async tokenGroupTrees(): Promise<Map<TokenType, TokenGroup>> {
       
-      let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemTokenGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let rootGroups = groups.filter(g => g.isRoot && g.brandId === this.persistentId)
       
       let trees = new Map<TokenType, TokenGroup>()
@@ -124,7 +124,7 @@ export class Brand {
     /** Fetches all components available in this design system version belonging to this specific brand */
     async components(): Promise<Array<Component>> {
 
-      let components = await this.dataCore.currentDesignSystemComponents(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let components = await this.dataCore.currentDesignSystemComponents(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedComponents = components.filter(c => c.brandId === this.persistentId)
       return brandedComponents
     }
@@ -132,7 +132,7 @@ export class Brand {
     /** Fetches all component groups as flattened array available in this design system version belonging to this specific brand */
     async componentGroups(): Promise<Array<ComponentGroup>> {
 
-      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedGroups = groups.filter(g => g.brandId === this.persistentId)
       return brandedGroups
     }
@@ -140,7 +140,7 @@ export class Brand {
     /** Fetches root of the component group tree. This group will contain any other top-level groups that user created and will belong to this specific brand */
     async componentGroupTree(): Promise<ComponentGroup> {
 
-      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let rootGroups = groups.filter(g => g.isRoot && g.brandId === this.persistentId)
       return rootGroups[0]
     }
@@ -148,7 +148,7 @@ export class Brand {
     /** Fetches all assets available in this design system version belonging to this specific brand */
     async assets(): Promise<Array<Asset>> {
 
-      let assets = await this.dataCore.currentDesignSystemAssets(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let assets = await this.dataCore.currentDesignSystemAssets(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedAssets = assets.filter(a => a.brandId === this.persistentId)
       return brandedAssets
     }
@@ -157,7 +157,7 @@ export class Brand {
     /** Fetches all asset groups as flattened array available in this design system version belonging to this specific brand */
     async assetGroups(): Promise<Array<AssetGroup>> {
 
-      let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedGroups = groups.filter(g => g.brandId === this.persistentId)
       return brandedGroups
     }
@@ -165,7 +165,7 @@ export class Brand {
     /** Fetches root of the asset group tree. This group will contain any other top-level groups that user created and will be specific to this brand */
     async assetGroupTree(): Promise<AssetGroup> {
       
-      let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystemVersion.designSystemId, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemAssetGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let rootGroups = groups.filter(g => g.isRoot && g.brandId === this.persistentId)
       return rootGroups[0]
     }
@@ -184,6 +184,6 @@ export class Brand {
       let assets = await this.assets()
       
       // Construct rendering request. Only one size can be rendered at once
-      return await this.dataCore.renderAssetsForConfiguration(this.designSystemVersion.designSystemId, this.designSystemVersion, assets, groups, format, scale)
+      return await this.dataCore.renderAssetsForConfiguration(this.designSystemVersion.designSystem.id, this.designSystemVersion, assets, groups, format, scale)
     }
   }

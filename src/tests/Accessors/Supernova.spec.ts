@@ -20,7 +20,7 @@ test('test_Supernova_workspaces', async t => {
 
     // Test fetch all workspaces
     let workspaces = await testInstance.workspaces()
-    t.true(workspaces.length >= 1) // WTF?
+    t.true(workspaces.length >= 1)
 })
 
 
@@ -75,4 +75,12 @@ test('test_Supernova_designSystemVersions', async t => {
     // Test fetch all design system versions
     let versions = await testInstance.designSystemVersions(TEST_DB_DESIGN_SYSTEM_ID)
     t.true(versions.length > 0)
+})
+
+
+test('test_Supernova_exporters', async t => {
+
+    // Test fetch all exporters
+    let exporters = await testInstance.exporters(TEST_DB_WORKSPACE_ID)
+    t.true(exporters.length >= 1)
 })

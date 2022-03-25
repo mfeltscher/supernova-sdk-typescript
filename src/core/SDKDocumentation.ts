@@ -14,6 +14,7 @@ import { DocumentationItem } from "../model/documentation/SDKDocumentationItem"
 import { DocumentationPage } from "../model/documentation/SDKDocumentationPage"
 import { DocumentationItemType } from "../model/enums/SDKDocumentationItemType"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
+import { DesignSystem } from "./SDKDesignSystem"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -40,6 +41,9 @@ export class Documentation {
   /** Associated version */
   private version: DesignSystemVersion
 
+  /** Associated design system */
+  private designSystem: DesignSystem
+
   /** Documentation settings */
   settings: DocumentationConfiguration
 
@@ -47,8 +51,9 @@ export class Documentation {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, model: DocumentationModel) {
+  constructor(version: DesignSystemVersion, designSystem: DesignSystem, model: DocumentationModel) {
       this.version = version
+      this.designSystem = designSystem
       this.settings = new DocumentationConfiguration(model.settings)
   }
 
@@ -62,7 +67,7 @@ export class Documentation {
   /** Main group to which all groups and pages belong. The root group never shows up inside the editor but is always present in data model */
   async rootGroup(): Promise<DocumentationGroup> {
 
-    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.version.designSystemId, this.version)
+    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.designSystem, this.version)
     for (let item of items) {
       if (item.type === DocumentationItemType.group && (item as DocumentationGroup).isRoot) {
         return item as DocumentationGroup
@@ -74,32 +79,32 @@ export class Documentation {
   /** All items, including pages, groups and group of tab type fetched together */
   async items(): Promise<Array<DocumentationItem>> {
 
-    return this.version.dataCore.currentDesignSystemDocumentationItems(this.version.designSystemId, this.version)
+    return this.version.dataCore.currentDesignSystemDocumentationItems(this.designSystem, this.version)
   }
 
   /** All groups to which other groups and pages can belong. Each group also contains entire children chain pre-fetched and resolved for convenience */
   async groups(): Promise<Array<DocumentationGroup>> {
 
-    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.version.designSystemId, this.version)
+    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.designSystem, this.version)
     return items.filter(i => i.type === DocumentationItemType.group) as Array<DocumentationGroup>
   }
 
   /** All pages created within documentation presented as flat structure. Each page contains all data neccessary to render it pre-fetched and resolved for convenience */
   async pages(): Promise<Array<DocumentationPage>> {
 
-    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.version.designSystemId, this.version)
+    let items = await this.version.dataCore.currentDesignSystemDocumentationItems(this.designSystem, this.version)
     return items.filter(i => i.type === DocumentationItemType.page) as Array<DocumentationPage>
   }
 
   /** All custom blocks that were registered with the active exporter configuration */
   async customBlocks(): Promise<Array<ExporterCustomBlock>> {
 
-    return await this.version.dataCore.currentExporterCustomBlocks(this.version.designSystemId, this.version)
+    return await this.version.dataCore.currentExporterCustomBlocks(this.designSystem.id, this.version)
   }
 
   /** All custom configuration properties that are defined within the active exporter package */
   async customConfiguration(): Promise<Array<ExporterConfigurationProperty>> {
 
-    return await this.version.dataCore.currentDocumentationConfigurationProperties(this.version.designSystemId, this.version)
+    return await this.version.dataCore.currentExporterConfigurationProperties(this.designSystem.id, this.designSystem.documentationExporterId, this.version)
   }
 }
