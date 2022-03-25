@@ -10,9 +10,8 @@
 // MARK: - Imports
 
 import { Supernova } from "../core/SDKSupernova"
-import { TEST_API_KEY, TEST_API_URL } from "./configuration"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Convenience constructors
 
-export const testInstance: Supernova = new Supernova(TEST_API_KEY, TEST_API_URL, null)
+export const testInstance: Supernova = new Supernova(process.env.TEST_API_KEY, process.env.TEST_API_URL, null)

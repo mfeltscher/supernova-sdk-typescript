@@ -70,6 +70,7 @@
         "@types/uuid": "^8.3.0",
         "ava": "4.0.1",
         "codecov": "^3.5.0",
+        "dotenv": "^16.0.0",
         "esbuild-node-loader": "^0.6.5",
         "gh-pages": "^2.0.1",
         "globalthis": "^1.0.2",
@@ -100,6 +101,9 @@
         ],
         "files": [
             "src/**/*.spec.ts"
+        ],
+        "require": [
+            "dotenv/config"
         ]
     },
     "config": {},

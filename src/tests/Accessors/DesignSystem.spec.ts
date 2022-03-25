@@ -10,7 +10,6 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { TEST_DB_DESIGN_SYSTEM_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -19,7 +18,7 @@ import { testInstance } from '../helpers'
 test('test_DesignSystem_versions', async t => {
 
     // Fetch specific design system
-    let designSystem = await testInstance.designSystem(TEST_DB_DESIGN_SYSTEM_ID)
+    let designSystem = await testInstance.designSystem(process.env.TEST_DB_DESIGN_SYSTEM_ID)
 
     // Fetch its active version
     let version = await designSystem.activeVersion()
@@ -30,7 +29,7 @@ test('test_DesignSystem_versions', async t => {
 test('test_DesignSystem_activeVersion', async t => {
 
     // Fetch specific design system
-    let designSystem = await testInstance.designSystem(TEST_DB_DESIGN_SYSTEM_ID)
+    let designSystem = await testInstance.designSystem(process.env.TEST_DB_DESIGN_SYSTEM_ID)
 
     // Fetch versions
     let versions = await designSystem.versions()

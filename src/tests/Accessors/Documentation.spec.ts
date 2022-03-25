@@ -12,7 +12,6 @@
 import test from 'ava'
 import { DocumentationConfiguration } from '../../model/documentation/SDKDocumentationConfiguration'
 import { DocumentationGroup } from '../../model/documentation/SDKDocumentationGroup'
-import { TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -21,7 +20,7 @@ import { testInstance } from '../helpers'
 test('test_documentation_settings', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check documentation settings exists
@@ -32,7 +31,7 @@ test('test_documentation_settings', async t => {
 test('test_documentation_items', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check items exist
@@ -44,7 +43,7 @@ test('test_documentation_items', async t => {
 test('test_documentation_rootGroup', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some groups exist
@@ -56,7 +55,7 @@ test('test_documentation_rootGroup', async t => {
 test('test_documentation_groups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some groups exist
@@ -67,7 +66,7 @@ test('test_documentation_groups', async t => {
 test('test_documentation_pages', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some pages exist
@@ -78,7 +77,7 @@ test('test_documentation_pages', async t => {
 test('test_documentation_custom_blocks', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some defined blocks exist
@@ -89,7 +88,7 @@ test('test_documentation_custom_blocks', async t => {
 test('test_documentation_configuration_properties', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some defined blocks exist
@@ -101,7 +100,7 @@ test('test_documentation_configuration_properties', async t => {
 test('test_documentation_configuration_variants', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
 
     // Check some defined blocks exist

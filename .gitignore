@@ -11,3 +11,5 @@ coverage
 yarn.lock
 style-exporter
 exporters-wip
+.env
+.env.development

@@ -10,7 +10,6 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -19,7 +18,7 @@ import { testInstance } from '../helpers'
 test('test_designSystemVersion_brands', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch brands
     let brands = await version.brands()
@@ -29,7 +28,7 @@ test('test_designSystemVersion_brands', async t => {
 test('test_designSystemVersion_tokens', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let tokens = await version.tokens()
@@ -40,7 +39,7 @@ test('test_designSystemVersion_tokens', async t => {
 test('test_designSystemVersion_tokenGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let groups = await version.tokenGroups()
@@ -51,7 +50,7 @@ test('test_designSystemVersion_tokenGroups', async t => {
 test('test_designSystemVersion_tokenGroupTrees', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let trees = await version.tokenGroupTrees()
@@ -62,7 +61,7 @@ test('test_designSystemVersion_tokenGroupTrees', async t => {
 test('test_designSystemVersion_components', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let components = await version.components()
@@ -73,7 +72,7 @@ test('test_designSystemVersion_components', async t => {
 test('test_designSystemVersion_componentGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let groups = await version.componentGroups()
@@ -84,7 +83,7 @@ test('test_designSystemVersion_componentGroups', async t => {
 test('test_designSystemVersion_componentGroupTree', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let tree = await version.componentGroupTree()
@@ -95,7 +94,7 @@ test('test_designSystemVersion_componentGroupTree', async t => {
 test('test_designSystemVersion_assets', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let assets = await version.assets()
@@ -106,7 +105,7 @@ test('test_designSystemVersion_assets', async t => {
 test('test_designSystemVersion_assetGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let groups = await version.assetGroups()
@@ -117,7 +116,7 @@ test('test_designSystemVersion_assetGroups', async t => {
 test('test_designSystemVersion_assetGroupTrees', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let tree = await version.assetGroupTrees()
@@ -128,7 +127,7 @@ test('test_designSystemVersion_assetGroupTrees', async t => {
 test('test_designSystemVersion_documentation', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
     let documentation = await version.documentation()

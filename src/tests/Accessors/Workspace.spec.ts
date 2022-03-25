@@ -10,7 +10,6 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { TEST_DB_WORKSPACE_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -19,7 +18,7 @@ import { testInstance } from '../helpers'
 test('test_Workspace_designSystems', async t => {
 
     // Fetch specific workspace
-    let workspace = await testInstance.workspace(TEST_DB_WORKSPACE_ID)
+    let workspace = await testInstance.workspace(process.env.TEST_DB_WORKSPACE_ID)
 
     // Fetch all design systems
     let designSystems = await workspace.designSystems()
@@ -30,7 +29,7 @@ test('test_Workspace_designSystems', async t => {
 test('test_Workspace_exporters', async t => {
 
     // Fetch specific workspace
-    let workspace = await testInstance.workspace(TEST_DB_WORKSPACE_ID)
+    let workspace = await testInstance.workspace(process.env.TEST_DB_WORKSPACE_ID)
 
     // Fetch all design systems
     let exporters = await workspace.exporters()

@@ -12,7 +12,6 @@
 import test from 'ava'
 import { AssetFormat } from '../../model/enums/SDKAssetFormat'
 import { AssetScale } from '../../model/enums/SDKAssetScale'
-import { TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -21,7 +20,7 @@ import { testInstance } from '../helpers'
 test('test_brand_tokens', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -33,7 +32,7 @@ test('test_brand_tokens', async t => {
 test('test_brand_tokenGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -45,7 +44,7 @@ test('test_brand_tokenGroups', async t => {
 test('test_brand_tokenGroupTrees', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -57,7 +56,7 @@ test('test_brand_tokenGroupTrees', async t => {
 test('test_brand_components', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -69,7 +68,7 @@ test('test_brand_components', async t => {
 test('test_brand_componentGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -81,7 +80,7 @@ test('test_brand_componentGroups', async t => {
 test('test_brand_componentGroupTree', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -93,7 +92,7 @@ test('test_brand_componentGroupTree', async t => {
 test('test_brand_assets', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -105,7 +104,7 @@ test('test_brand_assets', async t => {
 test('test_brand_assetGroups', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -117,7 +116,7 @@ test('test_brand_assetGroups', async t => {
 test('test_brand_assetGroupTree', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Fetch its active version
@@ -130,7 +129,7 @@ test('test_brand_assetGroupTree', async t => {
 test('test_brand_renderAssets', async t => {
 
     // Fetch specific design system version
-    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let brand = (await version.brands())[0]
 
     // Render assets in a brand

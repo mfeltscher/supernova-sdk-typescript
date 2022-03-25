@@ -10,7 +10,6 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_UNKNOWN_ID, TEST_DB_WORKSPACE_ID } from '../configuration'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -27,7 +26,7 @@ test('test_Supernova_workspaces', async t => {
 test('test_Supernova_workspace', async t => {
 
     // Test fetch specific workspace that exists
-    let workspace = await testInstance.workspace(TEST_DB_WORKSPACE_ID)
+    let workspace = await testInstance.workspace(process.env.TEST_DB_WORKSPACE_ID)
     t.true(workspace !== null)
 })
 
@@ -35,14 +34,14 @@ test('test_Supernova_workspace', async t => {
 test('test_Supernova_workspace_notFound', async t => {
 
     // Test fetch specific workspace that doesn't exist
-    await t.throwsAsync(testInstance.workspace(TEST_DB_UNKNOWN_ID))
+    await t.throwsAsync(testInstance.workspace(process.env.TEST_DB_UNKNOWN_ID))
 })
 
 
 test('test_Supernova_designSystems', async t => {
 
     // Test fetch all design systems from a specific workspace
-    let designSystems = await testInstance.designSystems(TEST_DB_WORKSPACE_ID)
+    let designSystems = await testInstance.designSystems(process.env.TEST_DB_WORKSPACE_ID)
     t.true(designSystems.length === 8)
 })
 
@@ -50,7 +49,7 @@ test('test_Supernova_designSystems', async t => {
 test('test_Supernova_designSystem', async t => {
 
     // Test fetch specific workspace that exists
-    let designSystem = await testInstance.designSystem(TEST_DB_DESIGN_SYSTEM_ID)
+    let designSystem = await testInstance.designSystem(process.env.TEST_DB_DESIGN_SYSTEM_ID)
     t.true(designSystem !== null)
 })
 
@@ -58,14 +57,14 @@ test('test_Supernova_designSystem', async t => {
 test('test_Supernova_designSystem_notFound', async t => {
 
     // Test fetch specific workspace that doesn't exist
-    await t.throwsAsync(testInstance.designSystem(TEST_DB_UNKNOWN_ID))
+    await t.throwsAsync(testInstance.designSystem(process.env.TEST_DB_UNKNOWN_ID))
 })
 
 
 test('test_Supernova_activeDesignSystemVersion', async t => {
 
     // Test fetch active design system version
-    let version = await testInstance.activeDesignSystemVersion(TEST_DB_DESIGN_SYSTEM_ID)
+    let version = await testInstance.activeDesignSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID)
     t.true(version !== null)
 })
 
@@ -73,7 +72,7 @@ test('test_Supernova_activeDesignSystemVersion', async t => {
 test('test_Supernova_designSystemVersions', async t => {
 
     // Test fetch all design system versions
-    let versions = await testInstance.designSystemVersions(TEST_DB_DESIGN_SYSTEM_ID)
+    let versions = await testInstance.designSystemVersions(process.env.TEST_DB_DESIGN_SYSTEM_ID)
     t.true(versions.length > 0)
 })
 
@@ -81,6 +80,6 @@ test('test_Supernova_designSystemVersions', async t => {
 test('test_Supernova_exporters', async t => {
 
     // Test fetch all exporters
-    let exporters = await testInstance.exporters(TEST_DB_WORKSPACE_ID)
+    let exporters = await testInstance.exporters(process.env.TEST_DB_WORKSPACE_ID)
     t.true(exporters.length >= 1)
 })

@@ -7,6 +7,15 @@ export { DesignSystem } from '../src/core/SDKDesignSystem'
 export { DesignSystemVersion } from '../src/core/SDKDesignSystemVersion'
 export { Workspace } from '../src/core/SDKWorkspace'
 
+// Exporters
+export { Exporter } from '../src/model/exporters/SDKExporter'
+
+// Exporter / Documentation behavior customization
+export { ExporterCustomBlock, ExporterCustomBlockMode } from './model/exporters/custom_blocks/SDKExporterCustomBlock'
+export { ExporterCustomBlockProperty, ExporterCustomBlockPropertyType, ExporterCustomBlockPropertyInputType } from './model/exporters/custom_blocks/SDKExporterCustomBlockProperty'
+export { ExporterCustomBlockVariant } from '../src/model/exporters/custom_blocks/SDKExporterCustomBlockVariant'
+export { ExporterConfigurationProperty, ExporterConfigurationPropertyInputType, ExporterConfigurationPropertyType } from '../src/model/exporters/custom_properties/SDKExporterConfigurationProperty'
+
 // Assets
 export { Asset } from '../src/model/assets/SDKAsset'
 export { RenderedAsset } from '../src/model/assets/SDKRenderedAsset'
@@ -51,10 +60,6 @@ export { DocumentationPageBlockTable } from '../src/model/documentation/blocks/S
 export { DocumentationPageBlockTableCell } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableCell'
 export { DocumentationPageBlockTableRow } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableRow'
 export { DocumentationPageBlockTableColumn } from '../src/model/documentation/blocks/SDKDocumentationPageBlockTableColumn'
-
-// Documentation / Custom Blocks
-export { ExporterCustomBlock } from './model/exporters/custom_blocks/SDKExporterCustomBlock'
-export { ExporterCustomBlockProperty, ExporterCustomBlockPropertyType } from './model/exporters/custom_blocks/SDKExporterCustomBlockProperty'
 
 // Documentation / Item Partials
 export { DocumentationItemHeader } from '../src/model/documentation/configuration/SDKDocumentationItemHeader'
