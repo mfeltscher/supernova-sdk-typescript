@@ -8,6 +8,7 @@
 
 import { ExporterConfigurationProperty } from "../model/exporters/custom_properties/SDKExporterConfigurationProperty"
 import { ExporterCustomBlock } from "../model/exporters/custom_blocks/SDKExporterCustomBlock"
+import { ExporterCustomBlockVariant } from "../model/exporters/custom_blocks/SDKExporterCustomBlockVariant"
 import { DocumentationConfiguration, DocumentationConfigurationModel } from "../model/documentation/SDKDocumentationConfiguration"
 import { DocumentationGroup } from "../model/documentation/SDKDocumentationGroup"
 import { DocumentationItem } from "../model/documentation/SDKDocumentationItem"
@@ -105,6 +106,12 @@ export class Documentation {
   /** All custom configuration properties that are defined within the active exporter package */
   async customConfiguration(): Promise<Array<ExporterConfigurationProperty>> {
 
-    return await this.version.dataCore.currentExporterConfigurationProperties(this.designSystem.id, this.designSystem.documentationExporterId, this.version)
+    return await this.version.dataCore.currentExporterConfigurationProperties(this.designSystem.workspaceId, this.designSystem.id, this.designSystem.documentationExporterId, this.version)
+  }
+
+  /** All custom block variants that are defined within the active exporter package */
+  async customBlockVariants(): Promise<Array<ExporterCustomBlockVariant>> {
+
+    return await this.version.dataCore.currentExporterBlockVariants(this.designSystem.workspaceId, this.designSystem.id, this.designSystem.documentationExporterId, this.version)
   }
 }

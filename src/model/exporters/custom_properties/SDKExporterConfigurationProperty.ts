@@ -58,13 +58,13 @@ export interface ExporterConfigurationPropertyModel {
     isMultiline: boolean
 
     default: string | number | boolean | null
-    value: string | number | boolean | null
+    value: string | number | boolean | Object | null
     values: Array<string>
   
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
   
-    constructor(data: ExporterConfigurationPropertyModel, value: string | number | boolean | null) {
+    constructor(data: ExporterConfigurationPropertyModel, value: string | number | boolean | Object | null) {
       this.label = data.label
       this.category = data.category
       this.description = data.description
@@ -82,7 +82,7 @@ export interface ExporterConfigurationPropertyModel {
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Methods
 
-    updateValue(value: string | number | boolean | null) {
+    updateValue(value: string | number | boolean | Object | null) {
       this.value = value
     }
   }

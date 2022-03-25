@@ -6,11 +6,12 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-import { ExporterCustomBlock, ExporterCustomBlockModel } from "./custom_blocks/SDKExporterCustomBlock"
-import { ExporterConfigurationProperty, ExporterConfigurationPropertyModel } from "./custom_properties/SDKExporterConfigurationProperty"
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
+
+import { ExporterCustomBlock, ExporterCustomBlockModel } from "./custom_blocks/SDKExporterCustomBlock"
+import { ExporterCustomBlockVariant } from "./custom_blocks/SDKExporterCustomBlockVariant"
+import { ExporterConfigurationProperty, ExporterConfigurationPropertyModel } from "./custom_properties/SDKExporterConfigurationProperty"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -38,31 +39,25 @@ export interface ExporterModel {
     githubBranch?: string
     githubDirectory?: string
 
-    blockVariants: Array<ExporterBlockVariant>
-    configurationProperties: Array<ExporterConfigurationPropertyModel>
-    customBlocks: Array<ExporterCustomBlockModel>
-  }
+    blockVariants?: Object
+    configurationProperties?: Array<ExporterConfigurationPropertyModel>
+    customBlocks?: Array<ExporterCustomBlockModel>
+}
 
-  export type ExporterBlockVariant = {
-    key: string,
-    name: string,
-    isDefault: boolean
-  }
-  
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- -- - --- --- --- --- --- --- --- --- --- ---
-  // MARK: -  Object Definition
-  
-  export class Exporter {
-  
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- -- - --- --- --- --- --- --- --- --- --- ---
+// MARK: -  Object Definition
+
+export class Exporter {
+
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Public properties
-  
+
     /** Unique exporter installation id. This id is used to referenced exporter within Supernova system (for example, in ds.documentationExporterId) */
     id: string
 
     /** Original exporter package id, as defined in exporter.json */
     packageId: string
-    
+
     /** Store status of the exporter - private exporters are only visible to your workspace, while public are visible to everyone and can be installed by anyone */
     isPrivate: boolean
 
@@ -114,19 +109,19 @@ export interface ExporterModel {
     /** Contribution of this exporter to the Supernova system */
     contributes: {
         /** Documentation block variants */
-        blockVariants: Array<ExporterBlockVariant>
+        blockVariants: Array<ExporterCustomBlockVariant>
 
         /** Documentation blocks */
         blocks: Array<ExporterCustomBlock>
 
         /** Exporter configuration */
-        configuration: Array<ExporterConfigurationProperty> 
+        configuration: Array<ExporterConfigurationProperty>
     }
 
-  
+
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
-  
+
     constructor(data: ExporterModel) {
         this.id = data.id
         this.packageId = data.packageId
@@ -151,11 +146,20 @@ export interface ExporterModel {
             repositoryDirectory: data.githubDirectory ?? null
         }
 
+        let variants = new Array<ExporterCustomBlockVariant>()
+        if (data.blockVariants) {
+            for (let [key, value] of Object.entries(data.blockVariants)) {
+                for (let v of value) {
+                    let variant = new ExporterCustomBlockVariant(v, key)
+                    variants.push(variant)
+                }
+            }
+        }
+
         this.contributes = {
-            blockVariants: data.blockVariants,
-            blocks: data.customBlocks.map(b => new ExporterCustomBlock(b)),
-            configuration: data.configurationProperties.map(c => new ExporterConfigurationProperty(c, null)) // in this case, configuration property is just settings and so it doesn't have value
+            blockVariants: variants,
+            blocks: data.customBlocks ? data.customBlocks.map(b => new ExporterCustomBlock(b)) : [],
+            configuration: data.configurationProperties ? data.configurationProperties.map(c => new ExporterConfigurationProperty(c, null)) : [] // in this case, configuration property is just settings and so it doesn't have value
         }
     }
-  }
-  
+}

@@ -35,7 +35,8 @@ import { Documentation, DocumentationModel } from "../SDKDocumentation"
 import { DataBridge } from "./SDKDataBridge"
 import { ExporterConfigurationProperty, ExporterConfigurationPropertyModel } from "../../model/exporters/custom_properties/SDKExporterConfigurationProperty"
 import { Exporter, ExporterModel } from "../../model/exporters/SDKExporter"
-import { DesignSystem } from "index"
+import { DesignSystem } from "../SDKDesignSystem"
+import { ExporterCustomBlockVariant } from "../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -341,24 +342,34 @@ export class DataCore {
     return this.exporterCustomBlocks
   }
 
-  async currentExporterConfigurationProperties(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterConfigurationProperty>> {
+  async currentExporterConfigurationProperties(workspaceId: string, designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterConfigurationProperty>> {
  
     // TODO: This call is currently not cached as we need multi-cache because of exporterId. Easy to implement, but will have to wait for later as ideally we create more sophisticated caching system
-    let exporter = await this.getExporter(designSystemId, exporterId, designSystemVersion)
+    let exporter = await this.getExporter(workspaceId, exporterId, designSystemVersion)
     let propertyValues = await this.getExporterConfigurationPropertyUserValues(designSystemId, exporterId, designSystemVersion)
-    let properties = exporter.contributes.configuration
 
+    
     // Update properties with the downloaded data
-    for (let property of properties) {
-      if (propertyValues.hasOwnProperty(property.key)) {
-        property.updateValue(propertyValues[property.key])
+    for (let property of exporter.contributes.configuration) {
+      for (let settings of propertyValues) {
+        if (property.key === settings.key) {
+          property.updateValue(settings.value)
+        }
       }
     }
 
     // Retrieve the data
-    return properties
+    return exporter.contributes.configuration
   }
 
+  async currentExporterBlockVariants(workspaceId: string, designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlockVariant>> {
+ 
+    // TODO: This call is currently not cached as we need multi-cache because of exporterId. Easy to implement, but will have to wait for later as ideally we create more sophisticated caching system
+    let exporter = await this.getExporter(workspaceId, exporterId, designSystemVersion)
+    let variants = exporter.contributes.blockVariants
+
+    return variants
+  }
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -424,34 +435,34 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Exporter custom properties / values
 
-  private async getExporterConfigurationPropertyUserValues(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Object> {
+  private async getExporterConfigurationPropertyUserValues(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<{key: string, value: any}>> {
     // Download the raw token data and resolve them
     let userValues = await this.getExporterConfigurationPropertiesUserValuesData(designSystemId, exporterId, designSystemVersion)
     // let resolvedProperties = await this.resolveExporterConfigurationPropertiesUserValuesData(rawProperties) // no resolution needed
     return userValues
   }
 
-  private async getExporterConfigurationPropertiesUserValuesData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Object> {
+  private async getExporterConfigurationPropertiesUserValuesData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<{key: string, value: any}>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
-    const endpoint = `exporter-properties/${exporterId}`
-    let result: Array<ExporterConfigurationPropertyModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).items
+    const endpoint = `design-systems/${designSystemId}/exporter-properties/${exporterId}`
+    let result: Array<{key: string, value: any}> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).items
     return result
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Exporter
 
-  private async getExporter(designSystemId, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Exporter> {
+  private async getExporter(workspaceId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Exporter> {
     // Download the raw token data and resolve them
-    let rawExporter = await this.getExporterData(designSystemId, exporterId, designSystemVersion)
+    let rawExporter = await this.getExporterData(workspaceId, exporterId)
     let resolvedExporter = await this.resolveExporterData(rawExporter)
     return resolvedExporter
   }
 
-  private async getExporterData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<ExporterModel> {
+  private async getExporterData(workspaceId: string, exporterId: string): Promise<ExporterModel> {
     // Download token data from the design system endpoint. This downloads tokens of all types
-    const endpoint = `exporters/${exporterId}`
-    let result: ExporterModel = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).exporter
+    const endpoint = `codegen/workspaces/${workspaceId}/exporters/${exporterId}`
+    let result: ExporterModel = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).exporter
     return result
   }
 

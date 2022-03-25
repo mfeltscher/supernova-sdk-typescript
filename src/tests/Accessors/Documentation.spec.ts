@@ -74,3 +74,38 @@ test('test_documentation_pages', async t => {
     let pages = await documentation.pages()
     t.true(pages.length > 0)
 })
+
+test('test_documentation_custom_blocks', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let documentation = await version.documentation()
+
+    // Check some defined blocks exist
+    let blocks = await documentation.customBlocks()
+    t.true(blocks.length > 0)
+})
+
+test('test_documentation_configuration_properties', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let documentation = await version.documentation()
+
+    // Check some defined blocks exist
+    let properties = await documentation.customConfiguration()
+    t.true(properties.length > 0)
+})
+
+
+test('test_documentation_configuration_variants', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(TEST_DB_DESIGN_SYSTEM_ID, TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let documentation = await version.documentation()
+
+    // Check some defined blocks exist
+    let variants = await documentation.customBlockVariants()
+    t.true(variants.length > 0)
+})
+
