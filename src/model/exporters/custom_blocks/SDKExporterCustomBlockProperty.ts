@@ -30,7 +30,9 @@ export enum ExporterCustomBlockPropertyType {
   number = 'number',
   boolean = 'boolean',
   enum = 'enum',
-  image = 'image'
+  image = 'image',
+  color = 'color',
+  typography = 'typography'
 }
 
 export enum ExporterCustomBlockPropertyInputType {

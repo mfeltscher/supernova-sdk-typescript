@@ -2,6 +2,13 @@
 
 All notable changes to this SDK are mentioned here in this file.
 
+## [1.7.1] - 2022-28-03
+### Color & Typography properties
+
+- It is now possible to retrieve `color` configuration properties from exporter packages
+- It is now possible to retrieve `typography` configuration properties from exporter packages
+
+
 ## [1.7.0] - 2022-25-03
 ### Exporter SDK
 
