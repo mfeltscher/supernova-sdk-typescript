@@ -2,6 +2,12 @@
 
 All notable changes to this SDK are mentioned here in this file.
 
+## [1.7.2] - 2022-28-03
+### Better inline links
+
+- Inline links can now be additionally opened in new window (`openInNewWindow` property on rich attribute object)
+- Rich attributes can now link to specific groups and pages (`documentationItemId` property on rich attribute object)
+
 ## [1.7.1] - 2022-28-03
 ### Color & Typography properties
 

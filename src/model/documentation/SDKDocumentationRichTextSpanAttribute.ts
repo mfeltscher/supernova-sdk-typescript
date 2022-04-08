@@ -18,6 +18,8 @@ import { RichTextSpanAttributeType } from "../enums/SDKRichTextSpanAttributeType
 export interface RichTextSpanAttributeModel {
   type: RichTextSpanAttributeType
   link?: string
+  documentationItemId?: string
+  openInNewWindow: boolean
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -29,6 +31,8 @@ export class RichTextSpanAttribute {
 
   type: RichTextSpanAttributeType
   link: string | null
+  openInNewWindow: boolean
+  documentationItemId: string | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -36,5 +40,11 @@ export class RichTextSpanAttribute {
   constructor(model: RichTextSpanAttributeModel) {
     this.type = model.type
     this.link = model.link ?? null
+    if (model.hasOwnProperty("openInNewWindow")) {
+      this.openInNewWindow = model.openInNewWindow
+    } else {
+      this.openInNewWindow = false
+    }
+    this.documentationItemId = model.documentationItemId ?? null
   }
 }
