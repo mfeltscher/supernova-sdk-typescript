@@ -1,6 +1,39 @@
 # Changelog
 
-All notable changes to this SDK are mentioned here in this file.
+All notable changes to this SDK are mentioned here in this changelog.
+
+## [1.7.3] - 2022-05-05
+### Better tables & experimental style dictionary transformer
+
+We have added experimental implementation of very powerful and performant Style Dictionary transformer. This allows SDK to represent tokens as style dictionary objects with all bells and whisles like value referencing and mixins. You can try it out by accessing new top-level object called `SupernovaToolsStyleDictionary`. This is currently experimental and not recommended using in production, as its interface might change a bit before general release.
+
+You can use it by instantiating the tool and configuring its behavior:
+
+```typescript
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+
+// Configure options
+let options: SupernovaToolStyleDictionaryOptions = {
+    naming: SupernovaToolStyleDictionaryKeyNaming.original,
+    includeComments: true,
+    includeBrandId: true,
+    brandId: null,
+    includeType: true,
+    includeRootTypeNodes: false,
+    type: TokenType.color, // All token categories are supported. Use null for all token categories
+}
+
+// Build style dictionary representation
+let sdTool = new SupernovaToolsStyleDictionary(testInstance, version)
+let sdRepresentation = await sdTool.tokensToSD(options)
+```
+
+Additionally, following was added:
+
+- Tables can now hide borders (`tableBlock.tableProperties.showBorders` property)
+- Tables can now highlight row header (`tableBlock.tableProperties.showRowHeader` property)
+- Tables can now highlight column header (`tableBlock.tableProperties.showColumnHeader` property)
 
 ## [1.7.2] - 2022-28-03
 ### Better inline links

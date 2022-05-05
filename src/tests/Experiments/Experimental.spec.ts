@@ -26,11 +26,12 @@ test('test_experimental_tokens_to_style_dictionary', async t => {
     // Options
     let options: SupernovaToolStyleDictionaryOptions = {
         naming: SupernovaToolStyleDictionaryKeyNaming.original,
+        includeComments: true,
         includeBrandId: true,
         brandId: null,
         includeType: true,
         includeRootTypeNodes: false,
-        type: null,
+        type: TokenType.color,
     }
 
     // Build color representation

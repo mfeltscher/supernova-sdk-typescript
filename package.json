@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -58,7 +58,8 @@
         "dot-prop": "^5.2.0",
         "marked": "^1.1.1",
         "ts-dedent": "^1.1.1",
-        "uuid": "^8.3.0"
+        "uuid": "^8.3.0",
+        "lodash": "~4.17.21"
     },
     "devDependencies": {
         "@ava/typescript": "^3.0.1",

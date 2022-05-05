@@ -22,6 +22,8 @@ import { DocumentationPageBlockTableRow, DocumentationPageBlockTableRowModel } f
 export interface DocumentationPageBlockTableModel extends DocumentationPageBlockModel {
   tableProperties: {
       showBorders: boolean,
+      showHeaderRow: boolean,
+      showHeaderColumn: boolean,
       columns: Array<DocumentationPageBlockTableColumnModel>
   },
   rows: Array<DocumentationPageBlockTableRowModel>
@@ -36,6 +38,8 @@ export class DocumentationPageBlockTable extends DocumentationPageBlock {
 
     tableProperties: {
         showBorders: boolean
+        showHeaderRow: boolean
+        showHeaderColumn: boolean
         columns: Array<DocumentationPageBlockTableColumn>
     }
 
@@ -46,6 +50,8 @@ export class DocumentationPageBlockTable extends DocumentationPageBlock {
     super(model, customBlocks, configuration)
     this.tableProperties = {
         showBorders: model.tableProperties.showBorders,
+        showHeaderRow: model.tableProperties.showHeaderRow,
+        showHeaderColumn: model.tableProperties.showHeaderColumn,
         columns: model.tableProperties.columns.map(c => new DocumentationPageBlockTableColumn(c))
     }
   }

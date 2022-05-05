@@ -24,6 +24,7 @@ import { TextToken } from "../model/tokens/SDKTextToken"
 import { Token } from "../model/tokens/SDKToken"
 import { BorderTokenValue, ColorTokenValue, FontTokenValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TypographyTokenValue } from "../model/tokens/SDKTokenValue"
 import { TypographyToken } from "../model/tokens/SDKTypographyToken"
+import _ from "lodash"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -36,6 +37,9 @@ export type SupernovaToolStyleDictionaryOptions = {
 
   /** When enabled, brandId will be included in every token */
   includeBrandId: boolean,
+
+  /** When enabled, comments will be included in tokens that have description */
+  includeComments: boolean,
   
   /** When provided, tokens will be filtered to only show tokens belonging to this brand */
   brandId: string | null
@@ -80,36 +84,47 @@ export class SupernovaToolsStyleDictionary {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public interface
 
+  /** Fetches all tokens available for selected design system version, and converts them to style dictionary representation. */
   async tokensToSD(options: SupernovaToolStyleDictionaryOptions) {
 
     let tokens = await this.version.tokens()
     let groups = await this.version.tokenGroups()
-    
-    for (let group of groups) {
+
+    // Filter out tokens that contain brand id
+    if (options.brandId) {
+      tokens = tokens.filter(t => t.brandId === options.brandId)
+    }
+
+    return this.buildTokenStructure(tokens, groups, options)
+  }
+
+
+  buildTokenStructure(tokens: Array<Token>, groups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions) {
+
+    if (options.type) {
+      // When a specific type is requested, only generate that particular one
+      for (let group of groups) {
         if (group.isRoot && group.tokenType === options.type) {
             return this.generateStyleDictionaryTree(group, tokens, groups, options)
         }
+      }
+    } else {
+      // Generate all token types
+      let result = {}
+      for (let group of groups) {
+        if (group.isRoot) {
+            let sdTree = this.generateStyleDictionaryTree(group, tokens, groups, options)
+            result = _.merge(result, sdTree)
+        }
+      }
+      return result
     }
+  
     return {}
   }
 
-  /*
-  private defaultOptions(): SupernovaToolStyleDictionaryOptions {
-    return {
-      includeBrandId: true,
-      includeType: true,
-      brandId: null,
-      includeRootTypeNodes: true,
-      naming: "kebabcase",
-      type: null,
-    }
-  }
-  */
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Style dictionary manipulation
-
-  /** Fetches all tokens available under provided API key for the selected workspace and version, and converts them to style dictionary representation. */
 
   /** Generate style dictionary tree */
   private generateStyleDictionaryTree(rootGroup: TokenGroup, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions) {
@@ -128,7 +143,7 @@ export class SupernovaToolsStyleDictionary {
         [`${this.typeLabel(rootGroup.tokenType)}`]: result
       }
     } else {
-
+      result
     }
   }
 
@@ -156,7 +171,6 @@ export class SupernovaToolsStyleDictionary {
         writeSubObject[this.safeTokenName(token, options.naming)] = this.representToken(token, allTokens, allGroups, options)
       }
     }
-
     return writeObject
   }
 
@@ -190,55 +204,55 @@ export class SupernovaToolsStyleDictionary {
   /** Represent full color token, including wrapping meta-information such as user description */
   private representColorToken(token: ColorToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representColorTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full border token, including wrapping meta-information such as user description */
   private representBorderToken(token: BorderToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representBorderTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full font token, including wrapping meta-information such as user description */
   private representFontToken(token: FontToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representFontTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full gradient token, including wrapping meta-information such as user description */
   private representGradientToken(token: GradientToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representGradientTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full measure token, including wrapping meta-information such as user description */
   private representMeasureToken(token: MeasureToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representMeasureTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full radius token, including wrapping meta-information such as user description */
   private representRadiusToken(token: RadiusToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representRadiusTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full shadow token, including wrapping meta-information such as user description */
   private representShadowToken(token: ShadowToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representShadowTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full text token, including wrapping meta-information such as user description */
   private representTextToken(token: TextToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representTextTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   /** Represent full typography token, including wrapping meta-information such as user description */
   private representTypographyToken(token: TypographyToken, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: SupernovaToolStyleDictionaryOptions): Object {
     let value = this.representTypographyTokenValue(token.value, allTokens, allGroups, options)
-    return this.tokenWrapper(token, value)
+    return this.tokenWrapper(token, value, options)
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -543,12 +557,23 @@ export class SupernovaToolsStyleDictionary {
   }
 
   /** Retrieve token wrapper containing its metadata and value information (used as container for each defined token) */
-  private tokenWrapper(token: Token, value: any) {
-    return {
-      value: value,
-      type: this.typeLabel(token.tokenType),
-      comment: token.description.length > 0 ? token.description : undefined
+  private tokenWrapper(token: Token, value: any, options: SupernovaToolStyleDictionaryOptions): Object {
+
+    let data = {
+      value: value
     }
+
+    if (options.includeType) {
+      data["type"] = this.typeLabel(token.tokenType)
+    }
+    if (options.includeBrandId) {
+      data["brandId"] = token.brandId
+    }
+    if (options.includeComments) {
+      data["comment"] = token.description.length > 0 ? token.description : undefined
+    }
+
+    return data
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
