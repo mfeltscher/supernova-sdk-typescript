@@ -38,6 +38,9 @@ import { Exporter, ExporterModel } from "../../model/exporters/SDKExporter"
 import { DesignSystem } from "../SDKDesignSystem"
 import { ExporterCustomBlockVariant } from "../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant"
 import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
+import { ComponentResolver } from "../resolvers/SDKComponentResolver"
+import { ComponentProperty, ComponentPropertyRemoteModel } from "../../model/components/SDKComponentProperty"
+import { ComponentPropertyValue, ComponentPropertyValueRemoteModel } from "../../model/components/values/SDKComponentPropertyValue"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -574,29 +577,48 @@ export class DataCore {
   async updateComponentData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system component data
     let result = await this.getComponents(designSystemId, designSystemVersion)
-    this.components = result.components
+    this.components = result
     if (this.bridge.cache) {
       this.componentsSynced = true
     }
   }
 
   private async getComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
-    // Download the raw token data and resolve them
-    let rawData = await this.getRawComponentData(designSystemId, designSystemVersion)
-    let resolvedComponents = await this.resolveComponentData(rawData, designSystemVersion)
+    // Download the raw component data, including their properties, and resolve them
+    let rawComponents = await this.getRawComponentData(designSystemId, designSystemVersion)
+    let rawProperties = await this.getRawComponentPropertyData(designSystemId, designSystemVersion)
+    let rawValues = await this.getRawComponentPropertyValuesData(designSystemId, designSystemVersion)
+    let resolvedComponents = await this.resolveComponentData(rawComponents, rawProperties, rawValues, designSystemVersion)
     return resolvedComponents
   }
 
   private async getRawComponentData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
-    const endpoint = 'components'
-    let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).components
+    const endpoint = 'design-system-components'
+    let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).designSystemComponents
+    console.log(result)
     return result
   }
 
-  private async resolveComponentData(data: Array<ComponentRemoteModel>, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
-    let resolver = new ComponentResolver(data)
-    let result = await resolver.resolveComponentData(data)
+  private async getRawComponentPropertyData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentPropertyRemoteModel>> {
+    // Download component data from the design system endpoint. This downloads components of all types
+    const endpoint = 'element-properties/definitions'
+    let result: Array<ComponentPropertyRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).definitions
+    console.log(result)
+    return result
+  }
+
+  private async getRawComponentPropertyValuesData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentPropertyValueRemoteModel>> {
+    // Download component data from the design system endpoint. This downloads components of all types
+    const endpoint = 'element-properties/values'
+    let result: Array<ComponentPropertyValueRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).values
+    console.log(result)
+    return result
+  }
+
+  private async resolveComponentData(components: Array<ComponentRemoteModel>, properties: Array<ComponentPropertyRemoteModel>, values: Array<ComponentPropertyValueRemoteModel>, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+    let resolver = new ComponentResolver()
+    let result = await resolver.resolveComponentData(components, properties, values)
     return result
   }
 
