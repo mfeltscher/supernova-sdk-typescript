@@ -12,7 +12,7 @@
 
 import { Asset } from "../../model/assets/SDKAsset"
 import { AssetGroup } from "../../model/groups/SDKAssetGroup"
-import { ComponentGroupRemoteModel } from "../../model/groups/SDKComponentGroup"
+import { DesignComponentGroupRemoteModel } from "../../model/groups/SDKDesignComponentGroup"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -34,8 +34,8 @@ export class AssetGroupResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  async resolveGroupData(data: Array<ComponentGroupRemoteModel>): Promise<Array<AssetGroup>> {
-    var hashedGroups = new Map<string, ComponentGroupRemoteModel>()
+  async resolveGroupData(data: Array<DesignComponentGroupRemoteModel>): Promise<Array<AssetGroup>> {
+    var hashedGroups = new Map<string, DesignComponentGroupRemoteModel>()
     var resolvedGroups = new Map<string, AssetGroup>()
     var allowedAssetIds = this.assets.map(a => a.id)
 
@@ -51,12 +51,12 @@ export class AssetGroupResolver {
       let filteredAssetIds = new Array<string>()
       let referencedGroup = resolvedGroups.get(rawGroup.persistentId)
       for (let id of rawGroup.childrenIds) {
-        // Find if reference is group - if it is not, it is a asset or component
+        // Find if reference is group - if it is not, it is a asset or designComponent
         let childGroup = resolvedGroups.get(id)
         if (childGroup) {
           referencedGroup.addChild(childGroup)
         } else {
-          // Only allow assets, and filter out components
+          // Only allow assets, and filter out designComponents
           if (allowedAssetIds.includes(id)) {
             filteredAssetIds.push(id)
           }

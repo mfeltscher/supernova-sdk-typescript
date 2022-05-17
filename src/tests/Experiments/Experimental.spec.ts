@@ -40,6 +40,5 @@ test('test_experimental_tokens_to_style_dictionary', async t => {
 
     // Test structure
     t.true(true)
-    console.log(JSON.stringify(sdRepresentation, null, 2))
 })
 

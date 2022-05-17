@@ -1,5 +1,5 @@
 //
-//  SDKComponent.ts
+//  SDKDesignComponent.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -9,12 +9,12 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ComponentOrigin, ComponentOriginModel } from '../support/SDKComponentOrigin'
+import { DesignComponentOrigin, DesignComponentOriginModel } from '../support/SDKDesignComponentOrigin'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ComponentRemoteModel {
+export interface DesignComponentRemoteModel {
 
     id: string
     persistentId: string
@@ -28,7 +28,7 @@ export interface ComponentRemoteModel {
         name: string,
         description: string,
     }
-    originComponent?: ComponentOriginModel
+    originComponent?: DesignComponentOriginModel
 
     // Not used RN, so not properly defined - will be defined properly when we extend  model with components as well
     properties: Array<any> 
@@ -38,7 +38,7 @@ export interface ComponentRemoteModel {
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class Component {
+export class DesignComponent {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
@@ -49,13 +49,13 @@ export class Component {
   name: string
   description: string
 
-  origin: ComponentOrigin | null
+  origin: DesignComponentOrigin | null
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentRemoteModel) {
+  constructor(model: DesignComponentRemoteModel) {
     this.id = model.persistentId
     this.brandId = model.brandId
     this.thumbnailUrl = model.thumbnailUrl ?? null
@@ -63,6 +63,6 @@ export class Component {
     this.name = model.meta.name
     this.description = model.meta.description
     
-    this.origin = new ComponentOrigin(model.originComponent)
+    this.origin = new DesignComponentOrigin(model.originComponent)
   }
 }

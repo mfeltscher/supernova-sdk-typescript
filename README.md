@@ -8,7 +8,7 @@ The Supernova SDK provides convenient access to the [Supernova.io](https://super
 
 SDK comes with all functionality (all will come with more once it reaches general release) you need to build design system tooling you previously only dreamt of:
 
-- [x] Read API for `Tokens`, `Assets`, `Components`
+- [x] Read API for `Tokens`, `Assets`, `DesignComponents`
 - [x] Read API for Account-level objects like `Workspaces`, `Design Systems`
 - [x] Support for `single-branded` and `multi-branded` `Design Systems`
 - [x] Read API for `Documentation`, including entire structure, content and configuration
@@ -90,7 +90,7 @@ Workspace 1
 - `Workspace` is what you are a member of and is object that encapsulates everything, from your team to all design systems that were created under it. You can be a member of an unlimited number of workspaces, but in the majority of cases users are members of just a single one. You can have different roles and access rights under each of the workspaces you belong to.
 - Every `Design System` belongs to one `Workspace` and contains things like design system configuration, integration settings and admin-related tools.
 - Each `Design System` contains at minimum one active `Version` called `Shared Draft` - this version is where you write your data and is the only one which is allowed to be written to as well. 
-- `Version` is data container for all design system information - like `Tokens`, `Assets`, `Components` and `Documentation`. 
+- `Version` is data container for all design system information - like `Tokens`, `Assets`, `DesignComponents` and `Documentation`. 
 - `Version` object has all methods you need to access every piece of data you have in Supernova design system.
 - Each `Version` additionally contains `Brands`. As Supernova supports multi-branded design systems, `Brands` further separate data into data packs that only represent data belonging to one specific brand (for example, set of core tokens shared across all brands, but then subset of tokens specific only to that brand).
 - There is always at least one `Brand` in each `Version`, even if multi-branded functionality is disabled.
@@ -105,7 +105,7 @@ You can find full list of [what is possible, and how, here](https://github.com/S
 
 ## Resolution Caching
 
-Supernova SDK works little bit differently than you would probably expect by default. Because of how complex the design system data is (as an example, a token can contain references to other tokens and can also be made of different types of tokens which can then be used in components...) the SDK does all necessary resolution for you beforehand. 
+Supernova SDK works little bit differently than you would probably expect by default. Because of how complex the design system data is (as an example, a token can contain references to other tokens and can also be made of different types of tokens which can then be used in designComponents...) the SDK does all necessary resolution for you beforehand. 
 
 To allow reuse of the data, the resolved results are cached and used in follow-up resolutions (for example, if you would first access your design tokens and then access documentation that uses the tokens, tokens would be reused). In many situations, this is what you want. However, there are some cases where this behavior is not what you want, like longer-running sessions:
 
@@ -125,7 +125,7 @@ With cache disabled, every request will download all necessary information for e
 
 As this is still beta, we are working hard on improving it before the first official release. The following are areas we'd like to solve before general release:
 
-- [ ] Component API
+- [ ] DesignComponent API
 - [ ] Write API
 - [ ] Metadata API
 - [ ] Automation triggers

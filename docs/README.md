@@ -22,7 +22,7 @@ const designSystem = designSystem[0]
 const versions = await designSystem.versions()
 ```
 
-Versions finally allow you to get to the data like `Tokens`, `Assets` or `Components`. You can also use `Version` to access the `Documentation` tree, containing all pages, groups, configuration and every piece of text you made. Finally, versions contain `Brands`.
+Versions finally allow you to get to the data like `Tokens`, `Assets` or `DesignComponents`. You can also use `Version` to access the `Documentation` tree, containing all pages, groups, configuration and every piece of text you made. Finally, versions contain `Brands`.
 
 If you need the latest version everyone is building, instead of downloading all of them and checking `isActive` attribute, use convenience method of `DesignSystem` to fetch correct one for you:
 
@@ -46,7 +46,7 @@ https://cloud.supernova.io/ws/[WS_HANDLE]/ds/[DS_ID]/[DS_VERSION_ID]/...
 
 ## Obtaining design system elements
 
-You can use `Version` object to access contents of your design system. Each type of data (`Tokens`, `Assets`, `Components`) has several methods you can use to retrieve it: 
+You can use `Version` object to access contents of your design system. Each type of data (`Tokens`, `Assets`, `DesignComponents`) has several methods you can use to retrieve it: 
 
 ```typescript
 // Retrieve tokens as plain array

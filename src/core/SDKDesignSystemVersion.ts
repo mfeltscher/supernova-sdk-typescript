@@ -13,10 +13,10 @@
 
 import { Supernova } from "../core/SDKSupernova"
 import { Asset } from "../model/assets/SDKAsset"
-import { Component } from "../model/components/SDKComponent"
+import { DesignComponent } from "../model/components/SDKDesignComponent"
 import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
-import { ComponentGroup } from "../model/groups/SDKComponentGroup"
+import { DesignComponentGroup } from "../model/groups/SDKDesignComponentGroup"
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
 import { CustomTokenProperty, CustomTokenPropertyModel } from "../model/tokens/configuration/SDKCustomTokenProperty"
 import { Token } from "../model/tokens/SDKToken"
@@ -160,21 +160,21 @@ export class DesignSystemVersion {
     }
 
     /** Fetches all assets in this design system version for all defined brands  */
-    async components(): Promise<Array<Component>> {
+    async designComponents(): Promise<Array<DesignComponent>> {
 
-        return this.dataCore.currentDesignSystemComponents(this.designSystem.id, this)
+        return this.dataCore.currentDesignSystemDesignComponents(this.designSystem.id, this)
     }
 
-    /** Fetches all component group in this design system version for all defined brands  */
-    async componentGroups(): Promise<Array<ComponentGroup>> {
+    /** Fetches all designComponent group in this design system version for all defined brands  */
+    async designComponentGroups(): Promise<Array<DesignComponentGroup>> {
 
-        return this.dataCore.currentDesignSystemComponentGroups(this.designSystem.id, this)
+        return this.dataCore.currentDesignSystemDesignComponentGroups(this.designSystem.id, this)
     }
 
-    /** Fetches roots of the component group trees. This group will contain any other top-level groups that user created. This method returns all roots, one per each brand you have defined */
-    async componentGroupTree(): Promise<Array<ComponentGroup>> {
+    /** Fetches roots of the designComponent group trees. This group will contain any other top-level groups that user created. This method returns all roots, one per each brand you have defined */
+    async designComponentGroupTree(): Promise<Array<DesignComponentGroup>> {
 
-        let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystem.id, this)
+        let groups = await this.dataCore.currentDesignSystemDesignComponentGroups(this.designSystem.id, this)
         let rootGroups = groups.filter(g => g.isRoot)
         return rootGroups
     }

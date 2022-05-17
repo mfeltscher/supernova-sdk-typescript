@@ -20,8 +20,8 @@ export { ExporterConfigurationProperty, ExporterConfigurationPropertyInputType, 
 export { Asset } from '../src/model/assets/SDKAsset'
 export { RenderedAsset } from '../src/model/assets/SDKRenderedAsset'
 
-// Component
-export { Component } from '../src/model/components/SDKComponent'
+// DesignComponent
+export { DesignComponent } from '../src/model/components/SDKDesignComponent'
 
 // Documentation / Core
 export { Documentation } from '../src/core/SDKDocumentation'
@@ -78,7 +78,7 @@ export { RichTextSpanAttribute } from '../src/model/documentation/SDKDocumentati
 
 // Groups
 export { AssetGroup } from '../src/model/groups/SDKAssetGroup'
-export { ComponentGroup } from '../src/model/groups/SDKComponentGroup'
+export { DesignComponentGroup } from '../src/model/groups/SDKDesignComponentGroup'
 export { TokenGroup } from '../src/model/groups/SDKTokenGroup'
 
 // Enums
@@ -106,7 +106,7 @@ export { TokenType } from '../src/model/enums/SDKTokenType'
 export { Unit } from '../src/model/enums/SDKUnit'
 
 // Supporting objects
-export { ComponentOrigin } from '../src/model/support/SDKComponentOrigin'
+export { DesignComponentOrigin } from '../src/model/support/SDKDesignComponentOrigin'
 export { File } from '../src/model/support/SDKFile'
 export { Size } from '../src/model/support/SDKSize'
 export { TokenOrigin } from '../src/model/support/SDKTokenOrigin'

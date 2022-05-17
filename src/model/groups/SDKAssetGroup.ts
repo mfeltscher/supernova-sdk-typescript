@@ -6,7 +6,7 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-import { ComponentGroupRemoteModel } from "./SDKComponentGroup"
+import { DesignComponentGroupRemoteModel } from "./SDKDesignComponentGroup"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -36,7 +36,7 @@ import { ComponentGroupRemoteModel } from "./SDKComponentGroup"
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
   
-    constructor(model: ComponentGroupRemoteModel) {
+    constructor(model: DesignComponentGroupRemoteModel) {
       this.id = model.persistentId
       this.brandId = model.brandId
       this.name = model.meta.name

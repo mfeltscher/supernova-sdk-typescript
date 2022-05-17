@@ -13,7 +13,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ComponentGroupRemoteModel {
+export interface DesignComponentGroupRemoteModel {
   id: string
   designSystemVersionId: string
   persistentId: string
@@ -29,7 +29,7 @@ export interface ComponentGroupRemoteModel {
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class ComponentGroup {
+export class DesignComponentGroup {
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
@@ -39,16 +39,16 @@ export class ComponentGroup {
   name: string
   description: string
   path: Array<string>
-  subgroups: Array<ComponentGroup>
+  subgroups: Array<DesignComponentGroup>
   isRoot: boolean
   childrenIds: Array<string>
   componentIds: Array<string>
-  parent: ComponentGroup | null
+  parent: DesignComponentGroup | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentGroupRemoteModel) {
+  constructor(model: DesignComponentGroupRemoteModel) {
     this.id = model.persistentId
     this.brandId = model.brandId
     this.name = model.meta.name
@@ -58,18 +58,18 @@ export class ComponentGroup {
 
     this.path = new Array<string>()
     this.componentIds = new Array<string>()
-    this.subgroups = new Array<ComponentGroup>()
+    this.subgroups = new Array<DesignComponentGroup>()
     this.parent = null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Convenience
 
-  addChild(group: ComponentGroup) {
+  addChild(group: DesignComponentGroup) {
     this.subgroups.push(group)
   }
 
-  addChildren(groups: Array<ComponentGroup>) {
+  addChildren(groups: Array<DesignComponentGroup>) {
     this.subgroups = this.subgroups.concat(groups)
   }
 
@@ -77,7 +77,7 @@ export class ComponentGroup {
     this.path = segments
   }
 
-  setParent(parent: ComponentGroup | null) {
+  setParent(parent: DesignComponentGroup | null) {
     this.parent = parent ?? null
   }
 }

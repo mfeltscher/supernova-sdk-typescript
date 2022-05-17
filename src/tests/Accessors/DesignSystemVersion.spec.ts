@@ -58,35 +58,35 @@ test('test_designSystemVersion_tokenGroupTrees', async t => {
 })
 
 
-test('test_designSystemVersion_components', async t => {
+test('test_designSystemVersion_designComponents', async t => {
 
     // Fetch specific design system version
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
-    let components = await version.components()
-    t.true(components.length > 0)
+    let designComponents = await version.designComponents()
+    t.true(designComponents.length > 0)
 })
 
 
-test('test_designSystemVersion_componentGroups', async t => {
+test('test_designSystemVersion_designComponentGroups', async t => {
 
     // Fetch specific design system version
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
-    let groups = await version.componentGroups()
+    let groups = await version.designComponentGroups()
     t.true(groups.length > 0)
 })
 
 
-test('test_designSystemVersion_componentGroupTree', async t => {
+test('test_designSystemVersion_designComponentGroupTree', async t => {
 
     // Fetch specific design system version
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
 
     // Fetch its active version
-    let tree = await version.componentGroupTree()
+    let tree = await version.designComponentGroupTree()
     t.true(tree !== undefined && tree !== null)
 })
 

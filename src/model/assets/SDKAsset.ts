@@ -10,7 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ComponentRemoteModel } from "../components/SDKComponent"
+import { DesignComponentRemoteModel } from "../components/SDKDesignComponent"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -34,7 +34,7 @@ export class Asset {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentRemoteModel, duplicates: number) {
+  constructor(model: DesignComponentRemoteModel, duplicates: number) {
     
     this.id = model.persistentId
     this.brandId = model.brandId

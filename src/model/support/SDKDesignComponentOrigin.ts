@@ -1,5 +1,5 @@
 //
-//  SDKComponentOrigin.ts
+//  SDKDesignComponentOrigin.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -14,7 +14,7 @@ import { SourceType } from '../enums/SDKSourceType'
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ComponentOriginModel {
+export interface DesignComponentOriginModel {
     id: string,
     sourceId: string
     nodeId: string
@@ -24,7 +24,7 @@ export interface ComponentOriginModel {
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class ComponentOrigin {
+export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
@@ -37,7 +37,7 @@ export class ComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentOriginModel) {
+  constructor(model: DesignComponentOriginModel) {
     this.source = SourceType.figma // Always Figma for now
     this.sourceId = model.sourceId ?? null
     this.id = model.id ?? null

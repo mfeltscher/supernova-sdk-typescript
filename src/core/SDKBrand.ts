@@ -16,10 +16,10 @@ import { RenderedAsset } from "../model/assets/SDKRenderedAsset"
 import { AssetFormat } from "../model/enums/SDKAssetFormat"
 import { AssetScale } from "../model/enums/SDKAssetScale"
 import { Supernova } from ".."
-import { Component } from "../model/components/SDKComponent"
+import { DesignComponent } from "../model/components/SDKDesignComponent"
 import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
-import { ComponentGroup } from "../model/groups/SDKComponentGroup"
+import { DesignComponentGroup } from "../model/groups/SDKDesignComponentGroup"
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
@@ -121,26 +121,26 @@ export class Brand {
       return trees
     }
 
-    /** Fetches all components available in this design system version belonging to this specific brand */
-    async components(): Promise<Array<Component>> {
+    /** Fetches all designComponents available in this design system version belonging to this specific brand */
+    async designComponents(): Promise<Array<DesignComponent>> {
 
-      let components = await this.dataCore.currentDesignSystemComponents(this.designSystemVersion.designSystem.id, this.designSystemVersion)
-      let brandedComponents = components.filter(c => c.brandId === this.persistentId)
-      return brandedComponents
+      let designComponents = await this.dataCore.currentDesignSystemDesignComponents(this.designSystemVersion.designSystem.id, this.designSystemVersion)
+      let brandedDesignComponents = designComponents.filter(c => c.brandId === this.persistentId)
+      return brandedDesignComponents
     }
 
-    /** Fetches all component groups as flattened array available in this design system version belonging to this specific brand */
-    async componentGroups(): Promise<Array<ComponentGroup>> {
+    /** Fetches all designComponent groups as flattened array available in this design system version belonging to this specific brand */
+    async designComponentGroups(): Promise<Array<DesignComponentGroup>> {
 
-      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemDesignComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedGroups = groups.filter(g => g.brandId === this.persistentId)
       return brandedGroups
     }
 
-    /** Fetches root of the component group tree. This group will contain any other top-level groups that user created and will belong to this specific brand */
-    async componentGroupTree(): Promise<ComponentGroup> {
+    /** Fetches root of the designComponent group tree. This group will contain any other top-level groups that user created and will belong to this specific brand */
+    async designComponentGroupTree(): Promise<DesignComponentGroup> {
 
-      let groups = await this.dataCore.currentDesignSystemComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
+      let groups = await this.dataCore.currentDesignSystemDesignComponentGroups(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let rootGroups = groups.filter(g => g.isRoot && g.brandId === this.persistentId)
       return rootGroups[0]
     }

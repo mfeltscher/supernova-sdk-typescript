@@ -14,19 +14,19 @@ import { Asset } from "../../model/assets/SDKAsset"
 import { RenderedAsset, RenderedAssetModel } from "../../model/assets/SDKRenderedAsset"
 import { AssetFormat } from "../../model/enums/SDKAssetFormat"
 import { AssetScale } from "../../model/enums/SDKAssetScale"
-import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
+import { DesignComponent, DesignComponentRemoteModel } from "../../model/components/SDKDesignComponent"
 import { ExporterCustomBlock, ExporterCustomBlockModel } from "../../model/exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../../model/documentation/SDKDocumentationConfiguration"
 import { DocumentationGroupModel } from "../../model/documentation/SDKDocumentationGroup"
 import { DocumentationItem } from "../../model/documentation/SDKDocumentationItem"
 import { DocumentationPageModel } from "../../model/documentation/SDKDocumentationPage"
 import { AssetGroup } from "../../model/groups/SDKAssetGroup"
-import { ComponentGroup, ComponentGroupRemoteModel } from "../../model/groups/SDKComponentGroup"
+import { DesignComponentGroup, DesignComponentGroupRemoteModel } from "../../model/groups/SDKDesignComponentGroup"
 import { TokenGroup, TokenGroupRemoteModel } from "../../model/groups/SDKTokenGroup"
 import { TokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
 import { Token } from "../../model/tokens/SDKToken"
 import { AssetGroupResolver } from "../resolvers/SDKAssetGroupResolver"
-import { ComponentGroupResolver } from "../resolvers/SDKComponentGroupResolver"
+import { DesignComponentGroupResolver } from "../resolvers/SDKDesignComponentGroupResolver"
 import { DocumentationItemResolver } from "../resolvers/SDKDocumentationItemResolver"
 import { TokenGroupResolver } from "../resolvers/SDKTokenGroupResolver"
 import { TokenResolver } from "../resolvers/SDKTokenResolver"
@@ -49,8 +49,8 @@ export class DataCore {
   // Synchronization 
   private tokensSynced: boolean
   private tokenGroupsSynced: boolean
-  private componentAssetSynced: boolean
-  private componentAssetGroupsSynced: boolean
+  private designComponentAssetSynced: boolean
+  private designComponentAssetGroupsSynced: boolean
   private documentationItemsSynced: boolean
   private documentationSynced: boolean
   private exporterCustomBlocksSynced: boolean
@@ -58,8 +58,8 @@ export class DataCore {
   // Synchronization mutexes
   private tokenMutex = new Mutex()
   private tokenGroupMutex = new Mutex()
-  private componentAssetMutex = new Mutex()
-  private componentAssetGroupMutex = new Mutex()
+  private designComponentAssetMutex = new Mutex()
+  private designComponentAssetGroupMutex = new Mutex()
   private documentationItemMutex = new Mutex()
   private configurationMutex = new Mutex()
   private exporterCustomBlocksMutex = new Mutex()
@@ -67,8 +67,8 @@ export class DataCore {
   // Data store
   private tokens: Array<Token>
   private tokenGroups: Array<TokenGroup>
-  private components: Array<Component>
-  private componentGroups: Array<ComponentGroup>
+  private designComponents: Array<DesignComponent>
+  private designComponentGroups: Array<DesignComponentGroup>
   private assets: Array<Asset>
   private assetGroups: Array<AssetGroup>
   private documentation: Documentation
@@ -96,12 +96,12 @@ export class DataCore {
     this.exporterCustomBlocksSynced = false
     this.exporterCustomBlocks = new Array<ExporterCustomBlock>()
 
-    this.componentAssetSynced = false
-    this.components = new Array<Component>()
+    this.designComponentAssetSynced = false
+    this.designComponents = new Array<DesignComponent>()
     this.assets = new Array<Asset>()
 
-    this.componentAssetGroupsSynced = false
-    this.componentGroups = new Array<ComponentGroup>()
+    this.designComponentAssetGroupsSynced = false
+    this.designComponentGroups = new Array<DesignComponentGroup>()
     this.assetGroups = new Array<AssetGroup>()
 
     this.documentationSynced = false
@@ -148,11 +148,11 @@ export class DataCore {
 
   async currentDesignSystemAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Asset>> {
     // Thread-lock the call
-    const release = await this.componentAssetMutex.acquire()
+    const release = await this.designComponentAssetMutex.acquire()
 
     // Acquire data
-    if (!this.componentAssetSynced) {
-      await this.updateComponentAndAssetData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetSynced) {
+      await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
 
     // Unlock the thread
@@ -164,14 +164,14 @@ export class DataCore {
 
   async currentDesignSystemAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<AssetGroup>> {
     // Thread-lock the call
-    const release = await this.componentAssetGroupMutex.acquire()
+    const release = await this.designComponentAssetGroupMutex.acquire()
 
     // Acquire data
-    if (!this.componentAssetSynced) {
-      await this.updateComponentAndAssetData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetSynced) {
+      await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
-    if (!this.componentAssetGroupsSynced) {
-      await this.updateComponentAndAssetGroupData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetGroupsSynced) {
+      await this.updateDesignComponentAndAssetGroupData(designSystemId, designSystemVersion)
     }
 
     // Unlock the thread
@@ -248,41 +248,41 @@ export class DataCore {
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Public Accessors - Components
+  // MARK: - Public Accessors - DesignComponents
 
-  async currentDesignSystemComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+  async currentDesignSystemDesignComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponent>> {
     // Thread-lock the call
-    const release = await this.componentAssetMutex.acquire()
+    const release = await this.designComponentAssetMutex.acquire()
 
     // Acquire data
-    if (!this.componentAssetSynced) {
-      await this.updateComponentAndAssetData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetSynced) {
+      await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
 
     // Unlock the thread
     release()
 
     // Retrieve the data
-    return this.components
+    return this.designComponents
   }
 
-  async currentDesignSystemComponentGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentGroup>> {
+  async currentDesignSystemDesignComponentGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentGroup>> {
     // Thread-lock the call
-    const release = await this.componentAssetGroupMutex.acquire()
+    const release = await this.designComponentAssetGroupMutex.acquire()
 
     // Acquire data
-    if (!this.componentAssetSynced) {
-      await this.updateComponentAndAssetData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetSynced) {
+      await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
-    if (!this.componentAssetGroupsSynced) {
-      await this.updateComponentAndAssetGroupData(designSystemId, designSystemVersion)
+    if (!this.designComponentAssetGroupsSynced) {
+      await this.updateDesignComponentAndAssetGroupData(designSystemId, designSystemVersion)
     }
 
     // Unlock the thread
     release()
 
     // Retrieve the data
-    return this.componentGroups
+    return this.designComponentGroups
   }
 
   
@@ -541,47 +541,47 @@ export class DataCore {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Assets & Components
+  // MARK: - Assets & DesignComponents
 
-  /** Prepare design system data for use for the entire design system, downloading and resolving all components - and indirectly, assets as well */
-  async updateComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
-    // Download core design system component data without frame definitions
-    let result = await this.getComponentsAndAssets(designSystemId, designSystemVersion)
-    this.components = result.components
+  /** Prepare design system data for use for the entire design system, downloading and resolving all designComponents - and indirectly, assets as well */
+  async updateDesignComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
+    // Download core design system designComponent data without frame definitions
+    let result = await this.getDesignComponentsAndAssets(designSystemId, designSystemVersion)
+    this.designComponents = result.designComponents
     this.assets = result.assets
     if (this.bridge.cache) {
-      this.componentAssetSynced = true
+      this.designComponentAssetSynced = true
     }
   }
 
-  private async getComponentsAndAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<{ 
-    components: Array<Component>, 
+  private async getDesignComponentsAndAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<{ 
+    designComponents: Array<DesignComponent>, 
     assets: Array<Asset> 
   }> {
     // Download the raw token data and resolve them
-    let rawData = await this.getRawComponentAndAssetData(designSystemId, designSystemVersion)
-    let resolvedComponentsAndAssets = await this.resolveComponentAndAssetData(rawData, designSystemVersion)
-    return resolvedComponentsAndAssets
+    let rawData = await this.getRawDesignComponentAndAssetData(designSystemId, designSystemVersion)
+    let resolvedDesignComponentsAndAssets = await this.resolveDesignComponentAndAssetData(rawData, designSystemVersion)
+    return resolvedDesignComponentsAndAssets
   }
 
-  private async getRawComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentRemoteModel>> {
+  private async getRawDesignComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentRemoteModel>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = 'components'
-    let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).components
+    let result: Array<DesignComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).components
     return result
   }
 
-  private async resolveComponentAndAssetData(
-    data: Array<ComponentRemoteModel>,
+  private async resolveDesignComponentAndAssetData(
+    data: Array<DesignComponentRemoteModel>,
     _version: DesignSystemVersion
   ): Promise<{ 
-    components: Array<Component>, 
+    designComponents: Array<DesignComponent>, 
     assets: Array<Asset> 
   }> {
-    // For now, transform all components into components
-    let components: Array<Component> = []
-    for (let component of data) {
-      components.push(new Component(component))
+    // For now, transform all designComponents into designComponents
+    let designComponents: Array<DesignComponent> = []
+    for (let designComponent of data) {
+      designComponents.push(new DesignComponent(designComponent))
     }
 
     // For duplicates
@@ -592,7 +592,7 @@ export class DataCore {
       }
     }
 
-    // Transform only exportable components into assets
+    // Transform only exportable designComponents into assets
     let assets: Array<Asset> = []
     for (let asset of data) {
       let lowercasedName = asset.meta.name.toLowerCase()
@@ -604,53 +604,53 @@ export class DataCore {
     }
 
     return {
-      components: components,
+      designComponents: designComponents,
       assets: assets
     }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Component & Assets Groups
+  // MARK: - DesignComponent & Assets Groups
 
   /** Prepare design system data for use for the entire design system, downloading and resolving all groups */
-  async updateComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
+  async updateDesignComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
-    let result = await this.getComponentAndAssetGroups(designSystemId, designSystemVersion, this.components, this.assets)
-    this.componentGroups = result.componentGroups
+    let result = await this.getDesignComponentAndAssetGroups(designSystemId, designSystemVersion, this.designComponents, this.assets)
+    this.designComponentGroups = result.designComponentGroups
     this.assetGroups = result.assetGroups
     if (this.bridge.cache) {
-      this.componentAssetGroupsSynced = true
+      this.designComponentAssetGroupsSynced = true
     }
   }
 
-  private async getComponentAndAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion, components: Array<Component>, assets: Array<Asset>): Promise<{
-    componentGroups: Array<ComponentGroup>,
+  private async getDesignComponentAndAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion, designComponents: Array<DesignComponent>, assets: Array<Asset>): Promise<{
+    designComponentGroups: Array<DesignComponentGroup>,
     assetGroups: Array<AssetGroup>
   }> {
     // Download the raw token data and resolve them
-    let rawData = await this.getRawComponentAndAssetGroupData(designSystemId, designSystemVersion)
-    let resolvedComponentGroups = await this.resolveComponentGroupData(rawData, components)
+    let rawData = await this.getRawDesignComponentAndAssetGroupData(designSystemId, designSystemVersion)
+    let resolvedDesignComponentGroups = await this.resolveDesignComponentGroupData(rawData, designComponents)
     let resolvedAssetGroups = await this.resolveAssetGroupData(rawData, assets)
     return {
-      componentGroups: resolvedComponentGroups,
+      designComponentGroups: resolvedDesignComponentGroups,
       assetGroups: resolvedAssetGroups
     }
   }
 
-  private async getRawComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentGroupRemoteModel>> {
+  private async getRawDesignComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentGroupRemoteModel>> {
     // Download token group data from the design system endpoint
     const endpoint = 'component-groups'
-    let result: Array<ComponentGroupRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).groups
+    let result: Array<DesignComponentGroupRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).groups
     return result
   }
 
-  private async resolveComponentGroupData(data: Array<ComponentGroupRemoteModel>, components: Array<Component>): Promise<Array<ComponentGroup>> {
-    let resolver = new ComponentGroupResolver(components)
+  private async resolveDesignComponentGroupData(data: Array<DesignComponentGroupRemoteModel>, designComponents: Array<DesignComponent>): Promise<Array<DesignComponentGroup>> {
+    let resolver = new DesignComponentGroupResolver(designComponents)
     let result = await resolver.resolveGroupData(data)
     return result
   }
 
-  private async resolveAssetGroupData(data: Array<ComponentGroupRemoteModel>, assets: Array<Asset>): Promise<Array<AssetGroup>> {
+  private async resolveAssetGroupData(data: Array<DesignComponentGroupRemoteModel>, assets: Array<Asset>): Promise<Array<AssetGroup>> {
     let resolver = new AssetGroupResolver(assets)
     let result = await resolver.resolveGroupData(data)
     return result

@@ -1,5 +1,5 @@
 //
-//  SDKComponentGroupResolver.ts
+//  SDKDesignComponentGroupResolver.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -10,56 +10,56 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Component } from "../../model/components/SDKComponent"
-import { ComponentGroup, ComponentGroupRemoteModel } from "../../model/groups/SDKComponentGroup"
+import { DesignComponent } from "../../model/components/SDKDesignComponent"
+import { DesignComponentGroup, DesignComponentGroupRemoteModel } from "../../model/groups/SDKDesignComponentGroup"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
 
-export class ComponentGroupResolver {
+export class DesignComponentGroupResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Configuration
 
-  components: Array<Component>
+  designComponents: Array<DesignComponent>
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(components: Array<Component>) {
-      this.components = components
+  constructor(designComponents: Array<DesignComponent>) {
+      this.designComponents = designComponents
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  async resolveGroupData(data: Array<ComponentGroupRemoteModel>): Promise<Array<ComponentGroup>> {
-    var hashedGroups = new Map<string, ComponentGroupRemoteModel>()
-    var resolvedGroups = new Map<string, ComponentGroup>()
+  async resolveGroupData(data: Array<DesignComponentGroupRemoteModel>): Promise<Array<DesignComponentGroup>> {
+    var hashedGroups = new Map<string, DesignComponentGroupRemoteModel>()
+    var resolvedGroups = new Map<string, DesignComponentGroup>()
 
     // Convert raw groups to resolved groups, not caring about the references just yet
     for (let rawGroup of data) {
-      let group = new ComponentGroup(rawGroup)
+      let group = new DesignComponentGroup(rawGroup)
       hashedGroups.set(rawGroup.persistentId, rawGroup)
       resolvedGroups.set(rawGroup.persistentId, group)
     }
 
-    // Build the reference tree and list of components
+    // Build the reference tree and list of designComponents
     for (let rawGroup of data) {
-      let filteredComponentIds = new Array<string>()
+      let filteredDesignComponentIds = new Array<string>()
       let referencedGroup = resolvedGroups.get(rawGroup.persistentId)
       for (let id of rawGroup.childrenIds) {
-        // Find if reference is group - if it is not, it is a component
+        // Find if reference is group - if it is not, it is a designComponent
         let childGroup = resolvedGroups.get(id)
         if (childGroup) {
           referencedGroup.addChild(childGroup)
         } else {
-            // Note: All components are valid. In case of asset tree however, only some are valid
+            // Note: All designComponents are valid. In case of asset tree however, only some are valid
             // Here, we don't filter out anything
-            filteredComponentIds.push(id)
+            filteredDesignComponentIds.push(id)
         }
       }
-      referencedGroup.componentIds = filteredComponentIds
+      referencedGroup.componentIds = filteredDesignComponentIds
     }
 
     // Retrieve resolved groups
@@ -69,7 +69,7 @@ export class ComponentGroupResolver {
     return this.reorderGroupsByRoots(groups)
   }
 
-  private recomputePaths(groups: Array<ComponentGroup>) {
+  private recomputePaths(groups: Array<DesignComponentGroup>) {
     // Find roots, and compute the segments down from the roots
     for (let group of groups) {
       if (group.isRoot) {
@@ -82,7 +82,7 @@ export class ComponentGroupResolver {
     }
   }
 
-  private recomputePathsFromRoot(root: ComponentGroup, segments: Array<string>) {
+  private recomputePathsFromRoot(root: DesignComponentGroup, segments: Array<string>) {
     // Recursively go down the tree(s) and add segments to each
     let extendedPath = segments.concat(root.name)
     for (let group of root.subgroups) {
@@ -91,8 +91,8 @@ export class ComponentGroupResolver {
     }
   }
 
-  private reorderGroupsByRoots(groups: Array<ComponentGroup>): Array<ComponentGroup> {
-    let sortedGroups = new Array<ComponentGroup>()
+  private reorderGroupsByRoots(groups: Array<DesignComponentGroup>): Array<DesignComponentGroup> {
+    let sortedGroups = new Array<DesignComponentGroup>()
 
     // Find the root groups, which will be initial sorting points
     let roots = groups.filter(g => g.isRoot)
@@ -104,8 +104,8 @@ export class ComponentGroupResolver {
     return sortedGroups
   }
 
-  private traverseSortGroup(group: ComponentGroup): Array<ComponentGroup> {
-    let output = new Array<ComponentGroup>()
+  private traverseSortGroup(group: DesignComponentGroup): Array<DesignComponentGroup> {
+    let output = new Array<DesignComponentGroup>()
     // Iterated group always first
     output.push(group)
 
@@ -121,7 +121,7 @@ export class ComponentGroupResolver {
     return output
   }
 
-  private recomputeParents(groups: Array<ComponentGroup>) {
+  private recomputeParents(groups: Array<DesignComponentGroup>) {
     // Find roots, and compute the references down the chain. Root groups don't have parents
     for (let group of groups) {
       if (group.isRoot) {
@@ -131,7 +131,7 @@ export class ComponentGroupResolver {
     }
   }
 
-  private recomputeParentsFromRoot(rootGroup: ComponentGroup) {
+  private recomputeParentsFromRoot(rootGroup: DesignComponentGroup) {
     for (let group of rootGroup.subgroups) {
       group.setParent(rootGroup)
       this.recomputeParentsFromRoot(group)
