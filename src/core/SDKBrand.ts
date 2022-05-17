@@ -24,6 +24,7 @@ import { TokenGroup } from "../model/groups/SDKTokenGroup"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
+import { Component } from "../model/components/SDKComponent"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -122,6 +123,15 @@ export class Brand {
     }
 
     /** Fetches all designComponents available in this design system version belonging to this specific brand */
+    async components(): Promise<Array<Component>> {
+
+      let components = await this.dataCore.currentDesignSystemComponents(this.designSystemVersion.designSystem.id, this.designSystemVersion)
+      let brandedComponents = components.filter(c => c.brandId === this.persistentId)
+      return brandedComponents
+    }
+
+
+    /** Fetches all designComponents (Figma for now) available in this design system version belonging to this specific brand */
     async designComponents(): Promise<Array<DesignComponent>> {
 
       let designComponents = await this.dataCore.currentDesignSystemDesignComponents(this.designSystemVersion.designSystem.id, this.designSystemVersion)

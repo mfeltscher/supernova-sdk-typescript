@@ -37,6 +37,7 @@ import { ExporterConfigurationProperty, ExporterConfigurationPropertyModel } fro
 import { Exporter, ExporterModel } from "../../model/exporters/SDKExporter"
 import { DesignSystem } from "../SDKDesignSystem"
 import { ExporterCustomBlockVariant } from "../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant"
+import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -49,6 +50,7 @@ export class DataCore {
   // Synchronization 
   private tokensSynced: boolean
   private tokenGroupsSynced: boolean
+  private componentsSynced: boolean
   private designComponentAssetSynced: boolean
   private designComponentAssetGroupsSynced: boolean
   private documentationItemsSynced: boolean
@@ -58,6 +60,7 @@ export class DataCore {
   // Synchronization mutexes
   private tokenMutex = new Mutex()
   private tokenGroupMutex = new Mutex()
+  private componentMutex = new Mutex()
   private designComponentAssetMutex = new Mutex()
   private designComponentAssetGroupMutex = new Mutex()
   private documentationItemMutex = new Mutex()
@@ -67,6 +70,7 @@ export class DataCore {
   // Data store
   private tokens: Array<Token>
   private tokenGroups: Array<TokenGroup>
+  private components: Array<Component>
   private designComponents: Array<DesignComponent>
   private designComponentGroups: Array<DesignComponentGroup>
   private assets: Array<Asset>
@@ -89,6 +93,9 @@ export class DataCore {
 
     this.tokenGroupsSynced = false
     this.tokenGroups = new Array<TokenGroup>()
+
+    this.componentsSynced = false
+    this.components = new Array<Component>()
 
     this.documentationItemsSynced = false
     this.documentationItems = new Array<DocumentationItem>()
@@ -248,7 +255,27 @@ export class DataCore {
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Public Accessors - DesignComponents
+  // MARK: - Public Accessors - Components
+
+  async currentDesignSystemComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+    // Thread-lock the call
+    const release = await this.componentMutex.acquire()
+
+    // Acquire data
+    if (!this.componentsSynced) {
+      await this.updateComponentData(designSystemId, designSystemVersion)
+    }
+
+    // Unlock the thread
+    release()
+
+    // Retrieve the data
+    return this.components
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Public Accessors - Design Components
 
   async currentDesignSystemDesignComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponent>> {
     // Thread-lock the call
@@ -541,9 +568,43 @@ export class DataCore {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Assets & DesignComponents
+  // MARK: - Components
 
-  /** Prepare design system data for use for the entire design system, downloading and resolving all designComponents - and indirectly, assets as well */
+  /** Prepare design system data for use for the entire design system, downloading and resolving all components - and indirectly, assets as well */
+  async updateComponentData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
+    // Download core design system component data
+    let result = await this.getComponents(designSystemId, designSystemVersion)
+    this.components = result.components
+    if (this.bridge.cache) {
+      this.componentsSynced = true
+    }
+  }
+
+  private async getComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+    // Download the raw token data and resolve them
+    let rawData = await this.getRawComponentData(designSystemId, designSystemVersion)
+    let resolvedComponents = await this.resolveComponentData(rawData, designSystemVersion)
+    return resolvedComponents
+  }
+
+  private async getRawComponentData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentRemoteModel>> {
+    // Download component data from the design system endpoint. This downloads components of all types
+    const endpoint = 'components'
+    let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).components
+    return result
+  }
+
+  private async resolveComponentData(data: Array<ComponentRemoteModel>, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+    let resolver = new ComponentResolver(data)
+    let result = await resolver.resolveComponentData(data)
+    return result
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Assets & Design Components
+
+  /** Prepare design system data for use for the entire design system, downloading and resolving all design components - and indirectly, assets as well */
   async updateDesignComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system designComponent data without frame definitions
     let result = await this.getDesignComponentsAndAssets(designSystemId, designSystemVersion)

@@ -53,6 +53,18 @@ test('test_brand_tokenGroupTrees', async t => {
 })
 
 
+test('test_brand_components', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let brand = (await version.brands())[0]
+
+    // Fetch its active version
+    let components = await brand.components()
+    t.true(components.length > 0)
+})
+
+
 test('test_brand_designComponents', async t => {
 
     // Fetch specific design system version

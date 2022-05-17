@@ -13,6 +13,7 @@
 
 import { Supernova } from "../core/SDKSupernova"
 import { Asset } from "../model/assets/SDKAsset"
+import { Component } from "../model/components/SDKComponent"
 import { DesignComponent } from "../model/components/SDKDesignComponent"
 import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
@@ -157,6 +158,12 @@ export class DesignSystemVersion {
         }
 
         return trees
+    }
+
+    /** Fetches all assets in this design system version for all defined brands  */
+    async components(): Promise<Array<Component>> {
+
+        return this.dataCore.currentDesignSystemComponents(this.designSystem.id, this)
     }
 
     /** Fetches all assets in this design system version for all defined brands  */
