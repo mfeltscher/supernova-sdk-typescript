@@ -2,6 +2,25 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.4] - 2022-05-05
+### Component API Preview
+
+We are releasing component API for preview. (true) Components are new concept coming to Supernova and we will be building upon them heavily in the upcoming months. You can access their first iteration through both version and brand accessors:
+
+```typescript
+
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+let brand = await version.brands()[0]
+
+// Fetch all components
+let components: Array<Component> = await version.components()
+// (or) fetch brand-specific components
+let brandedComponents: Array<Component> = await brand.components()
+```
+
+We have also changed current (mostly unused) Figma components to be called `DesignComponent`.
+
 ## [1.7.3] - 2022-05-05
 ### Better tables & experimental style dictionary transformer
 

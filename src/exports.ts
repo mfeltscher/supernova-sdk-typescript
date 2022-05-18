@@ -20,7 +20,12 @@ export { ExporterConfigurationProperty, ExporterConfigurationPropertyInputType, 
 export { Asset } from '../src/model/assets/SDKAsset'
 export { RenderedAsset } from '../src/model/assets/SDKRenderedAsset'
 
-// DesignComponent
+// Components
+export { Component } from '../src/model/components/SDKComponent'
+export { ComponentProperty, ComponentPropertyLinkElementType, ComponentPropertyTargetElementType, ComponentPropertyType } from '../src/model/components/SDKComponentProperty'
+export { ComponentPropertyOption } from '../src/model/components/SDKComponentPropertyOption'
+
+// Design Components
 export { DesignComponent } from '../src/model/components/SDKDesignComponent'
 
 // Documentation / Core
