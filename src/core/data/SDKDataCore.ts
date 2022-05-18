@@ -596,7 +596,6 @@ export class DataCore {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'design-system-components'
     let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).designSystemComponents
-    console.log(result)
     return result
   }
 
@@ -604,7 +603,6 @@ export class DataCore {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/definitions'
     let result: Array<ComponentPropertyRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).definitions
-    console.log(result)
     return result
   }
 
@@ -612,7 +610,6 @@ export class DataCore {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/values'
     let result: Array<ComponentPropertyValueRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).values
-    console.log(result)
     return result
   }
 

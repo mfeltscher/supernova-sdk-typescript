@@ -9,20 +9,18 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ComponentPropertyValueLink, ComponentPropertyValueLinkRemoteModel } from "./SDKComponentPropertyValueLink"
-
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
 export interface ComponentPropertyValueRemoteModel {
  
-    value: string | boolean | number | ComponentPropertyValueLinkRemoteModel
+    value: string | boolean | number
 
     id: string // unique
-    designSystemVersionId: string
-    definitionId: string // column
-    targetElementId: string // component / row
+    designSystemVersionId: string // unique
+    definitionId: string // corresponds to column - property persistentID
+    targetElementId: string // corresponds to linked component - component persistentID
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -33,7 +31,7 @@ export class ComponentPropertyValue {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  value: string | boolean | number | ComponentPropertyValueLink
+  value: string | boolean | number
 
   id: string
   designSystemVersionId: string
@@ -48,12 +46,11 @@ export class ComponentPropertyValue {
     this.id = model.id
     this.designSystemVersionId = model.designSystemVersionId
 
-    if (typeof model.value === "object") {
-        this.value = new ComponentPropertyValueLink(model.value as ComponentPropertyValueLinkRemoteModel)
+    if (model.hasOwnProperty("value")) {
+      this.value = model.value
     } else {
-        this.value = model.value
+      this.value = null
     }
-
     this.definitionId = model.definitionId
     this.targetElementId = model.targetElementId
   }

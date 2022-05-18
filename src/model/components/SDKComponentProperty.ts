@@ -21,7 +21,8 @@ export enum ComponentPropertyType {
     boolean = 'Boolean',
     select = 'Select',
     generic = 'Generic',
-    link = 'Link'
+    link = 'Link',
+    url = 'URL'
 }
 
 export enum ComponentPropertyTargetElementType {

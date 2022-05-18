@@ -74,7 +74,7 @@ export class Component {
             for (let property of properties) {
                 if (property.persistentId === value.definitionId) {
                     // Property value refers to the correct property, we get codeName from it and add it to quick-access
-                    this.propertyValues[property.codeName] = value.value
+                    this.propertyValues[property.persistentId] = value.value // TODO: Use codename instead
                 }
             }
         }
