@@ -2,7 +2,7 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
-## [1.7.4] - 2022-05-05
+## [1.7.5] - 2022-19-05
 ### Component API Preview
 
 We are releasing component API for preview. (true) Components are new concept coming to Supernova and we will be building upon them heavily in the upcoming months. You can access their first iteration through both version and brand accessors:
