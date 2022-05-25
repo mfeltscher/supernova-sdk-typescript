@@ -17,6 +17,7 @@ import { SourceType } from '../enums/SDKSourceType'
 export interface TokenOriginModel {
   id?: string
   name?: string
+  sourceId?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -26,16 +27,16 @@ export class TokenOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  source: SourceType
   id: string | null
   name: string | null
+  sourceId: string | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
   constructor(model: TokenOriginModel) {
-    this.source = SourceType.figma // Always Figma is this object was created
     this.id = model.id ?? null
     this.name = model.name ?? null
+    this.sourceId = model.sourceId ?? null
   }
 }

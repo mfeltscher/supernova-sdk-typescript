@@ -42,6 +42,7 @@ export interface TokenRemoteModel {
   originStyle?: {
     id?: string
     name?: string
+    sourceId?: string
   }
   data: {
     aliasTo?: string

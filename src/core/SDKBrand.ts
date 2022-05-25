@@ -25,6 +25,7 @@ import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { Component } from "../model/components/SDKComponent"
+import { BrandWriter } from "./SDKBrandWriter"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -86,6 +87,16 @@ export class Brand {
       // We are reusing data core from version so the data for all brands are cached across the system
       // Note that this might potentially be further optimized just by requesting specific data for specific... But later, as brands will still be nuanced use :)
       this.dataCore = version.dataCore
+    }
+
+
+    // --- --- --- --- --- --- --- --- --- --- 
+    // MARK: - Writer
+
+    /** Retrieve write object for this brand */
+    writer(): BrandWriter {
+
+      return new BrandWriter(this.engine, this)
     }
 
 

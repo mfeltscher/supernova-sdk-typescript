@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { DesignSystemVersion } from '../..'
 import { TokenType } from '../enums/SDKTokenType'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -36,7 +37,9 @@ export class TokenGroup {
   // MARK: - Public properties
 
   id: string
+  versionedId: string
   brandId: string
+  designSystemVersionId: string
   name: string
   description: string
   path: Array<string>
@@ -52,7 +55,9 @@ export class TokenGroup {
 
   constructor(model: TokenGroupRemoteModel) {
     this.id = model.persistentId
+    this.versionedId = model.id
     this.brandId = model.brandId
+    this.designSystemVersionId = model.designSystemVersionId
     this.name = model.meta.name
     this.description = model.meta.description
     this.isRoot = model.isRoot
@@ -82,5 +87,42 @@ export class TokenGroup {
 
   setParent(parent: TokenGroup | null) {
     this.parent = parent ?? null
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Write
+
+  toWriteObject(): TokenGroupRemoteModel {
+
+    return {
+      id: this.id,
+      brandId: this.brandId,
+      tokenType: this.tokenType,
+      designSystemVersionId: this.designSystemVersionId,
+      persistentId: this.versionedId,
+      isRoot: this.isRoot,
+      meta: {
+        name: this.name,
+        description: this.description
+      },
+      childrenIds: this.childrenIds
+    }
+  }
+
+  toMutatedObject(childrenIds: Array<string>) {
+
+    return new TokenGroup({
+      id: this.id,
+      brandId: this.brandId,
+      tokenType: this.tokenType,
+      designSystemVersionId: this.designSystemVersionId,
+      persistentId: this.versionedId,
+      isRoot: this.isRoot,
+      meta: {
+        name: this.name,
+        description: this.description
+      },
+      childrenIds: childrenIds
+    })
   }
 }

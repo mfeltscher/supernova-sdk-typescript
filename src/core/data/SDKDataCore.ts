@@ -781,4 +781,19 @@ export class DataCore {
     let result = await resolver.resolveItemData(pageDetails, groupDetails)
     return result
   }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Writing
+
+  async writeTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion, tokens: Array<TokenRemoteModel>, groups: Array<TokenGroupRemoteModel>): Promise<{ tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> }> {
+
+    const endpoint = 'bff/import'
+    const payload = {
+      tokens: tokens,
+      tokenGroups: groups
+    }
+
+    let result: { tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
+    return result
+  }
 }

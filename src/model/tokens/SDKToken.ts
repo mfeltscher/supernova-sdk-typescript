@@ -24,7 +24,9 @@ export class Token implements TokenValue {
   // MARK: - Public properties
 
   id: string
+  versionedId: string
   brandId: string
+  designSystemVersionId: string
   name: string
   description: string
   tokenType: TokenType
@@ -36,7 +38,9 @@ export class Token implements TokenValue {
 
   constructor(model: TokenRemoteModel, dsVersion: DesignSystemVersion) {
     this.id = model.persistentId
+    this.versionedId = model.id
     this.brandId = model.brandId
+    this.designSystemVersionId = dsVersion.id
     this.name = model.meta.name
     this.description = model.meta.description
     this.tokenType = model.type
@@ -66,5 +70,32 @@ export class Token implements TokenValue {
     }
 
     return properties
+  }
+
+  toBaseWriteObject(): TokenRemoteModel {
+
+    return {
+      id: this.versionedId,
+      brandId: this.brandId,
+      designSystemVersionId: this.designSystemVersionId,
+      persistentId: this.id,
+      type: this.tokenType,
+      meta: {
+        name: this.name,
+        description: this.description
+      },
+      originStyle: this.origin ? {
+        id: this.origin.id ?? undefined,
+        name: this.origin.name ?? undefined,
+        sourceId: this.origin.sourceId ?? undefined
+      } : undefined,
+      customPropertyOverrides: [],
+      data: undefined
+    }
+  }
+
+  toWriteObject(): TokenRemoteModel {
+
+    throw Error("Unable to write generic token")
   }
 }
