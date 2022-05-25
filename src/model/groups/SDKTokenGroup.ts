@@ -54,6 +54,8 @@ export class TokenGroup {
   // MARK: - Constructor
 
   constructor(model: TokenGroupRemoteModel) {
+    console.log("creating with model")
+    console.log(model)
     this.id = model.persistentId
     this.versionedId = model.id
     this.brandId = model.brandId
@@ -95,11 +97,11 @@ export class TokenGroup {
   toWriteObject(): TokenGroupRemoteModel {
 
     return {
-      id: this.id,
+      id: this.versionedId,
       brandId: this.brandId,
       tokenType: this.tokenType,
       designSystemVersionId: this.designSystemVersionId,
-      persistentId: this.versionedId,
+      persistentId: this.id,
       isRoot: this.isRoot,
       meta: {
         name: this.name,
@@ -112,11 +114,11 @@ export class TokenGroup {
   toMutatedObject(childrenIds: Array<string>) {
 
     return new TokenGroup({
-      id: this.id,
+      id: this.versionedId,
       brandId: this.brandId,
       tokenType: this.tokenType,
       designSystemVersionId: this.designSystemVersionId,
-      persistentId: this.versionedId,
+      persistentId: this.id,
       isRoot: this.isRoot,
       meta: {
         name: this.name,

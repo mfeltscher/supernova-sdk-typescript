@@ -60,6 +60,9 @@ export class ColorToken extends Token {
     }
 
     // Construct value
+    if (value.length === 7) {
+      value = value + "ff"
+    }
     let hex = value.substr(1) // RRGGBBAA
     let r = parseInt(hex.slice(0, 2), 16)
     let g = parseInt(hex.slice(2, 4), 16)
