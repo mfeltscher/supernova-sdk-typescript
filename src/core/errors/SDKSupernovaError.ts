@@ -21,7 +21,9 @@ enum SupernovaErrorType {
   /** Thrown when request failed to perform, for example when network is unreachable */
   requestError = "request",
   /** Thrown when request was performed successfully, but SDK data validation or processing failed */
-  computeError = "compute"
+  computeError = "compute",
+  /** Thrown when data processing failed */
+  processingError = "processing"
 }
 
 
@@ -69,5 +71,11 @@ export class SupernovaError extends Error {
     
     // Error was thrown outside of the network, so reason must be provided
     return new SupernovaError(message, SupernovaErrorType.computeError)
+  }
+
+  static fromProcessingError(message: string) {
+    
+    // Error was thrown in the processing layer - tooling etc.
+    return new SupernovaError(message, SupernovaErrorType.processingError)
   }
 }
