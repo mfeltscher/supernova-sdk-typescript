@@ -72,6 +72,11 @@ export class DTJSONConverter {
       let unprocessedDepthTokens = new Array<DTParsedNode>()
       for (let node of unprocessedTokens) {
         let token = this.convertReferencedNode(node, processedTokens)
+        if (token) {
+          processedTokens.push(token)
+        } else {
+          unprocessedDepthTokens.push(node)
+        }
       }
       if (unprocessedDepthTokens.length === 0) {
         break
@@ -79,8 +84,7 @@ export class DTJSONConverter {
       unprocessedTokens = unprocessedDepthTokens
     }
 
-    tokens.concat(this.convertAtomicNodes(nodes))
-    
+    return processedTokens
   }
 
 
@@ -88,6 +92,15 @@ export class DTJSONConverter {
   // MARK: - Atomic nodes
 
   convertAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+
+    let snType = this.convertDTTypeToSupernovaType(node.type)
+    switch (snType) {
+      case TokenType.color: return this.convertColorAtomicNode(node)
+      default: throw new Error("Unsupported token type " + snType)
+    }
+  }
+
+  convertColorAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
 
   }
 
@@ -101,7 +114,7 @@ export class DTJSONConverter {
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Support
+  // MARK: - Convenience
 
   valueIsReference(value: string): boolean {
 
@@ -109,5 +122,13 @@ export class DTJSONConverter {
     return value.length > 3 && 
            value.startsWith("{") &&
            value.endsWith("}")
+  }
+
+  convertDTTypeToSupernovaType(type: string): TokenType {
+   
+    switch (type) {
+      case "Color": return TokenType.color
+      default: throw new Error("Unsupported token type " + type)
+    }
   }
 }
