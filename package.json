@@ -58,6 +58,7 @@
         "dot-prop": "^5.2.0",
         "lodash": "~4.17.21",
         "marked": "^1.1.1",
+        "parse-color": "^1.0.0",
         "ts-dedent": "^1.1.1",
         "uuidv4": "^6.2.13"
     },

@@ -49,11 +49,7 @@ test('test_components_values', async t => {
     let brand = (await version.brands())[0]
     let component = (await brand.components())[0]
 
-    console.log(component)
-
     // Test properties
-    console.log("component prop values")
-    console.log(component.propertyValues)
     t.true(component.properties.length === Object.keys(component.propertyValues).length)
 })
 

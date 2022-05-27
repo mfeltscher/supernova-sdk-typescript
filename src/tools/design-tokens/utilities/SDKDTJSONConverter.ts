@@ -1,15 +1,16 @@
 //
-//  SDKToolsTokenSync.ts
+//  SDKDTJSONConverter.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
-//  Copyright © 2021 Supernova. All rights reserved.
+//  Copyright © 2022 Supernova. All rights reserved.
 //
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, DesignSystemVersion, Token, TokenGroup, TokenType } from "../../.."
+import { Brand, ColorToken, DesignSystemVersion, Token, TokenGroup, TokenType } from "../../.."
+import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
 import { DTParsedNode } from "./SDKDTJSONLoader"
 
 
@@ -18,12 +19,13 @@ import { DTParsedNode } from "./SDKDTJSONLoader"
 
 export type DTProcessedTokenNode = {
   token: Token,
-  path: Array<string>
+  path: Array<string>,
+  key: string
 }
 
 type DTRootNodeDefinition = {
   name: string,
-  type: TokenType
+  type: TokenType,
 }
 
 
@@ -52,6 +54,19 @@ export class DTJSONConverter {
 
   convertNodesToTokens(nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
 
+    let processedNodes: Array<DTProcessedTokenNode> = []
+
+    // Color tokens
+    processedNodes = processedNodes.concat(this.convertNodesToTokensForGroupingRootNodeKeys(["color"], nodes))
+
+    // Retrieve all tokens
+    return processedNodes
+  }
+
+  private convertNodesToTokensForGroupingRootNodeKeys(keys: Array<string>, nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
+
+    // Filter out only nodes that we want to be resolving - we can't be resolving everything at once
+    nodes = nodes.filter(n => keys.includes(n.rootKey))
     let unprocessedTokens = new Array<DTParsedNode>()
     let processedTokens = new Array<DTProcessedTokenNode>()
 
@@ -68,7 +83,7 @@ export class DTJSONConverter {
     // Now we have all atomic tokens processed, we can start creating references
     // References will be emptying pool until they are all resolved (this can take multiple
     // passes, resolving one depth level with each pass)
-    while (unprocessedTokens.length === 0) {
+    while (unprocessedTokens.length !== 0) {
       let unprocessedDepthTokens = new Array<DTParsedNode>()
       for (let node of unprocessedTokens) {
         let token = this.convertReferencedNode(node, processedTokens)
@@ -91,7 +106,7 @@ export class DTJSONConverter {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Atomic nodes
 
-  convertAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
 
     let snType = this.convertDTTypeToSupernovaType(node.type)
     switch (snType) {
@@ -100,23 +115,44 @@ export class DTJSONConverter {
     }
   }
 
-  convertColorAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertColorAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
 
+    let constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, node.value, undefined)
+    return {
+      token: constructedToken,
+      path: node.path,
+      key: this.tokenReferenceKey(node.path, node.name)
+    }
   }
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referenced nodes
 
-  convertReferencedNode(node: DTParsedNode, resolvedTokens: Array<DTProcessedTokenNode>): DTProcessedTokenNode | undefined {
+  private convertReferencedNode(node: DTParsedNode, resolvedTokens: Array<DTProcessedTokenNode>): DTProcessedTokenNode | undefined {
 
+    let valueAsReference = node.value
+
+    for (let resolvedToken of resolvedTokens) {
+      let resolvedTokenAsReference = this.tokenReferenceKey(resolvedToken.path, resolvedToken.token.name)
+      if (resolvedTokenAsReference === valueAsReference) {
+        let constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken.token as ColorToken)
+        return {
+          token: constructedToken, 
+          path: node.path,
+          key: this.tokenReferenceKey(node.path, node.name)
+        }
+      }
+    }
+
+    return undefined
   }
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Convenience
 
-  valueIsReference(value: string): boolean {
+  private valueIsReference(value: string): boolean {
 
     value = value.trim()
     return value.length > 3 && 
@@ -124,11 +160,22 @@ export class DTJSONConverter {
            value.endsWith("}")
   }
 
-  convertDTTypeToSupernovaType(type: string): TokenType {
+  private convertDTTypeToSupernovaType(type: string): TokenType {
    
     switch (type) {
-      case "Color": return TokenType.color
+      case "color": return TokenType.color
       default: throw new Error("Unsupported token type " + type)
     }
+  }
+
+  private tokenReferenceKey(path: Array<String>, name: string): string {
+
+    // Delete initial piece of path, as this is only grouping element
+    let newPath = Array.from(path)
+    newPath.splice(0, 1)
+
+    // Return path key that is the same as what Design Tokens uses for referencing
+    // console.log("{" + [...newPath, name].join(".") + "}")
+    return "{" + [...newPath, name].join(".") + "}"
   }
 }

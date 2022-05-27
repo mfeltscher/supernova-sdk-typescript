@@ -10,12 +10,9 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { uuid } from 'uuidv4'
-import { Brand, ColorToken, DesignSystemVersion, SupernovaToolsStyleDictionary, Token, TokenGroup } from '../..'
 import { TokenType } from '../../exports'
 import { SupernovaToolsDesignTokensPlugin } from '../../tools/design-tokens/SDKToolsDesignTokensPlugin'
-import { SupernovaToolsDesignTokensPluginConverter } from '../../tools/design-tokens/utilities/SDKDTJSONConverter'
-import { SupernovaToolStyleDictionaryKeyNaming, SupernovaToolStyleDictionaryOptions } from '../../tools/SDKToolsStyleDictionary'
+import { SupernovaToolsStyleDictionary, SupernovaToolStyleDictionaryKeyNaming, SupernovaToolStyleDictionaryOptions } from '../../tools/SDKToolsStyleDictionary'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -68,33 +65,80 @@ function provideTokens(): string {
     
     let definition = `
     {
-        "colors": {
-            "Black": "#212121",
-            "White": "#ffffff",
-            "Primary": {
-                "100": "#e9f4ff",
-                "200": "#d2e9ff",
-                "300": "#8fc8ff",
-                "400": "#4ba6ff",
-                "500": "#1e90ff",
-                "600": "#1565b3",
-                "700": "#0c3a66",
-                "800": "#061d33",
-                "900": "#030e19"
+        "color": {
+          "red": {
+            "50": {
+              "value": "#fef2f2",
+              "type": "color"
             },
-            "Secondary": {
-              "100": "#e7efff",
-              "200": "#cfdffe",
-              "300": "#a0bffd",
-              "400": "#709ffd",
-              "500": "#115ffb",
-              "600": "#0a3997",
-              "700": "#072664",
-              "800": "#031332",
-              "900": "#020919"
+            "100": {
+              "value": "#fee2e2",
+              "type": "color"
+            },
+            "200": {
+              "value": "#fecaca",
+              "type": "color"
+            },
+            "300": {
+              "value": "#fca5a5",
+              "type": "color"
+            },
+            "400": {
+              "value": "#f87171",
+              "type": "color"
+            },
+            "500": {
+              "value": "#ef4444",
+              "type": "color"
+            },
+            "600": {
+              "value": "#dc2626",
+              "type": "color"
+            },
+            "700": {
+              "value": "#b91c1c",
+              "type": "color"
+            },
+            "800": {
+              "value": "#991b1b",
+              "type": "color"
+            },
+            "900": {
+              "value": "#7f1d1d",
+              "type": "color"
             }
+          },
+          "neutrals": {
+            "black": {
+              "value": "#000000",
+              "type": "color"
+            },
+            "white": {
+              "value": "#ffffff",
+              "type": "color"
+            },
+            "transparent": {
+              "value": "hsla(255,0%,100%,0.01)",
+              "type": "color"
+            }
+          },
+          "references": {
+            "Three Times Referenced": {
+              "value": "{references.Twice Referenced}",
+              "type": "color"
+            },
+            "Twice Referenced": {
+              "value": "{references.Single Referenced}",
+              "type": "color"
+            },
+            "Single Referenced": {
+              "value": "{red.50}",
+              "type": "color"
+            }
+          }
         }
-    }`
+    }
+    `
 
     return definition
 }

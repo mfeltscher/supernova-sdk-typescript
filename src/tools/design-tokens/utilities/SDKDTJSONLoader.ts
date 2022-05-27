@@ -1,5 +1,5 @@
 //
-//  SDKToolsDesignTokensPluginJSONLoader.ts
+//  SDKDTJSONLoader.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -16,6 +16,7 @@ import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
 // MARK: - Types
 
 export type DTParsedNode = {
+  rootKey: string
   name: string
   path: Array<string>
   type: string
@@ -27,7 +28,7 @@ export type DTParsedNode = {
 // MARK: - Tool implementation
 
 /** Design Tokens Plugin Manipulation Tool */
-export class SupernovaToolsDesignTokensPluginJSONLoader {
+export class DTJSONLoader {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
@@ -79,6 +80,7 @@ export class SupernovaToolsDesignTokensPluginJSONLoader {
         if (value.hasOwnProperty('value') && value.hasOwnProperty('type')) {
           // Treat as value
           let entity = {
+            rootKey: path[0], 
             name: name,
             path: path,
             type: value['type'],

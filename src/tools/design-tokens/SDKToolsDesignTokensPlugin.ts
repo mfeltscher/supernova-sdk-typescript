@@ -18,6 +18,8 @@ import { Token } from "../../model/tokens/SDKToken"
 import _ from "lodash"
 import { Brand } from "../.."
 import { TokenWriteResponse } from "../../core/SDKBrandWriter"
+import { DTJSONLoader } from "./utilities/SDKDTJSONLoader"
+import { DTJSONConverter } from "./utilities/SDKDTJSONConverter"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -68,8 +70,15 @@ export class SupernovaToolsDesignTokensPlugin {
     tokens: Array<Token>
     groups: Array<TokenGroup>
   }> {
-
-    throw new Error("Not implemented")
+    let loader = new DTJSONLoader()
+    let converter = new DTJSONConverter(this.version, this.brand)
+    let nodes = await loader.loadDSObjectsFromDefinition(definition)
+    let processedNodes = await converter.convertNodesToTokens(nodes)
+    
+    return {
+        tokens: [],
+        groups: []
+    }
   }
 
 

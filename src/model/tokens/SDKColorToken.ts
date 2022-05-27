@@ -17,6 +17,8 @@ import { ColorTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
 import { ColorTokenValue } from './SDKTokenValue'
 import { uuid } from 'uuidv4';
+import { SupernovaError } from '../../core/errors/SDKSupernovaError'
+import parseColor from "parse-color"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -59,25 +61,35 @@ export class ColorToken extends Token {
       customPropertyOverrides: []
     }
 
-    // Construct value
-    if (value.length === 7) {
-      value = value + "ff"
+    if (value) {
+      // Raw value
+      let tokenValue = this.colorValueFromDefinition(value)
+      return new ColorToken(version, baseToken, tokenValue, undefined)
+    } else if (alias) {
+      // Aliased value - copy and create raw from reference
+      let tokenValue: ColorTokenValue = {
+        hex: alias.value.hex,
+        a: alias.value.a,
+        r: alias.value.r,
+        g: alias.value.g,
+        b: alias.value.b,
+        referencedToken: alias
+      } 
+      return new ColorToken(version, baseToken, tokenValue, undefined)
     }
-    let hex = value.substr(1) // RRGGBBAA
-    let r = parseInt(hex.slice(0, 2), 16)
-    let g = parseInt(hex.slice(2, 4), 16)
-    let b = parseInt(hex.slice(4, 6), 16)
-    let a = parseInt(hex.slice(6, 8), 16)
-    let tokenValue: ColorTokenValue = {
-      hex: value,
-      r: r,
-      g: g,
-      b: b,
-      a: a,
+  }
+
+  static colorValueFromDefinition(definition: string): ColorTokenValue {
+
+    let result = parseColor(definition)
+    return {
+      hex: result.hex.length === 7 ? result.hex + "ff" : result.hex,
+      r: result.rgba[0],
+      g: result.rgba[1],
+      b: result.rgba[2],
+      a: Math.max(0, Math.min(255, Math.round(result.rgba[3] * 255))),
       referencedToken: null
     }
-
-    return new ColorToken(version, baseToken, tokenValue, alias)
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

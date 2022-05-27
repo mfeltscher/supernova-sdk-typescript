@@ -1,5 +1,5 @@
 //
-//  SDKToolsDesignTokensPluginTokenTreeMerger.ts
+//  SDKDTTokenTreeMerger.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -10,11 +10,10 @@
 // MARK: - Imports
 
 import { Token, TokenGroup } from '../../..'
-import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
-
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
+
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
@@ -48,7 +47,7 @@ export class DTTokenTreeMerger {
     throw new Error("Not implemented yet")
   }
 
-
+  /*
   createRootGroups(brandId: string, versionId: string): Array<TokenGroup> {
 
     let mapping: Array<DTRootNodeDefinition> = [
@@ -87,6 +86,7 @@ export class DTTokenTreeMerger {
       childrenIds: []
     })
   }
+  */
 }
 
 
