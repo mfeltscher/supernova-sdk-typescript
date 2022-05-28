@@ -52,8 +52,7 @@ export class DTTokenTreeMerger {
 
   makeGroupsDiff(
     elementsDiff: DTTokenTreeMergeDiff,
-    existingElements: [],
-    childTypePredicate: (type: TokenType) => boolean
+    existingElements: Array<Token | TokenGroup>,
   ): DTGroupMergeDiff {
 
     // Contruct roots to take data from
@@ -63,7 +62,7 @@ export class DTTokenTreeMerger {
     // Make group structure
     for (let i = 0; i < elementsDiff.toCreateOrUpdate.length; i++) {
       const elem = elementsDiff.toCreateOrUpdate[i]
-      if (childTypePredicate(elem.tokenType)) {
+      if ((elem instanceof Token)) {
         const nameParts = elem.name.split('/').map(s => s.trim())
         const name = nameParts.pop()
         elem.name = name
@@ -127,9 +126,7 @@ export class DTTokenTreeMerger {
 
     for (const [brandId, typeRoots] of desiredStructures.entries()) {
       for (const type of typeRoots.keys()) {
-        if (childTypePredicate(type)) {
-          compareDesiredAndExisting(typeRoots.get(type), exitingRoots.get(brandId).get(type))
-        }
+        compareDesiredAndExisting(typeRoots.get(type), exitingRoots.get(brandId).get(type))
       }
     }
 

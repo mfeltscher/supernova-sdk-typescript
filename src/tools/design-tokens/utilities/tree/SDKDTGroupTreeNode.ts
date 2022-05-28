@@ -10,8 +10,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { sortBy as stableSort } from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
+import lodash from 'lodash';
+const { sortBy } = lodash;
 import { uuid } from 'uuidv4'
 import { Token, TokenGroup } from '../../../..'
 import { GroupTree } from './SDKDTGroupTree'
@@ -57,7 +57,7 @@ export class GroupTreeNode {
   // MARK: - Mutation
   
   applyDefaultSorting() {
-    this.children = stableSort(this.children, child => (child.isGroup ? 1 : 0))
+    this.children = sortBy(this.children, child => (child.isGroup ? 1 : 0))
   }
 
   protected addChildInternal(child: GroupTreeNode, atIndex = -1) {

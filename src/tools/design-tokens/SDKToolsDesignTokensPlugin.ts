@@ -21,6 +21,7 @@ import { TokenWriteResponse } from "../../core/SDKBrandWriter"
 import { DTJSONLoader } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
+import { DTTokenTreeMerger } from "./utilities/SDKDTTokenTreeMerger"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -104,8 +105,19 @@ export class SupernovaToolsDesignTokensPlugin {
     // Assign correct sorting order to incoming tokens and token groups
     this.correctSortOrder(upstreamTokens, upstreamTokenGroups)
 
-    console.log(upstreamTokens)
-    console.log(upstreamTokenGroups)
+    // Merge trees
+    let pack: Array<Token | TokenGroup> = [...upstreamTokens, ...upstreamTokenGroups]
+    let merger = new DTTokenTreeMerger()
+    let result = merger.makeGroupsDiff({
+      toCreateOrUpdate: tokens,
+      toCreate: [],
+      toDelete: [],
+      toUpdate: []
+    }, 
+    pack)
+
+    console.log(result)
+    console.log(result.toUpdate)
     
     throw new Error("Not implemented")
   }
@@ -150,7 +162,7 @@ export class SupernovaToolsDesignTokensPlugin {
         }
       }
     }
-    console.log("flattened IDs: " + result)
+
     return result
   }
 
