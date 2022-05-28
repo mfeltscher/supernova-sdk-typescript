@@ -20,6 +20,7 @@ import { Brand } from "../.."
 import { TokenWriteResponse } from "../../core/SDKBrandWriter"
 import { DTJSONLoader } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter } from "./utilities/SDKDTJSONConverter"
+import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -54,6 +55,7 @@ export class SupernovaToolsDesignTokensPlugin {
   // MARK: - Loader
 
   /** Load token definitions from multiple sources */
+  /*
   async loadTokensFromDefinitions(definitions: Array<string>): Promise<{
       tokens: Array<Token>
       groups: Array<TokenGroup>
@@ -64,6 +66,7 @@ export class SupernovaToolsDesignTokensPlugin {
     }
     throw new Error("Not implemented")
   }
+  */
 
   /** Load token definitions from */
   async loadTokensFromDefinition(definition: string): Promise<{
@@ -72,8 +75,12 @@ export class SupernovaToolsDesignTokensPlugin {
   }> {
     let loader = new DTJSONLoader()
     let converter = new DTJSONConverter(this.version, this.brand)
+    let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand)
+
     let nodes = await loader.loadDSObjectsFromDefinition(definition)
     let processedNodes = await converter.convertNodesToTokens(nodes)
+    let processedGroups = await groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
+    console.log(processedGroups)
     
     return {
         tokens: [],

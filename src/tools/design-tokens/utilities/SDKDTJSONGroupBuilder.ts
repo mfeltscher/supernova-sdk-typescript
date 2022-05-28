@@ -16,6 +16,13 @@ import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
 
+export type DTRootGroupMapping = {
+  snType: TokenType
+  dtType: string
+  snRootName: string
+  dtRootName: string
+}
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
@@ -25,40 +32,48 @@ export class DTJSONGroupBuilder {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
-  groupRootType: TokenType
-  rootKey: string
-  snName: string
   version: DesignSystemVersion
   brand: Brand
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand, groupRootType: TokenType, rootKey: string, snName: string) {
+  constructor(version: DesignSystemVersion, brand: Brand) {
     this.version = version
     this.brand = brand
-    this.groupRootType = groupRootType
-    this.rootKey = rootKey
-    this.snName = snName
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Tree builder
 
-  /** Create group tree needed to contain entire token tree */
-  async constructGroupTree(
-    processedNodes: Array<DTProcessedTokenNode>
-  ): Promise<{
-    rootGroup: TokenGroup
-    subgroups: Array<TokenGroup>
-  }> {
-    let rootGroup = this.createGroup(this.brand.persistentId, this.version.id, this.snName, this.groupRootType, true)
+  /** Create mapping between DT <> SN and assign all tokens into their respective newly created groups */
+  constructAllDefinableGroupsTrees(processedNodes: Array<DTProcessedTokenNode>): Array<TokenGroup> {
+    
+    // Base mapping function
+    let mapping: Array<DTRootGroupMapping> = [
+      { snType: TokenType.color, dtType: 'color', snRootName: 'Colors', dtRootName: 'color' }
+    ]
+
+    let groups: Array<TokenGroup> = []
+    for (let map of mapping) {
+        groups = groups.concat(this.constructGroupTree(processedNodes, map))
+    }
+
+    return groups
+  }
+
+  /** Create group tree needed to contain entire token tree for particular mapping combination */
+  constructGroupTree(processedNodes: Array<DTProcessedTokenNode>, mapping: DTRootGroupMapping): Array<TokenGroup> {
+
+    // Select only nodes with types corresponding to the group
+    let nodes = processedNodes.filter(n => n.token.tokenType === mapping.snType)
+    let rootGroup = this.createGroup(this.brand.persistentId, this.version.id, mapping.snRootName, mapping.snType, true)
 
     // Set main root group
     let mappedGroups: Map<string, TokenGroup> = new Map<string, TokenGroup>()
     mappedGroups.set('', rootGroup)
 
-    for (let node of processedNodes) {
+    for (let node of nodes) {
       let key = node.path.join('.')
       this.constructGroupChain(this.version, this.brand, mappedGroups, node.path)
       let group = mappedGroups.get(key)
@@ -66,10 +81,7 @@ export class DTJSONGroupBuilder {
       mappedGroups.set(key, group)
     }
 
-    return {
-      rootGroup: rootGroup,
-      subgroups: Array.from(mappedGroups.values())
-    }
+    return Array.from(mappedGroups.values())
   }
 
   constructGroupChain(
