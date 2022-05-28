@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { Token, TokenGroup, TokenType } from '../../..'
+import { DTTokenMergeDiff } from './SDKDTTokenMerger'
 import { buildBrandedElementRoots, GroupTree } from './tree/SDKDTGroupTree'
 import { GroupTreeNode, TokenTreeElement } from './tree/SDKDTGroupTreeNode'
 
@@ -38,7 +39,7 @@ export class DTGroupMergeDiff {
 // MARK: - Tool implementation
 
 /** Utility allowing merging of two distinct token trees */
-export class DTTokenTreeMerger {
+export class DTTokenGroupTreeMerger {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
@@ -51,42 +52,42 @@ export class DTTokenTreeMerger {
   // MARK: - Merger
 
   makeGroupsDiff(
-    elementsDiff: DTTokenTreeMergeDiff,
+    tokensDiff: DTTokenMergeDiff,
     existingElements: Array<Token | TokenGroup>,
   ): DTGroupMergeDiff {
 
+    console.log("--- ++++ Token DIFF")
+    console.log(tokensDiff)
     // Contruct roots to take data from
     const exitingRoots = buildBrandedElementRoots(existingElements)
     const desiredStructures = new Map<string, Map<TokenType, GroupTree>>()
 
     // Make group structure
-    for (let i = 0; i < elementsDiff.toCreateOrUpdate.length; i++) {
-      const elem = elementsDiff.toCreateOrUpdate[i]
-      if ((elem instanceof Token)) {
-        const nameParts = elem.name.split('/').map(s => s.trim())
-        const name = nameParts.pop()
-        elem.name = name
+    for (let i = 0; i < tokensDiff.toCreateOrUpdate.length; i++) {
 
-        let typeRoots = desiredStructures.get(elem.brandId)
-        if (!typeRoots) {
-          typeRoots = new Map<TokenType, GroupTree>()
-          desiredStructures.set(elem.brandId, typeRoots)
-        }
-        let typeRoot = typeRoots.get(elem.tokenType)
+      const node = tokensDiff.toCreateOrUpdate[i]
+      const nameParts = node.path.map(s => s.trim())
+      nameParts.shift()
 
-        if (!typeRoot) {
-          const rootElem = exitingRoots.get(elem.brandId).get(elem.tokenType).element
-          typeRoot = new GroupTree(rootElem)
-          typeRoots.set(elem.tokenType, typeRoot)
-        }
-
-        const group = typeRoot.getOrCreateGroup(nameParts)
-        group.children.push(new GroupTreeNode(elem, typeRoot))
-        if (elem instanceof TokenGroup) {
-          // Ensure tokens are above groups by sorting
-          group.applyDefaultSorting()
-        }
+      let typeRoots = desiredStructures.get(node.token.brandId)
+      if (!typeRoots) {
+        typeRoots = new Map<TokenType, GroupTree>()
+        desiredStructures.set(node.token.brandId, typeRoots)
       }
+      let typeRoot = typeRoots.get(node.token.tokenType)
+
+      if (!typeRoot) {
+        const rootElem = exitingRoots.get(node.token.brandId).get(node.token.tokenType).element
+        typeRoot = new GroupTree(rootElem)
+        typeRoots.set(node.token.tokenType, typeRoot)
+      }
+
+      const group = typeRoot.getOrCreateGroup(nameParts)
+      group.children.push(new GroupTreeNode(node.token, typeRoot))
+      // if (elem instanceof TokenGroup) {
+        // Ensure tokens are above groups by sorting
+        // group.applyDefaultSorting()
+      // }
     }
 
     // Next up - construct results

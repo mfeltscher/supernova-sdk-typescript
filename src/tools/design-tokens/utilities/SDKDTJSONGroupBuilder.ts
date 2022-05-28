@@ -51,7 +51,7 @@ export class DTJSONGroupBuilder {
     
     // Base mapping function
     let mapping: Array<DTRootGroupMapping> = [
-      { snType: TokenType.color, dtType: 'color', snRootName: 'Colors', dtRootName: 'color' }
+      { snType: TokenType.color, dtType: 'color', snRootName: 'Color', dtRootName: 'color' }
     ]
 
     let groups: Array<TokenGroup> = []

@@ -16,7 +16,7 @@ import { buildParentChildrenMap } from './SDKDTParentChildMapping'
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-// MARK: - Imports
+// MARK: - Definitions
 
 export type GroupTreeNodeWalker = (node: GroupTreeNode, path: GroupTreeNode[]) => void
 export type TokenTreeElement = Token | TokenGroup

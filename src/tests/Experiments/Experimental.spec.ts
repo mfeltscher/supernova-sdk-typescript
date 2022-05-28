@@ -55,7 +55,7 @@ test('test_experimental_token_write', async t => {
     // Create DT tool, load tokens from definition, merge them with upstream source 
     let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
     let incomingTokenPack = await tool.loadTokensFromDefinition(provideTokens())
-    let mergedTokenPack = await tool.mergeWithRemoteSource(incomingTokenPack.tokens, incomingTokenPack.groups, false)
+    let mergedTokenPack = await tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, incomingTokenPack.groups, true)
 
     t.true(true)
 })
@@ -63,6 +63,7 @@ test('test_experimental_token_write', async t => {
 
 function provideTokens(): string {
     
+  /*
     let definition = `
     {
         "color": {
@@ -133,6 +134,40 @@ function provideTokens(): string {
             },
             "Single Referenced": {
               "value": "{red.50}",
+              "type": "color"
+            }
+          }
+        }
+    }
+    `*/
+
+    /*
+    let definition = `
+    {
+        "color": {
+          "red": {
+            "50": {
+              "value": "#fef2f2",
+              "type": "color"
+            }
+          },
+          "references": {
+            "Single Referenced": {
+              "value": "{red.50}",
+              "type": "color"
+            }
+          }
+        }
+    }
+    `
+    */
+
+    let definition = `
+    {
+        "color": {
+          "red": {
+            "50": {
+              "value": "#fef2f2",
               "type": "color"
             }
           }

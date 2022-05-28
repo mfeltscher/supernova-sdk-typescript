@@ -19,9 +19,10 @@ import _ from "lodash"
 import { Brand } from "../.."
 import { TokenWriteResponse } from "../../core/SDKBrandWriter"
 import { DTJSONLoader } from "./utilities/SDKDTJSONLoader"
-import { DTJSONConverter } from "./utilities/SDKDTJSONConverter"
+import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
-import { DTTokenTreeMerger } from "./utilities/SDKDTTokenTreeMerger"
+import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
+import { DTTokenMerger } from "./utilities/SDKDTTokenMerger"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -72,7 +73,8 @@ export class SupernovaToolsDesignTokensPlugin {
 
   /** Load token definitions from */
   async loadTokensFromDefinition(definition: string): Promise<{
-    tokens: Array<Token>
+    processedNodes: Array<DTProcessedTokenNode>,
+    tokens: Array<Token>,
     groups: Array<TokenGroup>
   }> {
     let loader = new DTJSONLoader()
@@ -84,6 +86,7 @@ export class SupernovaToolsDesignTokensPlugin {
     let processedGroups = await groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
     
     return {
+        processedNodes,
         tokens: processedNodes.map(n => n.token),
         groups: processedGroups
     }
@@ -94,32 +97,55 @@ export class SupernovaToolsDesignTokensPlugin {
   // MARK: - Merging
 
   /** Loads remote source connected to this tool, then merges tokens and groups with it, creating union. Can optionally write to the source as well */
-  async mergeWithRemoteSource(tokens: Array<Token>, tokenGroups: Array<TokenGroup>, write: boolean): Promise<{
+  async mergeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, tokenGroups: Array<TokenGroup>, write: boolean): Promise<{
       tokens: Array<Token>
       groups: Array<TokenGroup>
   }> {
     // Get remote token data
-    let upstreamTokens = await this.brand.tokens()
     let upstreamTokenGroups = await this.brand.tokenGroups()
+    let upstreamTokens = await this.brand.tokens()
 
     // Assign correct sorting order to incoming tokens and token groups
     this.correctSortOrder(upstreamTokens, upstreamTokenGroups)
 
     // Merge trees
     let pack: Array<Token | TokenGroup> = [...upstreamTokens, ...upstreamTokenGroups]
-    let merger = new DTTokenTreeMerger()
-    let result = merger.makeGroupsDiff({
-      toCreateOrUpdate: tokens,
-      toCreate: [],
-      toDelete: [],
-      toUpdate: []
-    }, 
-    pack)
+    let treeMerger = new DTTokenGroupTreeMerger()
+    let tokenMerger = new DTTokenMerger()
+    let tokenMergeResult = tokenMerger.makeTokensDiff(upstreamTokens, processedNodes)
+    let result = treeMerger.makeGroupsDiff(tokenMergeResult, pack)
 
-    console.log(result)
+    // Update referenced tokens in group based on the result
+    let groups: Array<TokenGroup> = []
+    for (let item of result.toCreate) {
+      if (item.element instanceof TokenGroup) {
+        item.element.childrenIds = item.childrenIds
+        groups.push(item.element)
+      }
+    }
+    for (let item of result.toUpdate) {
+      if (item.element instanceof TokenGroup) {
+        item.element.childrenIds = item.childrenIds
+        groups.push(item.element)
+      }
+    }
+
+    // Synchronize changes
+    let writer = this.brand.writer()
+    let tokensToWrite = processedNodes.map(n => n.token)
+    let tokenGroupsToWrite = groups
+    await writer.writeTokens(tokenMergeResult.toCreateOrUpdate.map(r => r.token), tokenGroupsToWrite, tokenMergeResult.toDelete.map(r => r.token))
+
+    // console.log(result)
+    console.log("--- --- --- RESULT (TO CREATE): ")
+    console.log(result.toCreate)
+    console.log("--- --- --- RESULT (TO UPDATE): ")
     console.log(result.toUpdate)
-    
-    throw new Error("Not implemented")
+
+    return {
+      tokens: tokensToWrite,
+      groups: tokenGroupsToWrite
+    }
   }
 
   correctSortOrder(tokens: Array<Token>, tokenGroups: Array<TokenGroup>) {
@@ -164,16 +190,5 @@ export class SupernovaToolsDesignTokensPlugin {
     }
 
     return result
-  }
-
-
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Writing
-
-  private async writeToRemoteSource(tokens: Array<Token>, tokenGroups: Array<TokenGroup>): Promise<boolean> {
-
-    let writer = this.brand.writer()
-    await writer.writeTokens(tokens, tokenGroups)
-    return true
   }
 }

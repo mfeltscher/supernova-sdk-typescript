@@ -12,6 +12,7 @@
 import { Brand, ColorToken, DesignSystemVersion, Token, TokenGroup, TokenType } from "../../.."
 import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
 import { DTParsedNode } from "./SDKDTJSONLoader"
+import { DTTokenMerger } from "./SDKDTTokenMerger"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -59,8 +60,34 @@ export class DTJSONConverter {
     // Color tokens
     processedNodes = processedNodes.concat(this.convertNodesToTokensForGroupingRootNodeKeys(["color"], nodes))
 
+    // Fix nodes so they are aligned with the way Supernova expects root groups to be named
+    this.remapRootNodeKeys(processedNodes)
+
     // Retrieve all tokens
     return processedNodes
+  }
+
+  private remapRootNodeKeys(nodes: Array<DTProcessedTokenNode>): Array<DTProcessedTokenNode> {
+
+    for (let node of nodes) {
+      let path = Array.from(node.path)
+      let firstSegment = path.splice(0, 1)[0]
+      
+      // Remap remote to proper destination
+      switch (firstSegment) {
+        case "color":
+          firstSegment = "Color"; break
+        default: 
+          throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
+      }
+      path = [firstSegment, ...path]
+      node.path = path
+
+      // Rebuild key
+      node.key = DTTokenMerger.buildKey(node.path, node.token.name)
+    }
+
+    return nodes
   }
 
   private convertNodesToTokensForGroupingRootNodeKeys(keys: Array<string>, nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
@@ -121,7 +148,7 @@ export class DTJSONConverter {
     return {
       token: constructedToken,
       path: node.path,
-      key: this.tokenReferenceKey(node.path, node.name)
+      key: DTTokenMerger.buildKey(node.path, node.name)
     }
   }
 
@@ -140,7 +167,7 @@ export class DTJSONConverter {
         return {
           token: constructedToken, 
           path: node.path,
-          key: this.tokenReferenceKey(node.path, node.name)
+          key: DTTokenMerger.buildKey(node.path, node.name)
         }
       }
     }

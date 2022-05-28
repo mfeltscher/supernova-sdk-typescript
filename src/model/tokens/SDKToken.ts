@@ -100,7 +100,7 @@ export class Token implements TokenValue {
       type: this.tokenType,
       meta: {
         name: this.name,
-        description: this.description
+        description: this.description ?? ""
       },
       originStyle: this.origin ? {
         id: this.origin.id ?? undefined,

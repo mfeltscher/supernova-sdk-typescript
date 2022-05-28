@@ -789,12 +789,15 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Writing
 
-  async writeTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion, tokens: Array<TokenRemoteModel>, groups: Array<TokenGroupRemoteModel>): Promise<{ tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> }> {
+  async writeTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion, tokens: Array<TokenRemoteModel>, groups: Array<TokenGroupRemoteModel>, deleteTokens: Array<Token>): Promise<{ tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> }> {
 
     const endpoint = 'bff/import'
     const payload = {
       tokens: tokens,
-      tokenGroups: groups
+      tokenGroups: groups,
+      bulkDelete: {
+        tokenIds: deleteTokens.map(t => t.id)
+      }
     }
 
     let result: { tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
