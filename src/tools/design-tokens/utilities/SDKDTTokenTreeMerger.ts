@@ -9,161 +9,134 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Token, TokenGroup } from '../../..'
+import { Token, TokenGroup, TokenType } from '../../..'
+import { buildBrandedElementRoots, GroupTree } from './tree/SDKDTGroupTree'
+import { GroupTreeNode, TokenTreeElement } from './tree/SDKDTGroupTreeNode'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
 
+export type DTTokenTreeMergeDiff = {
+  toUpdate: Array<TokenTreeElement>
+  toCreate: Array<TokenTreeElement>
+  toDelete: Array<TokenTreeElement>
+  toCreateOrUpdate: Array<TokenTreeElement>
+}
+
+export type DTGroupMergeDiffElement = {
+  element: TokenTreeElement
+  childrenIds: Array<string>
+}
+
+export class DTGroupMergeDiff {
+  toUpdate: Array<DTGroupMergeDiffElement>
+  toCreate: Array<DTGroupMergeDiffElement>
+  toDelete: Array<TokenTreeElement>
+}
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
 /** Utility allowing merging of two distinct token trees */
-
 export class DTTokenTreeMerger {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
-  
-    existingTokens: Array<Token>
-    existingGroups: Array<TokenGroup>
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(existingTokens: Array<Token>, existingGroups: Array<TokenGroup>) {
-
-    this.existingTokens = existingTokens
-    this.existingGroups = existingGroups
-  }
+  constructor() {}
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merger
 
-  /** Merge existing trees with new tokens and groups, so the diff can be written */
-  merge(newTokens: Array<Token>, newGroups: Array<TokenGroup>): Promise<{
-      mergedTokens: Array<Token>,
-      mergedGroups: Array<TokenGroup>
-  }> {
-    throw new Error("Not implemented yet")
-  }
+  makeGroupsDiff(
+    elementsDiff: DTTokenTreeMergeDiff,
+    existingElements: [],
+    childTypePredicate: (type: TokenType) => boolean
+  ): DTGroupMergeDiff {
 
-  /*
-  createRootGroups(brandId: string, versionId: string): Array<TokenGroup> {
+    // Contruct roots to take data from
+    const exitingRoots = buildBrandedElementRoots(existingElements)
+    const desiredStructures = new Map<string, Map<TokenType, GroupTree>>()
 
-    let mapping: Array<DTRootNodeDefinition> = [
-      {
-        name: "Colors",
-        type: TokenType.color
+    // Make group structure
+    for (let i = 0; i < elementsDiff.toCreateOrUpdate.length; i++) {
+      const elem = elementsDiff.toCreateOrUpdate[i]
+      if (childTypePredicate(elem.tokenType)) {
+        const nameParts = elem.name.split('/').map(s => s.trim())
+        const name = nameParts.pop()
+        elem.name = name
+
+        let typeRoots = desiredStructures.get(elem.brandId)
+        if (!typeRoots) {
+          typeRoots = new Map<TokenType, GroupTree>()
+          desiredStructures.set(elem.brandId, typeRoots)
+        }
+        let typeRoot = typeRoots.get(elem.tokenType)
+
+        if (!typeRoot) {
+          const rootElem = exitingRoots.get(elem.brandId).get(elem.tokenType).element
+          typeRoot = new GroupTree(rootElem)
+          typeRoots.set(elem.tokenType, typeRoot)
+        }
+
+        const group = typeRoot.getOrCreateGroup(nameParts)
+        group.children.push(new GroupTreeNode(elem, typeRoot))
+        if (elem instanceof TokenGroup) {
+          // Ensure tokens are above groups by sorting
+          group.applyDefaultSorting()
+        }
       }
-    ]
-    
-    let roots = new Array<TokenGroup>()
-    for (let map of mapping) {
-      let rootGroup = this.createGroup(brandId, versionId, map.name, map.type, true)
-      roots.push(rootGroup)
     }
 
-    return roots
-  }
+    // Next up - construct results
+    const toUpdate: Array<DTGroupMergeDiffElement> = []
+    const toCreate: Array<DTGroupMergeDiffElement> = []
+    const toDelete: Array<TokenTreeElement> = []
 
-  convertNodesOfSpecificTypeToTokens(nodes: Array<DTParsedNode>, type: TokenType): Array<DTProcessedTokenNode> {
+    const compareDesiredAndExisting = (importNode: GroupTreeNode, existingNode: GroupTreeNode) => {
+      if (importNode.isGroup) {
+        for (const c of importNode.children) {
+          const existingChild = (existingNode?.children ?? []).find(
+            exc => exc.name === c.name && exc.isGroup === c.isGroup
+          )
+          compareDesiredAndExisting(c, existingChild)
+        }
 
-  }
+        const importChildrenIds = importNode.children.map(c => c.element.id)
 
-  createGroup(brandId: string, versionId: string, name: string, type: TokenType, isRoot: boolean): TokenGroup {
+        if (existingNode) {
+          importNode.element.id = existingNode.element.id
+          importNode.element.versionedId = existingNode.element.versionedId
+          const existingChildrenIds = existingNode.children.map(c => c.element.id)
+          if (JSON.stringify(importChildrenIds) !== JSON.stringify(existingChildrenIds)) {
+            toUpdate.push({
+              element: importNode.element,
+              childrenIds: importChildrenIds
+            })
+          }
+        } else {
+          toCreate.push({
+            element: importNode.element,
+            childrenIds: importChildrenIds
+          })
+        }
+      }
+    }
 
-    return new TokenGroup({
-      brandId: brandId,
-      tokenType: type,
-      designSystemVersionId: versionId,
-      persistentId: uuid(),
-      isRoot: isRoot,
-      id: undefined,
-      meta: {
-        name: name,
-        description: ""
-      },
-      childrenIds: []
-    })
-  }
-  */
-}
-
-
-/*
-function constructTokens(version: DesignSystemVersion, brand: Brand, root: TokenGroup, definitions: Array<{
-    name: string
-    path: Array<string>
-    color: string
-}>): {
-    tokens: Array<Token>
-    tokenGroups: Array<TokenGroup>
-} {
-
-    let tokens = new Array<Token>()
-
-    // Set main root group
-    let mappedGroups: Map<string, TokenGroup> = new Map<string, TokenGroup>()
-    mappedGroups.set("", root)
-
-    for (let definition of definitions) {
-        let groupKey = definition.path.join(".")
-        let constructedToken = ColorToken.create(version, brand, definition.name, "", definition.color, undefined)
-        tokens.push(constructedToken)
-        constructGroupChain(version, brand, mappedGroups, definition.path)
-        let group = mappedGroups.get(groupKey)
-        group = group.toMutatedObject(group.childrenIds.concat(constructedToken.id))
-        mappedGroups.set(groupKey, group)
+    for (const [brandId, typeRoots] of desiredStructures.entries()) {
+      for (const type of typeRoots.keys()) {
+        if (childTypePredicate(type)) {
+          compareDesiredAndExisting(typeRoots.get(type), exitingRoots.get(brandId).get(type))
+        }
+      }
     }
 
     return {
-        tokens: tokens,
-        tokenGroups: Array.from(mappedGroups.values()),
+      toCreate,
+      toUpdate,
+      toDelete
     }
+  }
 }
-
-
-function constructGroupChain(version: DesignSystemVersion, brand: Brand, groups: Map<string, TokenGroup>, path: Array<string>) {
-
-    if (path.length === 0) {
-        return
-    }
-
-    // Get parent object
-    let parentPath = ""
-    let parent = groups.get(parentPath)
-
-    let partialPath: Array<string> = []
-    for (let segment of path) {
-        partialPath.push(segment)
-        let partialKey = partialPath.join(".")
-        let object = groups.get(partialKey)
-        if (object) {
-            // Path exists so we don't do anything else
-        } else {
-            // Path doesn't exist, we create it
-            let group = new TokenGroup({
-                brandId: brand.persistentId,
-                tokenType: TokenType.color,
-                designSystemVersionId: version.id,
-                persistentId: uuid(),
-                isRoot: false,
-                id: undefined,
-                meta: {
-                  name: segment,
-                  description: ""
-                },
-                childrenIds: []
-            })
-            
-            // Assign to parent
-            parent = parent.toMutatedObject(parent.childrenIds.concat(group.id))
-            groups.set(parentPath, parent)
-            parent = group
-
-            // Store group
-            groups.set(partialKey, group)
-            parentPath = partialKey
-        }
-    }
-}*/

@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { TokenType } from '../enums/SDKTokenType'
 import { TokenOrigin } from '../support/SDKTokenOrigin'
@@ -32,6 +33,8 @@ export class Token implements TokenValue {
   tokenType: TokenType
   origin: TokenOrigin | null
   properties: Array<TokenProperty>
+  parent: TokenGroup | null
+  sortOrder: number
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -46,6 +49,21 @@ export class Token implements TokenValue {
     this.tokenType = model.type
     this.origin = model.originStyle ? new TokenOrigin(model.originStyle) : null
     this.properties = this.buildProperties(model, dsVersion)
+    this.parent = null
+
+    // Set unordered when constructing
+    this.sortOrder = -1
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Manipulation
+
+  setParent(parent: TokenGroup | null) {
+    this.parent = parent ?? null
+  }
+
+  setSortOrder(order: number) {
+    this.sortOrder = order
   }
 
   buildProperties(model: TokenRemoteModel, dsVersion: DesignSystemVersion): Array<TokenProperty> {

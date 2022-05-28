@@ -49,13 +49,12 @@ export class TokenGroup {
   childrenIds: Array<string>
   tokenIds: Array<string>
   parent: TokenGroup | null
+  sortOrder: number
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
   constructor(model: TokenGroupRemoteModel) {
-    console.log("creating with model")
-    console.log(model)
     this.id = model.persistentId
     this.versionedId = model.id
     this.brandId = model.brandId
@@ -70,6 +69,9 @@ export class TokenGroup {
     this.tokenIds = new Array<string>()
     this.subgroups = new Array<TokenGroup>()
     this.parent = null
+
+    // Set unordered when constructing
+    this.sortOrder = -1
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -89,6 +91,10 @@ export class TokenGroup {
 
   setParent(parent: TokenGroup | null) {
     this.parent = parent ?? null
+  }
+
+  setSortOrder(order: number) {
+    this.sortOrder = order
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -113,7 +119,7 @@ export class TokenGroup {
 
   toMutatedObject(childrenIds: Array<string>) {
 
-    return new TokenGroup({
+    let group = new TokenGroup({
       id: this.versionedId,
       brandId: this.brandId,
       tokenType: this.tokenType,
@@ -126,5 +132,8 @@ export class TokenGroup {
       },
       childrenIds: childrenIds
     })
+    group.parent = this.parent
+    group.sortOrder = this.sortOrder
+    return group
   }
 }
