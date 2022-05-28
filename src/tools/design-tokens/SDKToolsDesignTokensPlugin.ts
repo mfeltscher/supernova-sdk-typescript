@@ -39,6 +39,7 @@ export class SupernovaToolsDesignTokensPlugin {
   private instance: Supernova
   private version: DesignSystemVersion
   private brand: Brand
+  private sortMultiplier: number = 100
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -80,11 +81,10 @@ export class SupernovaToolsDesignTokensPlugin {
     let nodes = await loader.loadDSObjectsFromDefinition(definition)
     let processedNodes = await converter.convertNodesToTokens(nodes)
     let processedGroups = await groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
-    console.log(processedGroups)
     
     return {
-        tokens: [],
-        groups: []
+        tokens: processedNodes.map(n => n.token),
+        groups: processedGroups
     }
   }
 
@@ -97,8 +97,61 @@ export class SupernovaToolsDesignTokensPlugin {
       tokens: Array<Token>
       groups: Array<TokenGroup>
   }> {
+    // Get remote token data
+    let upstreamTokens = await this.brand.tokens()
+    let upstreamTokenGroups = await this.brand.tokenGroups()
 
+    // Assign correct sorting order to incoming tokens and token groups
+    this.correctSortOrder(upstreamTokens, upstreamTokenGroups)
+
+    console.log(upstreamTokens)
+    console.log(upstreamTokenGroups)
+    
     throw new Error("Not implemented")
+  }
+
+  correctSortOrder(tokens: Array<Token>, tokenGroups: Array<TokenGroup>) {
+
+    // Build maps so lookup is faster
+    let tokenMap = new Map<string, Token>()
+    let groupMap = new Map<string, TokenGroup>()
+    tokens.forEach(t => tokenMap.set(t.id, t))
+    tokenGroups.forEach(g => groupMap.set(g.id, g))
+
+    // Correct order for each root
+    let roots = tokenGroups.filter(g => g.isRoot)
+    roots.forEach(r => this.correctSortOrderFromTypeRoot(r, tokenMap, groupMap))
+  }
+
+  correctSortOrderFromTypeRoot(root: TokenGroup, tokenMap: Map<string, Token>, groupMap: Map<string, TokenGroup>) {
+
+    let ids = this.flattenedIdsFromRoot(root, tokenMap, groupMap)
+    for (let i = 0; i < ids.length; i++) {
+      let element = tokenMap.get(ids[i]) ?? groupMap.get(ids[i])
+      element.sortOrder = i * this.sortMultiplier
+    }
+  }
+
+  flattenedIdsFromRoot(root: TokenGroup, tokenMap: Map<string, Token>, groupMap: Map<string, TokenGroup>): Array<string> {
+
+    let result: Array<string> = [root.id]
+    let ids = root.childrenIds
+    for (let id of ids) {
+      result.push(id)
+      let tokenGroup = groupMap.get(id)
+      if (tokenGroup) {
+        result = result.concat(this.flattenedIdsFromRoot(tokenGroup, tokenMap, groupMap))
+      } else {
+        let token = tokenMap.get(id)
+        if (token) {
+          result.push(id)
+        } else {
+          throw new Error(`Unable to find token or group ${id} of type ${root.tokenType}`)
+        }
+      }
+    }
+    console.log("flattened IDs: " + result)
+    return result
   }
 
 

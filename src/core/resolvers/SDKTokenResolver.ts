@@ -10,6 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { TokenGroup } from "../.."
 import { TokenType } from "../../model/enums/SDKTokenType"
 import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
 import { TokenRemoteModel, ColorTokenRemoteModel, BorderTokenRemoteModel, FontTokenRemoteModel, GradientTokenRemoteModel, MeasureTokenRemoteModel, RadiusTokenRemoteModel, ShadowTokenRemoteModel, TextTokenRemoteModel, TypographyTokenRemoteModel, BlurTokenRemoteModel, GenericTokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
@@ -51,7 +52,7 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  resolveTokenData(data: Array<TokenRemoteModel>): Array<Token> {
+  resolveTokenData(data: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup>): Array<Token> {
     for (let rawToken of data) {
       this.hashedTokens.set(rawToken.persistentId, rawToken)
     }
@@ -115,7 +116,18 @@ export class TokenResolver {
       }
     }
 
-    // TODO: Later optimization, remove the unneccessary loop data when they were used if needed
+    /*
+     * Step 5: Assign parents to the tree
+     */
+    for (let tokenGroup of tokenGroups) {
+      for (let childId of tokenGroup.childrenIds) {
+        let possibleToken = this.resolvedTokens.get(childId)
+        if (possibleToken) {
+          // If object exists, assign parent to it. Not existing means it is a group
+          possibleToken.parent = tokenGroup
+        }
+      }
+    }
 
     // Retrieve all properly resolved tokens
     return Array.from(this.resolvedTokens.values())
