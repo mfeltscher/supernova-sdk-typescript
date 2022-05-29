@@ -135,3 +135,4 @@ export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustom
 
 // Export tools
 export { SupernovaToolsStyleDictionary } from '../src/tools/SDKToolsStyleDictionary'
+export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
