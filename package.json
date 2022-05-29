@@ -1,12 +1,23 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.7.6",
+    "version": "1.7.7",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
     "repository": "https://github.com/Supernova-Studio/sdk-typescript",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "Supernova",
+        "Design Systems",
+        "Supernovaio",
+        "SDK",
+        "Design Tokens",
+        "Tokens",
+        "Assets",
+        "Components",
+        "Documentation",
+        "CMS"
+    ],
     "files": [
         "build"
     ],

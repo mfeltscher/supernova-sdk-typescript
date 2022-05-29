@@ -86,11 +86,15 @@ export class DTJSONLoader {
   }
 
   private parseNode(path: Array<string>, objects: object): Array<DTParsedNode> {
+    console.log(objects)
+    console.log(path)
     let result: Array<DTParsedNode> = []
 
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {
-        if (value.hasOwnProperty('value') && value.hasOwnProperty('type')) {
+        if (name.startsWith("$")) {
+          // Skipping keys internal to desing token plugin for now
+        } else if (value.hasOwnProperty('value') && value.hasOwnProperty('type')) {
           // Treat as value
           let entity = {
             rootKey: path[0], 
@@ -109,6 +113,7 @@ export class DTJSONLoader {
         throw new Error('Unable to parse, unsupported structure in color node leaf')
       }
     }
+    console.log(result)
     return result
   }
 }

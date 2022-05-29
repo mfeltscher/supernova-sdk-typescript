@@ -58,7 +58,7 @@ export class DTJSONConverter {
     let processedNodes: Array<DTProcessedTokenNode> = []
 
     // Color tokens
-    processedNodes = processedNodes.concat(this.convertNodesToTokensForGroupingRootNodeKeys(["color"], nodes))
+    processedNodes = processedNodes.concat(this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes))
 
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     this.remapRootNodeKeys(processedNodes)
@@ -74,8 +74,8 @@ export class DTJSONConverter {
       let firstSegment = path.splice(0, 1)[0]
       
       // Remap remote to proper destination
-      switch (firstSegment) {
-        case "color":
+      switch (node.token.tokenType) {
+        case TokenType.color:
           firstSegment = "Color"; break
         default: 
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
@@ -90,10 +90,10 @@ export class DTJSONConverter {
     return nodes
   }
 
-  private convertNodesToTokensForGroupingRootNodeKeys(keys: Array<string>, nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
+  private convertNodesToTokensForSupportedNodeTypes(types: Array<string>, nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
 
     // Filter out only nodes that we want to be resolving - we can't be resolving everything at once
-    nodes = nodes.filter(n => keys.includes(n.rootKey))
+    nodes = nodes.filter(n => types.includes(n.type))
     let unprocessedTokens = new Array<DTParsedNode>()
     let processedTokens = new Array<DTProcessedTokenNode>()
 
