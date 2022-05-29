@@ -18,7 +18,7 @@ import { Token } from "../../model/tokens/SDKToken"
 import _ from "lodash"
 import { Brand } from "../.."
 import { TokenWriteResponse } from "../../core/SDKBrandWriter"
-import { DTJSONLoader } from "./utilities/SDKDTJSONLoader"
+import { DTJSONLoader, DTParsedNode } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
 import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
@@ -71,6 +71,15 @@ export class SupernovaToolsDesignTokensPlugin {
   }
   */
   /** Load token definitions from path */
+  async loadTokensFromPath(path: string): Promise<{
+    processedNodes: Array<DTProcessedTokenNode>,
+    tokens: Array<Token>,
+    groups: Array<TokenGroup>
+  }> {
+    let loader = new DTJSONLoader()
+    let nodes = await loader.loadDSObjectsFromPath(path)
+    return this.processTokenNodes(nodes)
+  }
 
   /** Load token definitions from */
   async loadTokensFromDefinition(definition: string): Promise<{
@@ -79,10 +88,19 @@ export class SupernovaToolsDesignTokensPlugin {
     groups: Array<TokenGroup>
   }> {
     let loader = new DTJSONLoader()
+    let nodes = await loader.loadDSObjectsFromDefinition(definition)
+    return this.processTokenNodes(nodes)
+  }
+
+  private async processTokenNodes(nodes: Array<DTParsedNode>): Promise<{
+    processedNodes: Array<DTProcessedTokenNode>,
+    tokens: Array<Token>,
+    groups: Array<TokenGroup>
+  }> {
+
     let converter = new DTJSONConverter(this.version, this.brand)
     let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand)
 
-    let nodes = await loader.loadDSObjectsFromDefinition(definition)
     let processedNodes = await converter.convertNodesToTokens(nodes)
     let processedGroups = await groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
     
@@ -98,7 +116,7 @@ export class SupernovaToolsDesignTokensPlugin {
   // MARK: - Merging
 
   /** Loads remote source connected to this tool, then merges tokens and groups with it, creating union. Can optionally write to the source as well */
-  async mergeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, tokenGroups: Array<TokenGroup>, write: boolean): Promise<{
+  async mergeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, write: boolean): Promise<{
       tokens: Array<Token>
       groups: Array<TokenGroup>
   }> {
@@ -131,12 +149,14 @@ export class SupernovaToolsDesignTokensPlugin {
       }
     }
 
-    // Synchronize changes
-    let writer = this.brand.writer()
+    // Synchronize changes if enabled
     let tokensToWrite = processedNodes.map(n => n.token)
     let tokenGroupsToWrite = groups
-    await writer.writeTokens(tokenMergeResult.toCreateOrUpdate.map(r => r.token), tokenGroupsToWrite, tokenMergeResult.toDelete.map(r => r.token))
 
+    if (write) {
+      let writer = this.brand.writer()
+      await writer.writeTokens(tokenMergeResult.toCreateOrUpdate.map(r => r.token), tokenGroupsToWrite, tokenMergeResult.toDelete.map(r => r.token))
+    }
     // console.log(result)
     /*
     console.log("--- --- --- RESULT (TO CREATE): ")

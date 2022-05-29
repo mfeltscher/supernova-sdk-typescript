@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import test from 'ava'
+import path from 'path'
 import { TokenType } from '../../exports'
 import { SupernovaToolsDesignTokensPlugin } from '../../tools/design-tokens/SDKToolsDesignTokensPlugin'
 import { SupernovaToolsStyleDictionary, SupernovaToolStyleDictionaryKeyNaming, SupernovaToolStyleDictionaryOptions } from '../../tools/SDKToolsStyleDictionary'
@@ -55,7 +56,26 @@ test('test_experimental_token_write', async t => {
     // Create DT tool, load tokens from definition, merge them with upstream source 
     let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
     let incomingTokenPack = await tool.loadTokensFromDefinition(provideTokens())
-    let mergedTokenPack = await tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, incomingTokenPack.groups, true)
+    let _ = await tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, true)
+
+    t.true(true)
+})
+
+test('test_experimental_token_write_from_file', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+
+    // Fetch specific brand
+    let brands = await version.brands()
+    let brand = brands[0]
+
+    // Create DT tool, load tokens from definition, merge them with upstream source 
+    let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
+    let x = path.join(process.cwd(), 'files', 'tokens.json')
+    console.log(x)
+    let incomingTokenPack = await tool.loadTokensFromPath(x)
+    let _ = await tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, true)
 
     t.true(true)
 })
@@ -63,7 +83,6 @@ test('test_experimental_token_write', async t => {
 
 function provideTokens(): string {
     
-  
     let definition = `
     {
         "color": {
