@@ -126,12 +126,8 @@ export class GroupTreeNode {
     const [name, ...rest] = path
     let child: GroupTreeNode = this.children.find(c => c.isGroup && c.element.name === name)
 
-    console.log(path)
     if (!child) {
-      console.log("creating group " + name)
       child = this.createGroupChild(name)
-    } else {
-      console.log("group existing " + name)
     }
     return child.getOrCreateGroup(rest)
   }

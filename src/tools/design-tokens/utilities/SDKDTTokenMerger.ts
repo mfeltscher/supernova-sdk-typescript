@@ -135,10 +135,7 @@ export class DTTokenMerger {
 
     for (const node of existingAsProcessedNodes) {
       const key = DTTokenMerger.buildKey(node.path, node.token.name)
-      console.log("-+-+-+ EXTRACETED KEYS")
-      console.log(extractedMap.keys())
       if (!extractedMap.has(key)) {
-          console.log("DELETING KEY " + key)
         toDelete.push(node)
       }
     }

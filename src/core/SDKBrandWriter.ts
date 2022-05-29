@@ -64,10 +64,12 @@ export class BrandWriter {
         // Convert tokens and groups to their remote counterparts
         let remoteTokens = tokens.map(t => t.toWriteObject())
         let remoteGroups = groups.map(g => g.toWriteObject())
+        /*
         console.log("WRITING:")
         console.log(remoteTokens)
         console.log("WRITING GROUPS:")
         console.log(remoteGroups)
+        */
         await this.dataCore.writeTokenData(this.brand.designSystemVersion.designSystem.id, this.brand.designSystemVersion, remoteTokens, remoteGroups, deleteTokens)
         
         return {

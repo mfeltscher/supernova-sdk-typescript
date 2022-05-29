@@ -56,8 +56,6 @@ export class DTTokenGroupTreeMerger {
     existingElements: Array<Token | TokenGroup>,
   ): DTGroupMergeDiff {
 
-    console.log("--- ++++ Token DIFF")
-    console.log(tokensDiff)
     // Contruct roots to take data from
     const exitingRoots = buildBrandedElementRoots(existingElements)
     const desiredStructures = new Map<string, Map<TokenType, GroupTree>>()

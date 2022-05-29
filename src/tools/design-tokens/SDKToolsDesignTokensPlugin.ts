@@ -138,10 +138,12 @@ export class SupernovaToolsDesignTokensPlugin {
     await writer.writeTokens(tokenMergeResult.toCreateOrUpdate.map(r => r.token), tokenGroupsToWrite, tokenMergeResult.toDelete.map(r => r.token))
 
     // console.log(result)
+    /*
     console.log("--- --- --- RESULT (TO CREATE): ")
     console.log(result.toCreate)
     console.log("--- --- --- RESULT (TO UPDATE): ")
     console.log(result.toUpdate)
+    */
 
     return {
       tokens: tokensToWrite,
