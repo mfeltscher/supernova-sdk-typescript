@@ -796,7 +796,7 @@ export class DataCore {
       tokens: tokens,
       tokenGroups: groups,
       bulkDelete: {
-        tokenIds: deleteTokens.map(t => t.id)
+        tokenIds: deleteTokens.map(t => t.versionedId)
       }
     }
 

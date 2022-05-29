@@ -63,7 +63,7 @@ test('test_experimental_token_write', async t => {
 
 function provideTokens(): string {
     
-  /*
+  
     let definition = `
     {
         "color": {
@@ -138,42 +138,7 @@ function provideTokens(): string {
             }
           }
         }
-    }
-    `*/
-
-    /*
-    let definition = `
-    {
-        "color": {
-          "red": {
-            "50": {
-              "value": "#fef2f2",
-              "type": "color"
-            }
-          },
-          "references": {
-            "Single Referenced": {
-              "value": "{red.50}",
-              "type": "color"
-            }
-          }
-        }
-    }
-    `
-    */
-
-    let definition = `
-    {
-        "color": {
-          "red": {
-            "50": {
-              "value": "#fef2f2",
-              "type": "color"
-            }
-          }
-        }
-    }
-    `
+    }`
 
     return definition
 }
