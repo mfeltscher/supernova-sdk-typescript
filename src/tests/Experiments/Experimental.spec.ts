@@ -73,7 +73,7 @@ test('test_experimental_token_write_from_file', async t => {
     // Create DT tool, load tokens from definition, merge them with upstream source 
     let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
     let x = path.join(process.cwd(), 'files', 'tokens.json')
-    console.log(x)
+  
     let incomingTokenPack = await tool.loadTokensFromPath(x)
     let _ = await tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, true)
 

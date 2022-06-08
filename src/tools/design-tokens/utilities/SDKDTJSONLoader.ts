@@ -86,8 +86,7 @@ export class DTJSONLoader {
   }
 
   private parseNode(path: Array<string>, objects: object): Array<DTParsedNode> {
-    console.log(objects)
-    console.log(path)
+
     let result: Array<DTParsedNode> = []
 
     for (let [name, value] of Object.entries(objects)) {

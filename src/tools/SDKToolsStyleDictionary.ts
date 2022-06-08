@@ -143,7 +143,7 @@ export class SupernovaToolsStyleDictionary {
         [`${this.typeLabel(rootGroup.tokenType)}`]: result
       }
     } else {
-      result
+      return result
     }
   }
 
@@ -158,20 +158,22 @@ export class SupernovaToolsStyleDictionary {
     writeObject: Object,
     options: SupernovaToolStyleDictionaryOptions
   ): Object {
+    let newObject = writeObject
+
     // Represent one level of groups and tokens inside tree. Creates subobjects and then also information about each token
     for (let group of rootGroup.subgroups) {
       // Write buffer
       let writeSubObject = {}
 
       // Add each entry for each subgroup, and represent its tree into it
-      writeObject[this.safeGroupName(group, options.naming)] = this.representTree(group, allTokens, allGroups, writeSubObject, options)
+      newObject[this.safeGroupName(group, options.naming)] = this.representTree(group, allTokens, allGroups, writeSubObject, options)
 
       // Add each entry for each token, writing to the same write root
       for (let token of this.tokensOfGroup(group, allTokens)) {
         writeSubObject[this.safeTokenName(token, options.naming)] = this.representToken(token, allTokens, allGroups, options)
       }
     }
-    return writeObject
+    return newObject
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
