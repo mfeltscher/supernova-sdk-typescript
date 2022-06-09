@@ -202,7 +202,6 @@ export class DTJSONConverter {
     newPath.splice(0, 1)
 
     // Return path key that is the same as what Design Tokens uses for referencing
-    // console.log("{" + [...newPath, name].join(".") + "}")
     return "{" + [...newPath, name].join(".") + "}"
   }
 }

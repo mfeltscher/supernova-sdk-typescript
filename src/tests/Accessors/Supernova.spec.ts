@@ -83,3 +83,4 @@ test('test_Supernova_exporters', async t => {
     let exporters = await testInstance.exporters(process.env.TEST_DB_WORKSPACE_ID)
     t.true(exporters.length >= 1)
 })
+
