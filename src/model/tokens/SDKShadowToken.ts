@@ -9,10 +9,15 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { uuid } from 'uuidv4'
+import { Brand, RadiusToken, TokenType, MeasureToken, ColorToken, ShadowType } from '../..'
+import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
-import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
+import { RadiusTokenRemoteModel, ShadowTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { RadiusTokenRemoteValue, ShadowTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
-import { ShadowTokenValue } from './SDKTokenValue'
+import { MeasureTokenValue, RadiusTokenValue, ShadowTokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -36,6 +41,127 @@ export class ShadowToken extends Token {
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
+    }
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Static building
+
+  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: object, alias: ShadowToken | null, referenceResolver: DTTokenReferenceResolver): ShadowToken {
+
+    let baseToken: TokenRemoteModel = {
+      id: undefined, // Ommited id will create new token
+      persistentId: uuid(),
+      brandId: brand.persistentId,
+      designSystemVersionId: version.id,
+      type: TokenType.shadow,
+      meta: {
+        name: name,
+        description: description
+      },
+      data: {},
+      customPropertyOverrides: []
+    }
+
+    if (value) {
+      // Raw value
+      let tokenValue = this.shadowValueFromDefinition(value, referenceResolver)
+      return new ShadowToken(version, baseToken, tokenValue, undefined)
+    } else if (alias) {
+      // Aliased value - copy and create raw from reference
+      let tokenValue: ShadowTokenValue = {
+        color: alias.value.color,
+        x: alias.value.x,
+        y: alias.value.y,
+        spread: alias.value.spread,
+        radius: alias.value.radius,
+        opacity: alias.value.opacity,
+        type: alias.value.type,
+        referencedToken: alias
+      } 
+
+      return new ShadowToken(version, baseToken, tokenValue, undefined)
+    }
+  }
+
+  static shadowValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): ShadowTokenValue {
+
+    if (!definition.hasOwnProperty("x") ||  
+        !definition.hasOwnProperty("y") ||  
+        !definition.hasOwnProperty("blur") ||  
+        !definition.hasOwnProperty("spread") ||  
+        !definition.hasOwnProperty("color") ||  
+        !definition.hasOwnProperty("type")) {
+        throw SupernovaError.fromSDKError(`Box Shadow definition is missing one of required properties (x, y, blur, spread, color, type), was ${JSON.stringify(definition)}`)
+    }
+
+    let value = {} as ShadowTokenValue // Empty container
+
+    value.x = MeasureToken.measureValueFromDefinitionOrReference(definition["x"], referenceResolver)
+    value.y = MeasureToken.measureValueFromDefinitionOrReference(definition["y"], referenceResolver)
+    value.radius = MeasureToken.measureValueFromDefinitionOrReference(definition["blur"], referenceResolver)
+    value.spread = MeasureToken.measureValueFromDefinitionOrReference(definition["spread"], referenceResolver)
+    value.color = ColorToken.colorValueFromDefinitionOrReference(definition["color"], referenceResolver)
+    value.opacity = 1
+    value.type = definition["type"] === "innerShadow" ? ShadowType.inner : ShadowType.drop
+    
+    return value
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Writing
+
+  toWriteObject(): ShadowTokenRemoteModel {
+
+    let baseData = this.toBaseWriteObject()
+    let specificData = baseData as ShadowTokenRemoteModel
+
+    specificData.data = {
+      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+    }
+
+    return specificData
+  }
+
+  toWriteValueObject(): ShadowTokenRemoteValue {
+
+    return {
+      color: {
+        aliasTo: this.value.color.referencedToken ? this.value.color.referencedToken.id : undefined,
+        value: this.value.color.referencedToken ? null : this.value.color.hex
+      },
+      isEnabled: true,
+      x: {
+        aliasTo: this.value.x.referencedToken ? this.value.x.referencedToken.id : undefined,
+        value: this.value.x.referencedToken ? null : {
+          measure: this.value.x.measure,
+          unit: this.value.x.unit
+        } 
+      }, 
+      y: {
+        aliasTo: this.value.y.referencedToken ? this.value.y.referencedToken.id : undefined,
+        value: this.value.y.referencedToken ? null : {
+          measure: this.value.y.measure,
+          unit: this.value.y.unit
+        } 
+      }, 
+      spread: {
+        aliasTo: this.value.spread.referencedToken ? this.value.spread.referencedToken.id : undefined,
+        value: this.value.spread.referencedToken ? null : {
+          measure: this.value.spread.measure,
+          unit: this.value.spread.unit
+        } 
+      }, 
+      radius: {
+        aliasTo: this.value.radius.referencedToken ? this.value.radius.referencedToken.id : undefined,
+        value: this.value.radius.referencedToken ? null : {
+          measure: this.value.radius.measure,
+          unit: this.value.radius.unit
+        } 
+      }, 
+      opacity: this.value.opacity,
+      type: this.value.type
     }
   }
 }

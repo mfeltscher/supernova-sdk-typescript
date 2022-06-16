@@ -19,6 +19,7 @@ import { ColorTokenValue } from './SDKTokenValue'
 import { uuid } from 'uuidv4';
 import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import parseColor from "parse-color"
+import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -83,8 +84,11 @@ export class ColorToken extends Token {
   }
 
   static colorValueFromDefinition(definition: string): ColorTokenValue {
-
+    console.log(definition)
     let result = parseColor(definition)
+    if (!result || result.hex === undefined) {
+      throw SupernovaError.fromSDKError(`Unable to parse provided color value '${definition}'. Hex, RGB, HSL, HSV or CMYK are supported`)
+    }
     return {
       hex: result.hex.length === 7 ? result.hex + "ff" : result.hex,
       r: result.rgba[0],
@@ -92,6 +96,24 @@ export class ColorToken extends Token {
       b: result.rgba[2],
       a: Math.max(0, Math.min(255, Math.round(result.rgba[3] * 255))),
       referencedToken: null
+    }
+  }
+
+
+  static colorValueFromDefinitionOrReference(definition: any, referenceResolver: DTTokenReferenceResolver): ColorTokenValue {
+
+    if (referenceResolver.valueIsReference(definition)) {
+      let reference = (referenceResolver.lookupReferencedToken(definition) as ColorToken)
+      return {
+        referencedToken: reference,
+        hex: reference.value.hex,
+        a: reference.value.a,
+        r: reference.value.r,
+        g: reference.value.g,
+        b: reference.value.b
+      }
+    } else {
+      return this.colorValueFromDefinition(definition)
     }
   }
 

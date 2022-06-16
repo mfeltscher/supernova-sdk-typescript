@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { Token } from '../../../model/tokens/SDKToken'
+import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -22,7 +23,8 @@ export class DTTokenReferenceResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
-  private atomicTokens: Array<Token> = []
+  private mappedTokens: Map<string, Token> = new Map<string, Token>()
+  private nodes: Array<DTProcessedTokenNode> = []
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -34,27 +36,44 @@ export class DTTokenReferenceResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Utilities
 
-  addAtomicToken(token: Token) {
-
-    let hasToken = this.atomicTokens.filter(t => t.id === token.id).length > 0
-    if (!hasToken) {
-      this.atomicTokens.push(token)
+  addAtomicToken(token: DTProcessedTokenNode) {
+    
+    let nodePath = this.tokenReferenceKey(token.path, token.token.name)
+    if (!this.mappedTokens.get(nodePath)) {
+      this.mappedTokens.set(nodePath, token.token)
+      this.nodes.push(token)
     }
   }
 
-  addAtomicTokens(tokens: Array<Token>) {
+  addAtomicTokens(tokens: Array<DTProcessedTokenNode>) {
 
     for (let token of tokens) {
       this.addAtomicToken(token)
     }
   }
 
+  unmappedValues(): Array<DTProcessedTokenNode> {
+    return this.nodes
+  }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Utilities
-    
-  valueIsReference(value: string): boolean {
+  // MARK: - Lookup
 
+  lookupReferencedToken(reference: string): Token | undefined {
+
+    return this.mappedTokens.get(reference)
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Conveniences
+    
+  valueIsReference(value: string | object): boolean {
+
+    if (typeof value !== "string") {
+      return false
+    }
+    
     value = value.trim()
     return value.length > 3 && 
            value.startsWith("{") &&
@@ -71,3 +90,4 @@ export class DTTokenReferenceResolver {
     return "{" + [...newPath, name].join(".") + "}"
   }
 }
+

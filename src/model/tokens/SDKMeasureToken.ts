@@ -12,6 +12,7 @@
 import { uuid } from 'uuidv4'
 import { Brand, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { Unit } from '../enums/SDKUnit'
 import { MeasureTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { MeasureTokenRemoteValue } from './remote/SDKRemoteTokenValue'
@@ -118,6 +119,25 @@ export class MeasureToken extends Token {
     return {
       measure: parsedMeasure,
       unit: unit
+    }
+  }
+
+  static measureValueFromDefinitionOrReference(definition: any, referenceResolver: DTTokenReferenceResolver): MeasureTokenValue {
+
+    if (referenceResolver.valueIsReference(definition)) {
+      let reference = (referenceResolver.lookupReferencedToken(definition) as MeasureToken)
+      return {
+        referencedToken: reference,
+        measure: reference.value.measure,
+        unit: reference.value.unit
+      }
+    } else {
+      let measure = MeasureToken.parseMeasure(definition)
+      return {
+        referencedToken: null,
+        measure: measure.measure,
+        unit: measure.unit
+      }
     }
   }
 
