@@ -77,6 +77,7 @@ export class DTTokenMerger {
         return {
             token: t,
             key: key,
+            originalType: undefined, // Note this is correct - we don't need the original type anywhere in merging
             path: path
         }
     })

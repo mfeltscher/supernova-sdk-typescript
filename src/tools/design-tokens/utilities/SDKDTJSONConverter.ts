@@ -9,10 +9,11 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, ColorToken, DesignSystemVersion, Token, TokenGroup, TokenType } from "../../.."
+import { Brand, ColorToken, DesignSystemVersion, MeasureToken, RadiusToken, Token, TokenType } from "../../.."
 import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
 import { DTParsedNode } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
+import { DTTokenReferenceResolver } from "./SDKDTTokenReferenceResolver"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -20,6 +21,7 @@ import { DTTokenMerger } from "./SDKDTTokenMerger"
 
 export type DTProcessedTokenNode = {
   token: Token,
+  originalType: string,
   path: Array<string>,
   key: string
 }
@@ -41,6 +43,7 @@ export class DTJSONConverter {
 
   version: DesignSystemVersion
   brand: Brand
+  referenceResolver: DTTokenReferenceResolver
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -48,6 +51,7 @@ export class DTJSONConverter {
   constructor(version: DesignSystemVersion, brand: Brand) {
     this.version = version
     this.brand = brand
+    this.referenceResolver = new DTTokenReferenceResolver()
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -59,6 +63,12 @@ export class DTJSONConverter {
 
     // Color tokens
     processedNodes = processedNodes.concat(this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes))
+
+    // Sizing tokens
+    processedNodes = processedNodes.concat(this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity"], nodes))
+
+    // Radii tokens
+    processedNodes = processedNodes.concat(this.convertNodesToTokensForSupportedNodeTypes(["borderRadius"], nodes))
 
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     this.remapRootNodeKeys(processedNodes)
@@ -77,10 +87,37 @@ export class DTJSONConverter {
       switch (node.token.tokenType) {
         case TokenType.color:
           firstSegment = "Color"; break
+        case TokenType.measure:
+          firstSegment = "Measure"; break
+        case TokenType.radius:
+          firstSegment = "Radius"; break
         default: 
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
       }
-      path = [firstSegment, ...path]
+
+      let secondSegment: string | undefined = undefined
+      switch (node.originalType) {
+        case "borderRadius":
+          secondSegment = "Border Radius"; break
+        case "borderWidth":
+          secondSegment = "Border Width"; break
+        case "sizing":
+          secondSegment = "Sizing"; break
+        case "spacing":
+          secondSegment = "Spacing"; break
+        case "opacity":
+          secondSegment = "Opacity"; break
+        default:
+          // Other types than listed should be ignored
+          break
+      }
+
+      // Remap original type and add extra group, if needed
+      if (secondSegment) {
+        path = [firstSegment, secondSegment, ...path]
+      } else {
+        path = [firstSegment, ...path]
+      }
       node.path = path
 
       // Rebuild key
@@ -99,7 +136,7 @@ export class DTJSONConverter {
 
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
-      if (typeof node.value === "string" && !this.valueIsReference(node.value)) {
+      if (typeof node.value === "string" && this.referenceResolver.valueIsReference(node.value)) {
         let token = this.convertAtomicNode(node)
         processedTokens.push(token)
       } else {
@@ -115,8 +152,10 @@ export class DTJSONConverter {
       for (let node of unprocessedTokens) {
         let token = this.convertReferencedNode(node, processedTokens)
         if (token) {
+          // console.log(`processed token ${token.path} referencing ${token.key}`)
           processedTokens.push(token)
         } else {
+          // console.log(`skipping token in resolution for now`)
           unprocessedDepthTokens.push(node)
         }
       }
@@ -138,6 +177,8 @@ export class DTJSONConverter {
     let snType = this.convertDTTypeToSupernovaType(node.type)
     switch (snType) {
       case TokenType.color: return this.convertColorAtomicNode(node)
+      case TokenType.measure: return this.convertMeasureAtomicNode(node)
+      case TokenType.radius: return this.convertRadiusAtomicNode(node)
       default: throw new Error("Unsupported token type " + snType)
     }
   }
@@ -147,6 +188,29 @@ export class DTJSONConverter {
     let constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, node.value, undefined)
     return {
       token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
+  private convertMeasureAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+
+    let constructedToken = MeasureToken.create(this.version, this.brand, node.name, node.description, node.value, undefined)
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
+  private convertRadiusAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+
+    let constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, node.value, undefined)
+    return {
+      token: constructedToken,
+      originalType: node.type,
       path: node.path,
       key: DTTokenMerger.buildKey(node.path, node.name)
     }
@@ -161,12 +225,21 @@ export class DTJSONConverter {
     let valueAsReference = node.value
 
     for (let resolvedToken of resolvedTokens) {
-      let resolvedTokenAsReference = this.tokenReferenceKey(resolvedToken.path, resolvedToken.token.name)
+      let resolvedTokenAsReference = this.referenceResolver.tokenReferenceKey(resolvedToken.path, resolvedToken.token.name)
       if (resolvedTokenAsReference === valueAsReference) {
-        let constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken.token as ColorToken)
+        let constructedToken: Token
+        let snType = this.convertDTTypeToSupernovaType(node.type)
+        switch (snType) {
+          case TokenType.color: constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken.token as ColorToken); break;
+          case TokenType.measure: constructedToken = MeasureToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken.token as MeasureToken); break;
+          case TokenType.radius: constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken.token as RadiusToken); break;
+          default: throw new Error("Unsupported token type " + snType)
+        }
+        
         return {
           token: constructedToken, 
           path: node.path,
+          originalType: node.type,
           key: DTTokenMerger.buildKey(node.path, node.name)
         }
       }
@@ -179,29 +252,17 @@ export class DTJSONConverter {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Convenience
 
-  private valueIsReference(value: string): boolean {
-
-    value = value.trim()
-    return value.length > 3 && 
-           value.startsWith("{") &&
-           value.endsWith("}")
-  }
-
   private convertDTTypeToSupernovaType(type: string): TokenType {
    
     switch (type) {
       case "color": return TokenType.color
+      case "borderRadius": return TokenType.radius
+      case "borderWidth": return TokenType.measure  
+      case "sizing": return TokenType.measure
+      case "opacity": return TokenType.measure
+      case "spacing": return TokenType.measure
+
       default: throw new Error("Unsupported token type " + type)
     }
-  }
-
-  private tokenReferenceKey(path: Array<String>, name: string): string {
-
-    // Delete initial piece of path, as this is only grouping element
-    let newPath = Array.from(path)
-    newPath.splice(0, 1)
-
-    // Return path key that is the same as what Design Tokens uses for referencing
-    return "{" + [...newPath, name].join(".") + "}"
   }
 }

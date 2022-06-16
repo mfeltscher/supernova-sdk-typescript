@@ -45,6 +45,9 @@ export class ColorToken extends Token {
     }
   }
 
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Static building
+
   static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: string, alias: ColorToken | null): ColorToken {
 
     let baseToken: TokenRemoteModel = {

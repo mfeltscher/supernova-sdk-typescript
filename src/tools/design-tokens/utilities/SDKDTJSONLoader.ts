@@ -88,7 +88,6 @@ export class DTJSONLoader {
   private parseNode(path: Array<string>, objects: object): Array<DTParsedNode> {
 
     let result: Array<DTParsedNode> = []
-
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {
         if (name.startsWith("$")) {
