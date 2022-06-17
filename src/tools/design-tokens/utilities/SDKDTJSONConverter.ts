@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, ColorToken, DesignSystemVersion, MeasureToken, RadiusToken, ShadowToken, Token, TokenType, TypographyToken } from "../../.."
+import { Brand, ColorToken, DesignSystemVersion, GenericToken, MeasureToken, RadiusToken, ShadowToken, Token, TokenType, TypographyToken } from "../../.."
 import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
 import { DTParsedNode } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
@@ -63,10 +63,13 @@ export class DTJSONConverter {
     this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes)
 
     // Sizing tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity", "fontSizes", "paragraphSpacing", "lineHeights"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity", "fontSizes", "paragraphSpacing", "lineHeights", "letterSpacing"], nodes)
 
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(["borderRadius"], nodes)
+
+    // Other tokens
+    this.convertNodesToTokensForSupportedNodeTypes(["other"], nodes)
   
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(["boxShadow"], nodes)
@@ -100,6 +103,8 @@ export class DTJSONConverter {
           firstSegment = "Shadow"; break
         case TokenType.typography:
           firstSegment = "Typography"; break
+        case TokenType.generic:
+          firstSegment = "Generic"; break
         default: 
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
       }
@@ -118,6 +123,8 @@ export class DTJSONConverter {
           secondSegment = "Paragraph Spacing"; break
         case "lineHeights":
           secondSegment = "Line Height"; break
+        case "letterSpacing":
+          secondSegment = "Letter Spacing"; break
         case "spacing":
           secondSegment = "Spacing"; break
         case "opacity":
@@ -193,6 +200,7 @@ export class DTJSONConverter {
       case TokenType.radius: return this.convertRadiusAtomicNode(node)
       case TokenType.shadow: return this.convertShadowAtomicNode(node)
       case TokenType.typography: return this.convertTypographyAtomicNode(node)
+      case TokenType.generic: return this.convertGenericAtomicNode(node)
       default: throw new Error("Unsupported token type " + snType)
     }
   }
@@ -252,6 +260,17 @@ export class DTJSONConverter {
     }
   }
 
+  private convertGenericAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+
+    let constructedToken = GenericToken.create(this.version, this.brand, node.name, node.description, node.value, undefined)
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referenced nodes
@@ -270,6 +289,7 @@ export class DTJSONConverter {
         case TokenType.radius: constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as RadiusToken); break;
         case TokenType.shadow: constructedToken = ShadowToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as ShadowToken, this.referenceResolver); break;
         case TokenType.typography: constructedToken = TypographyToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as TypographyToken, this.referenceResolver); break;
+        case TokenType.generic: constructedToken = GenericToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as GenericToken); break;
         default: throw new Error("Unsupported token type " + snType)
       }
       
@@ -301,8 +321,11 @@ export class DTJSONConverter {
       case "spacing":
       case "fontSizes":
       case "paragraphSpacing":
+      case "letterSpacing":
       case "lineHeights":
         return TokenType.measure  
+      case "other":
+        return TokenType.generic
       default: throw new Error("Unsupported token type " + type)
     }
   }
