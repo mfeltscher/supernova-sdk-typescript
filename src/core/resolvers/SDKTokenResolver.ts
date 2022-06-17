@@ -391,6 +391,7 @@ export class TokenResolver {
         ? this.resolveReferencedMeasureTokenValue(rawData.data.value.lineHeight)
         : null,
       paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphIndent),
+      paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphSpacing),
       referencedToken: null
     }
     return new TypographyToken(this.version, rawData, value, null)

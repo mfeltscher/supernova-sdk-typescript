@@ -84,7 +84,7 @@ export class ColorToken extends Token {
   }
 
   static colorValueFromDefinition(definition: string): ColorTokenValue {
-    console.log(definition)
+    
     let result = parseColor(definition)
     if (!result || result.hex === undefined) {
       throw SupernovaError.fromSDKError(`Unable to parse provided color value '${definition}'. Hex, RGB, HSL, HSV or CMYK are supported`)

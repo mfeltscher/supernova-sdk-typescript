@@ -36,6 +36,7 @@ export type TypographyTokenRemoteValue = {
   textCase: TextCase
   letterSpacing: MeasureTokenRemoteData
   lineHeight: MeasureTokenRemoteData | null
+  paragraphSpacing: MeasureTokenRemoteData,
   paragraphIndent: MeasureTokenRemoteData
 }
 

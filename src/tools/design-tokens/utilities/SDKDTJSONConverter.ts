@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, ColorToken, DesignSystemVersion, MeasureToken, RadiusToken, ShadowToken, Token, TokenType } from "../../.."
+import { Brand, ColorToken, DesignSystemVersion, MeasureToken, RadiusToken, ShadowToken, Token, TokenType, TypographyToken } from "../../.."
 import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
 import { DTParsedNode } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
@@ -63,13 +63,16 @@ export class DTJSONConverter {
     this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes)
 
     // Sizing tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity", "fontSizes", "paragraphSpacing", "lineHeights"], nodes)
 
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(["borderRadius"], nodes)
   
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(["boxShadow"], nodes)
+
+    // Typography tokens
+    this.convertNodesToTokensForSupportedNodeTypes(["typography"], nodes)
 
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
@@ -95,6 +98,8 @@ export class DTJSONConverter {
           firstSegment = "Radius"; break
         case TokenType.shadow:
           firstSegment = "Shadow"; break
+        case TokenType.typography:
+          firstSegment = "Typography"; break
         default: 
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
       }
@@ -107,6 +112,12 @@ export class DTJSONConverter {
           secondSegment = "Border Width"; break
         case "sizing":
           secondSegment = "Sizing"; break
+        case "fontSizes":
+          secondSegment = "Font Size"; break
+        case "paragraphSpacing":
+          secondSegment = "Paragraph Spacing"; break
+        case "lineHeights":
+          secondSegment = "Line Height"; break
         case "spacing":
           secondSegment = "Spacing"; break
         case "opacity":
@@ -146,7 +157,6 @@ export class DTJSONConverter {
         unprocessedTokens.push(node)
       }
     }
-    console.log(this.referenceResolver.unmappedValues())
 
     // Now we have all atomic tokens processed, we can start creating references
     // References will be emptying pool until they are all resolved (this can take multiple
@@ -182,6 +192,7 @@ export class DTJSONConverter {
       case TokenType.measure: return this.convertMeasureAtomicNode(node)
       case TokenType.radius: return this.convertRadiusAtomicNode(node)
       case TokenType.shadow: return this.convertShadowAtomicNode(node)
+      case TokenType.typography: return this.convertTypographyAtomicNode(node)
       default: throw new Error("Unsupported token type " + snType)
     }
   }
@@ -230,6 +241,17 @@ export class DTJSONConverter {
     }
   }
 
+  private convertTypographyAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+
+    let constructedToken = TypographyToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, this.referenceResolver)
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referenced nodes
@@ -247,6 +269,7 @@ export class DTJSONConverter {
         case TokenType.measure: constructedToken = MeasureToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as MeasureToken); break;
         case TokenType.radius: constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as RadiusToken); break;
         case TokenType.shadow: constructedToken = ShadowToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as ShadowToken, this.referenceResolver); break;
+        case TokenType.typography: constructedToken = TypographyToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as TypographyToken, this.referenceResolver); break;
         default: throw new Error("Unsupported token type " + snType)
       }
       
@@ -271,11 +294,15 @@ export class DTJSONConverter {
       case "color": return TokenType.color
       case "borderRadius": return TokenType.radius
       case "boxShadow": return TokenType.shadow
-      case "borderWidth": return TokenType.measure  
-      case "sizing": return TokenType.measure
-      case "opacity": return TokenType.measure
-      case "spacing": return TokenType.measure
-
+      case "typography": return TokenType.typography
+      case "borderWidth": 
+      case "sizing":
+      case "opacity":
+      case "spacing":
+      case "fontSizes":
+      case "paragraphSpacing":
+      case "lineHeights":
+        return TokenType.measure  
       default: throw new Error("Unsupported token type " + type)
     }
   }

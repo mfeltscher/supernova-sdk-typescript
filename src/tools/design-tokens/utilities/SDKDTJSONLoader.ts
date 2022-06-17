@@ -111,7 +111,6 @@ export class DTJSONLoader {
         throw new Error('Unable to parse, unsupported structure in color node leaf')
       }
     }
-    console.log(result)
     
     return result
   }

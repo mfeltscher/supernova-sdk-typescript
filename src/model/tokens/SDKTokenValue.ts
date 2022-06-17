@@ -61,6 +61,7 @@ export type TypographyTokenValue = {
   letterSpacing: MeasureTokenValue
   lineHeight: MeasureTokenValue | null
   paragraphIndent: MeasureTokenValue
+  paragraphSpacing: MeasureTokenValue
   referencedToken: TypographyToken | null
 }
 

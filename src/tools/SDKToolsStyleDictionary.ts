@@ -404,6 +404,10 @@ export class SupernovaToolsStyleDictionary {
           type: 'measure',
           value: this.representMeasureTokenValue(value.paragraphIndent, allTokens, allGroups, options)
         },
+        paragraphSpacing: {
+          type: 'measure',
+          value: this.representMeasureTokenValue(value.paragraphSpacing, allTokens, allGroups, options)
+        },
         lineHeight: value.lineHeight
           ? {
               type: 'measure',
