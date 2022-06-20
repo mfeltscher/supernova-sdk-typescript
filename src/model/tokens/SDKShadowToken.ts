@@ -86,12 +86,22 @@ export class ShadowToken extends Token {
 
   static shadowValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): ShadowTokenValue {
 
+    // For now, handle only one shadow in multiple shadow layers
+    if (definition instanceof Array) {
+      if (definition.length > 0) {
+        definition = definition[0]
+      } else {
+        throw SupernovaError.fromSDKError(`Box Shadow definition must contain at least one shadow layer`)
+      }
+    }
+
     if (!definition.hasOwnProperty("x") ||  
         !definition.hasOwnProperty("y") ||  
         !definition.hasOwnProperty("blur") ||  
         !definition.hasOwnProperty("spread") ||  
         !definition.hasOwnProperty("color") ||  
         !definition.hasOwnProperty("type")) {
+          console.log("throwing error")
         throw SupernovaError.fromSDKError(`Box Shadow definition is missing one of required properties (x, y, blur, spread, color, type), was ${JSON.stringify(definition)}`)
     }
 
