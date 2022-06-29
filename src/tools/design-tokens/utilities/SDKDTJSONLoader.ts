@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
-import fs from "fs"
+// import fs from "fs"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -46,7 +46,13 @@ export class DTJSONLoader {
     return this.processDefinitionTree(data)
   }
 
+  /** Load token definitions from object */
+  async loadDSObjectsFromObject(object: object): Promise<Array<DTParsedNode>> {
+    return this.processDefinitionTree(object)
+  }
+
   /** Load token definitions from path */
+  /*
   async loadDSObjectsFromPath(path: string): Promise<Array<DTParsedNode>> {
 
     try {
@@ -57,7 +63,7 @@ export class DTJSONLoader {
         'Unable to load JSON definition file: ' + error
       )
     }
-  }
+  }*/
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - File Parser

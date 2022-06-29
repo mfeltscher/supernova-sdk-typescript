@@ -19,7 +19,10 @@ const config = {
         plugins: [
             // @ts-ignore
             new TsconfigPathsPlugin.default({})
-        ]
+        ],
+        fallback: {
+            fs: false
+        }
     },
     externals: [nodeExternals()],
     module: {

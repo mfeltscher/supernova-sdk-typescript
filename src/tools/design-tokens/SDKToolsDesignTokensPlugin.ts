@@ -71,6 +71,7 @@ export class SupernovaToolsDesignTokensPlugin {
   }
   */
   /** Load token definitions from path */
+  /*
   async loadTokensFromPath(path: string): Promise<{
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
@@ -79,9 +80,9 @@ export class SupernovaToolsDesignTokensPlugin {
     let loader = new DTJSONLoader()
     let nodes = await loader.loadDSObjectsFromPath(path)
     return this.processTokenNodes(nodes)
-  }
+  }*/
 
-  /** Load token definitions from */
+  /** Load token definitions from a JSON file */
   async loadTokensFromDefinition(definition: string): Promise<{
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
@@ -89,6 +90,17 @@ export class SupernovaToolsDesignTokensPlugin {
   }> {
     let loader = new DTJSONLoader()
     let nodes = await loader.loadDSObjectsFromDefinition(definition)
+    return this.processTokenNodes(nodes)
+  }
+
+  /** Load token definitions from a definition object */
+  async loadTokensFromObject(definition: object): Promise<{
+    processedNodes: Array<DTProcessedTokenNode>,
+    tokens: Array<Token>,
+    groups: Array<TokenGroup>
+  }> {
+    let loader = new DTJSONLoader()
+    let nodes = await loader.loadDSObjectsFromObject(definition)
     return this.processTokenNodes(nodes)
   }
 
