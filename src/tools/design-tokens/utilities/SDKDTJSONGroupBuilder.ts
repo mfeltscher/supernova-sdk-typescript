@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { uuid } from 'uuidv4'
+import { v4 as uuidv4 } from 'uuid'
 import { Brand, DesignSystemVersion, Token, TokenGroup, TokenType } from '../../..'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
@@ -111,7 +111,7 @@ export class DTJSONGroupBuilder {
           brandId: brand.persistentId,
           tokenType: TokenType.color,
           designSystemVersionId: version.id,
-          persistentId: uuid(),
+          persistentId: uuidv4(),
           isRoot: false,
           id: undefined,
           meta: {
@@ -141,7 +141,7 @@ export class DTJSONGroupBuilder {
       brandId: brandId,
       tokenType: type,
       designSystemVersionId: versionId,
-      persistentId: uuid(),
+      persistentId: uuidv4(),
       isRoot: isRoot,
       id: undefined,
       meta: {

@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.7.11",
+    "version": "1.7.15",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -45,7 +45,8 @@
         "reset": "git clean -dfx && git reset --hard && npm i",
         "clean": "trash build test",
         "prepare-release": "run-s reset test cov:check doc:html version doc:publish",
-        "publish-package": "npm run build:production && npm publish --access public"
+        "publish-package": "npm run build:production && npm publish --access public",
+        "publish-package-debug": "npm run build:main && npm publish --access public"
     },
     "scripts-info": {
         "info": "Display information about the package scripts",
@@ -72,7 +73,7 @@
         "marked": "^1.1.1",
         "parse-color": "^1.0.0",
         "ts-dedent": "^1.1.1",
-        "uuidv4": "^6.2.13"
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@ava/typescript": "^3.0.1",

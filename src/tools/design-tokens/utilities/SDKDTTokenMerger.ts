@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { uuid } from 'uuidv4'
+import { v4 as uuidv4 } from 'uuid'
 import { Token } from '../../../model/tokens/SDKToken'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
@@ -101,7 +101,7 @@ export class DTTokenMerger {
         node.token.versionedId = oldToken.token.versionedId
         toUpdate.push(node)
       } else {
-        node.token.id = uuid()
+        node.token.id = uuidv4()
         toCreate.push(node)
       }
       toCreateOrUpdate.push(node)

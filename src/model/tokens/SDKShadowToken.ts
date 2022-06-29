@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { uuid } from 'uuidv4'
+import { v4 as uuidv4 } from 'uuid'
 import { Brand, RadiusToken, TokenType, MeasureToken, ColorToken, ShadowType } from '../..'
 import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
@@ -51,7 +51,7 @@ export class ShadowToken extends Token {
 
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
-      persistentId: uuid(),
+      persistentId: uuidv4(),
       brandId: brand.persistentId,
       designSystemVersionId: version.id,
       type: TokenType.shadow,

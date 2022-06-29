@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { uuid } from 'uuidv4'
+import { v4 as uuidv4 } from 'uuid'
 import { Brand, MeasureToken, TokenType, Unit } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { RadiusTokenRemoteData } from './remote/SDKRemoteTokenData'
@@ -50,7 +50,7 @@ export class RadiusToken extends Token {
 
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
-      persistentId: uuid(),
+      persistentId: uuidv4(),
       brandId: brand.persistentId,
       designSystemVersionId: version.id,
       type: TokenType.radius,

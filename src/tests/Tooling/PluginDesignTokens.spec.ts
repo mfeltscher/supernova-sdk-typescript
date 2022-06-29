@@ -29,7 +29,7 @@ test('test_tooling_design_tokens_load_and_merge', async t => {
 
     // Create DT tool, load tokens from definition, merge them with upstream source 
     let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
-    let incomingTokenPack = await tool.loadTokensFromDefinition(provideTokens())
+    let incomingTokenPack = tool.loadTokensFromDefinition(provideTokens())
 
     await t.notThrowsAsync(tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, true))
 })

@@ -41,13 +41,13 @@ export class DTJSONLoader {
   // MARK: - Loader
 
   /** Load token definitions from string */
-  async loadDSObjectsFromDefinition(definition: string): Promise<Array<DTParsedNode>> {
+  loadDSObjectsFromDefinition(definition: string): Array<DTParsedNode> {
     let data = this.parseDefinition(definition)
     return this.processDefinitionTree(data)
   }
 
   /** Load token definitions from object */
-  async loadDSObjectsFromObject(object: object): Promise<Array<DTParsedNode>> {
+  loadDSObjectsFromObject(object: object): Array<DTParsedNode> {
     return this.processDefinitionTree(object)
   }
 
@@ -92,7 +92,6 @@ export class DTJSONLoader {
   }
 
   private parseNode(path: Array<string>, objects: object): Array<DTParsedNode> {
-
     let result: Array<DTParsedNode> = []
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {

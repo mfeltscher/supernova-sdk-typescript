@@ -83,39 +83,36 @@ export class SupernovaToolsDesignTokensPlugin {
   }*/
 
   /** Load token definitions from a JSON file */
-  async loadTokensFromDefinition(definition: string): Promise<{
+  loadTokensFromDefinition(definition: string): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
-  }> {
+  } {
     let loader = new DTJSONLoader()
-    let nodes = await loader.loadDSObjectsFromDefinition(definition)
+    let nodes = loader.loadDSObjectsFromDefinition(definition)
     return this.processTokenNodes(nodes)
   }
 
   /** Load token definitions from a definition object */
-  async loadTokensFromObject(definition: object): Promise<{
+  loadTokensFromObject(definition: object): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
-  }> {
+  } {
     let loader = new DTJSONLoader()
-    let nodes = await loader.loadDSObjectsFromObject(definition)
+    let nodes = loader.loadDSObjectsFromObject(definition)
     return this.processTokenNodes(nodes)
   }
 
-  private async processTokenNodes(nodes: Array<DTParsedNode>): Promise<{
+  private processTokenNodes(nodes: Array<DTParsedNode>): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
-  }> {
-
+  } {
     let converter = new DTJSONConverter(this.version, this.brand)
     let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand)
-
-    let processedNodes = await converter.convertNodesToTokens(nodes)
-    let processedGroups = await groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
-    
+    let processedNodes = converter.convertNodesToTokens(nodes)
+    let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
     return {
         processedNodes,
         tokens: processedNodes.map(n => n.token),

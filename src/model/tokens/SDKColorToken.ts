@@ -16,7 +16,7 @@ import { ColorTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteToken
 import { ColorTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
 import { ColorTokenValue } from './SDKTokenValue'
-import { uuid } from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import parseColor from "parse-color"
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
@@ -53,7 +53,7 @@ export class ColorToken extends Token {
 
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
-      persistentId: uuid(),
+      persistentId: uuidv4(),
       brandId: brand.persistentId,
       designSystemVersionId: version.id,
       type: TokenType.color,

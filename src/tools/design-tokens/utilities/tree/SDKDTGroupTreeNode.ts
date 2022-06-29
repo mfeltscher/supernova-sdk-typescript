@@ -12,7 +12,7 @@
 
 import lodash from 'lodash';
 const { sortBy } = lodash;
-import { uuid } from 'uuidv4'
+import { v4 as uuidv4 } from 'uuid'
 import { Token, TokenGroup } from '../../../..'
 import { GroupTree } from './SDKDTGroupTree'
 
@@ -90,7 +90,7 @@ export class GroupTreeNode {
         brandId: this.tree.element.brandId,
         tokenType: this.tree.element.tokenType,
         designSystemVersionId: this.tree.element.designSystemVersionId,
-        persistentId: uuid(),
+        persistentId: uuidv4(),
         isRoot: false,
         id: undefined,
         meta: {
