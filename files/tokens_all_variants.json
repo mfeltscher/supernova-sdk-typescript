@@ -1,0 +1,149 @@
+{
+    "Plain Token": {
+        "value": "#a4a7f8",
+        "type": "color"
+    },
+    "Referenced Color": {
+        "value": "{Plain Token}",
+        "type": "color"
+    },
+    "Plain Sizing Token": {
+        "value": "1px",
+        "type": "sizing"
+    },
+    "Referenced Sizing Token": {
+        "value": "{Plain Sizing Token}",
+        "type": "sizing"
+    },
+    "Plain Spacing Token": {
+        "value": "1px",
+        "type": "spacing"
+    },
+    "Referenced Spacing Token": {
+        "value": "{Plain Spacing Token}",
+        "type": "spacing"
+    },
+    "Border Radius Token": {
+        "value": "2px",
+        "type": "borderRadius"
+    },
+    "Referenced Border Radius": {
+        "value": "{Border Radius Token}",
+        "type": "borderRadius"
+    },
+    "Twice Referenced": {
+        "value": "{Referenced Color}",
+        "type": "color"
+    },
+    "Border Width Token": {
+        "value": "20px",
+        "type": "borderWidth"
+    },
+    "Referenced Border Width": {
+        "value": "{Border Width Token}",
+        "type": "borderWidth"
+    },
+    "Opacity Token": {
+        "value": "0.5",
+        "type": "opacity"
+    },
+    "Referenced Opacity": {
+        "value": "{Opacity Token}",
+        "type": "opacity"
+    },
+    "Box Shadow Token": {
+        "value": {
+            "x": "0",
+            "y": "0",
+            "blur": "0",
+            "spread": "0",
+            "color": "#d83e3e",
+            "type": "innerShadow"
+        },
+        "type": "boxShadow"
+    },
+    "Referenced Box Shadow": {
+        "value": {
+            "x": "{Plain Sizing Token}",
+            "y": "{Referenced Sizing Token}",
+            "blur": "{Plain Sizing Token}",
+            "spread": "{Referenced Sizing Token}",
+            "color": "{Twice Referenced}",
+            "type": "dropShadow"
+        },
+        "type": "boxShadow"
+    },
+    "Typography Token": {
+        "value": {
+            "fontFamily": "Inter",
+            "fontWeight": "Bold",
+            "lineHeight": "0px",
+            "fontSize": "12px"
+        },
+        "type": "typography"
+    },
+    "Font Family": {
+        "value": "Inter",
+        "type": "fontFamilies"
+    },
+    "Font weight": {
+        "value": "Bold",
+        "type": "fontWeights"
+    },
+    "Line height": {
+        "value": "12px",
+        "type": "lineHeights"
+    },
+    "Line height referenced": {
+        "value": "{Line height}",
+        "type": "lineHeights"
+    },
+    "Font Size": {
+        "value": "12px",
+        "type": "fontSizes"
+    },
+    "Font Size Referenced": {
+        "value": "{Font Size}",
+        "type": "fontSizes"
+    },
+    "Letter Spacing": {
+        "value": "12px",
+        "type": "letterSpacing"
+    },
+    "Letter Spacing Referenced": {
+        "value": "{Letter Spacing}",
+        "type": "letterSpacing"
+    },
+    "Paragraph Spacing": {
+        "value": "12px",
+        "type": "paragraphSpacing"
+    },
+    "Pragaspac Spacing Referenced": {
+        "value": "{Paragraph Spacing}",
+        "type": "paragraphSpacing"
+    },
+    "Text Case Yes": {
+        "value": "uppercase",
+        "type": "textCase"
+    },
+    "Text Case Referenced": {
+        "value": "{Text Case Yes}",
+        "type": "textCase"
+    },
+    "Text Decoration": {
+        "value": "underline",
+        "type": "textDecoration"
+    },
+    "Decoration Referenced": {
+        "value": "{Text Decoration}",
+        "type": "textDecoration"
+    },
+    "Other Token": {
+        "value": "Some value",
+        "type": "other"
+    },
+    "Other Referenced Value": {
+        "value": "{Other Token}",
+        "type": "other"
+    }
+}
