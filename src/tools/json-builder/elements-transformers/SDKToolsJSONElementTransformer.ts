@@ -175,8 +175,24 @@ export class TokenJSONElementTransformer {
 
   /** Retrieve token wrapper containing its metadata and value information (used as container for each defined token) */
   tokenWrapper(token: Token, value: any, options: TokenJSONBuilderOptionsInternal): Object {
-    throw new Error("Not implemented")
+
+    let data = {
+      value: value
+    }
+
+    if (options.includeType) {
+      data["type"] = this.typeLabel(token.tokenType)
+    }
+    if (options.includeBrandId) {
+      data["brandId"] = token.brandId
+    }
+    if (options.includeComments) {
+      data["comment"] = token.description.length > 0 ? token.description : undefined
+    }
+
+    return data
   }
+  
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Naming

@@ -31,7 +31,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   // MARK: - Token Value Representation
 
   /** Represent color token value either as reference or as plain representation */
-  override representColorTokenValue(value: ColorTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representColorTokenValue(value: ColorTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -44,7 +44,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent radius token value either as reference or as plain representation */
-  override representRadiusTokenValue(value: RadiusTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representRadiusTokenValue(value: RadiusTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -86,7 +86,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent measure token value either as reference or as plain representation */
-  override representMeasureTokenValue(value: MeasureTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representMeasureTokenValue(value: MeasureTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -108,7 +108,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent font token value either as reference or as plain representation */
-  override representFontTokenValue(value: FontTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representFontTokenValue(value: FontTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -130,7 +130,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent text token value either as reference or as plain representation */
-  override representTextTokenValue(value: TextTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representTextTokenValue(value: TextTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -143,7 +143,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent typography token value either as reference or as plain representation */
-  override representTypographyTokenValue(
+  representTypographyTokenValue(
     value: TypographyTokenValue,
     allTokens: Array<Token>,
     allGroups: Array<TokenGroup>, 
@@ -191,7 +191,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent border token value either as reference or as plain representation */
-  override representBorderTokenValue(value: BorderTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representBorderTokenValue(value: BorderTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -218,7 +218,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent shadow token value either as reference or as plain representation */
-  override representShadowTokenValue(value: ShadowTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representShadowTokenValue(value: ShadowTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -257,7 +257,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   }
 
   /** Represent gradient token value either as reference or as plain representation */
-  override representGradientTokenValue(value: GradientTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
+  representGradientTokenValue(value: GradientTokenValue, allTokens: Array<Token>, allGroups: Array<TokenGroup>, options: TokenJSONBuilderOptionsInternal): any {
     let result: any
     if (value.referencedToken) {
       // Forms reference
@@ -328,7 +328,7 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   // MARK: - Object wrappers
 
   /** Retrieve wrapper to certain token (referenced by name) pointing to token value */
-  override referenceWrapper(reference: string, options: TokenJSONBuilderOptionsInternal) {
+  referenceWrapper(reference: string, options: TokenJSONBuilderOptionsInternal) {
     return `{${reference}.value}`
   }
 }
