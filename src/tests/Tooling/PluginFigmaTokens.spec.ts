@@ -77,7 +77,7 @@ test('test_tooling_design_tokens_reverse_load', async t => {
   let brand = brands[0]
   
   // Load token definition
-  let tokens = path.join(process.cwd(), 'files', 'tokens_all_variants.json')
+  let tokens = path.join(process.cwd(), 'files', 'tokens_temporary.json')
   let definition = fs.readFileSync(tokens, "utf8") 
 
   // Convert tokens to object so we can compare it later

@@ -7,6 +7,10 @@
         "value": "{Plain Token}",
         "type": "color"
     },
+    "Twice Referenced": {
+        "value": "{Referenced Color}",
+        "type": "color"
+    },
     "Plain Sizing Token": {
         "value": "1px",
         "type": "sizing"
@@ -30,10 +34,6 @@
     "Referenced Border Radius": {
         "value": "{Border Radius Token}",
         "type": "borderRadius"
-    },
-    "Twice Referenced": {
-        "value": "{Referenced Color}",
-        "type": "color"
     },
     "Border Width Token": {
         "value": "20px",

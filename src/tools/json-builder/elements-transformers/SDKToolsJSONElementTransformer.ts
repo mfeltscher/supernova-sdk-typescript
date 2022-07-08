@@ -283,4 +283,8 @@ export class TokenJSONElementTransformer {
 
     return chain.reverse()
   }
+
+  groupIsAbstract(group: TokenGroup): boolean {
+    throw new Error("Not implemented")
+  }
 }

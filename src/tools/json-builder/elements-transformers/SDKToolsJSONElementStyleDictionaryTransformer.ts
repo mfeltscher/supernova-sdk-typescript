@@ -331,4 +331,8 @@ export class TokenJSONElementStyleDictionaryTransformer extends TokenJSONElement
   referenceWrapper(reference: string, options: TokenJSONBuilderOptionsInternal) {
     return `{${reference}.value}`
   }
+
+  groupIsAbstract(group: TokenGroup): boolean {
+    return false
+  }
 }

@@ -1,0 +1,22 @@
+{
+    "Plain Token": {
+        "value": "#a4a7f8",
+        "type": "color"
+    },
+    "Referenced Color": {
+        "value": "{Plain Token}",
+        "type": "color"
+    },
+    "Twice Referenced Color": {
+        "value": "{Referenced Color}",
+        "type": "color"
+    },
+    "Plain Sizing Token": {
+        "value": "1px",
+        "type": "sizing"
+    },
+    "Referenced Sizing Token": {
+        "value": "{Plain Sizing Token}",
+        "type": "sizing"
+    }
+}

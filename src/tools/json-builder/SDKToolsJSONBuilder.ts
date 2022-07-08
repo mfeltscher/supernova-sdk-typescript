@@ -204,16 +204,26 @@ export class TokenJSONBuilder {
       // Write buffer
       let writeSubObject = {}
 
-      // Add each entry for each subgroup, and represent its tree into it
-      newObject[this.tokenTransformer.safeGroupName(group, options.naming)] = this.representTree(group, allTokens, allGroups, writeSubObject, options)
+      // Check whether the group should not be skipped because we have generated it on Supernova side. If so, completely ignore the group, and move one depth further
+      if (this.tokenTransformer.groupIsAbstract(group)) {
+        for (let subgroup of group.subgroups) {
+          // Add each entry for each subgroup, and represent its tree into it
+          newObject[this.tokenTransformer.safeGroupName(subgroup, options.naming)] = this.representTree(subgroup, allTokens, allGroups, writeSubObject, options)
+        }
+
+      } else {
+        // Add each entry for each subgroup, and represent its tree into it
+        newObject[this.tokenTransformer.safeGroupName(group, options.naming)] = this.representTree(group, allTokens, allGroups, writeSubObject, options)
+      }
 
       // Add each entry for each token, writing to the same write root
       for (let token of TokenJSONBuilder.tokensOfGroup(group, allTokens)) {
-        writeSubObject[this.tokenTransformer.safeTokenName(token, options.naming)] = this.tokenTransformer.representToken(token, allTokens, allGroups, options)
+        newObject[this.tokenTransformer.safeTokenName(token, options.naming)] = this.tokenTransformer.representToken(token, allTokens, allGroups, options)
       }
     }
     return newObject
   }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Lookup
