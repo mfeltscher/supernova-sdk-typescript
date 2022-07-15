@@ -173,10 +173,8 @@ export class DTJSONConverter {
       for (let node of unprocessedTokens) {
         let token = this.convertReferencedNode(node)
         if (token) {
-          // console.log(`processed token ${token.path} referencing ${token.key}`)
           this.referenceResolver.addAtomicToken(token)
         } else {
-          // console.log(`skipping token in resolution for now`)
           unprocessedDepthTokens.push(node)
         }
       }

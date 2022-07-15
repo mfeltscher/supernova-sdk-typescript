@@ -2,6 +2,34 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.17] - 2022-19-05
+### Doc search tool
+
+We have released a new tool to help you search the documentation. You can access it using `DocSearch` object. `DocSearch` constructs search index from the documentation pages and you can then use it to fuzzy (or precise)-search your docs locally. Here is how you can use it:
+
+```typescript
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+
+// Fetch documentation pages needed for the index construction
+let docs = await version.documentation()
+let pages = await docs.pages()
+
+// Construct index from the data using precise configuration for search. You can use fuzzy or even your own configuration. For more, read about underlaying search index framework here https://github.com/krisk/Fuse
+let configuration = DocSearch.defaultPreciseConfiguration() // or DocSearch.defaultFuzzyConfiguration()
+let searchEngine = new DocSearch(configuration)
+searchEngine.updateSearchIndex(pages)
+
+// You can now search for whatever you want! Search is VERY quick as index gets created beforehand, so sync searchin is not a problem (althought throttling is recommended for RT inputs)
+const results = searchEngine.search("component")
+
+```
+
+## [1.7.10] - 2022-19-06
+### Stable component API
+
+Component API is now stable and can be used in production
+
 ## [1.7.5] - 2022-19-05
 ### Component API Preview
 

@@ -63,8 +63,6 @@ test('test_tooling_json_builder_to_figma_tokens_single_file', async t => {
     let jsonTooling = new TokenJSONBuilder(testInstance, version)
     let figmaTokensRepresentation = await jsonTooling.figmaTokensRepresentation(true)
 
-    console.log(figmaTokensRepresentation)
-
     // Test structure
     t.true(figmaTokensRepresentation !== undefined || figmaTokensRepresentation !== null)
 })

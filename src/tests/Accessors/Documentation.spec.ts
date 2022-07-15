@@ -91,7 +91,6 @@ test('test_documentation_configuration_properties', async t => {
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let documentation = await version.documentation()
     let pages = await documentation.pages()
-    console.log(pages)
 
     // Check some defined blocks exist
     let properties = await documentation.customConfiguration()

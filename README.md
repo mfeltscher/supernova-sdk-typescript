@@ -8,23 +8,26 @@ The Supernova SDK provides convenient access to the [Supernova.io](https://super
 
 SDK comes with all functionality (all will come with more once it reaches general release) you need to build design system tooling you previously only dreamt of:
 
-- [x] Read API for `Tokens`, `Assets`, `DesignComponents`
+- [x] Read API for `Tokens`, `Assets`, `Components`, `Design Components`
 - [x] Read API for Account-level objects like `Workspaces`, `Design Systems`
 - [x] Support for `single-branded` and `multi-branded` `Design Systems`
 - [x] Read API for `Documentation`, including entire structure, content and configuration
+- [x] Block or markdown `Documentation` representation
 - [x] Rendering pipeline to export your assets as svg, png, pdf
-- [ ] (on release) Write API
-- [ ] (on release) Metadata API
-- [ ] (on release) Version management
-- [ ] (on release) Ability to invoke export routines
+- [x] Write Token API
+- [ ] (coming) Version management
+- [ ] (coming) Exporter management
+- [ ] (coming) Integrations with awesome community tools (Figma Tokens, Style Dictionary, Raycast..)
 
 And of course, features that make all developers happy!
 
 - [x] Fully Typescript-enabled code
+- [x] Heavily performance-optimized code and caching
 - [x] Fully documented objects and attributes
 - [x] Plug & play library design
 - [x] Performant even for large design systems with lot of data
 - [x] Extensive examples showing most of the capabilities
+- [x] Unit tests
 
 ## Installing
 

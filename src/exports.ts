@@ -1,5 +1,3 @@
-import { TokenJSONBuilder } from './tools/json-builder/SDKToolsJSONBuilder'
-
 // Export main Supernova object
 export { Supernova } from '../src/core/SDKSupernova'
 
@@ -135,6 +133,7 @@ export { TokenProperty } from '../src/model/tokens/SDKTokenProperty'
 
 export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustomTokenProperty'
 
-// Export tools
+// Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption, } from './tools/json-builder/SDKToolsJSONBuilder'
 export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
+// export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
