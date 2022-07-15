@@ -136,4 +136,5 @@ export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustom
 // Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption, } from './tools/json-builder/SDKToolsJSONBuilder'
 export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
-// export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
+export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
+export { MarkdownTransform, MarkdownTransformType } from '../src/tools/markdown-transform/SDKToolsMarkdownTransform'

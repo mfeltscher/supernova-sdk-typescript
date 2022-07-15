@@ -2,7 +2,45 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
-## [1.7.17] - 2022-19-05
+## [1.7.18] - 2022-15-07
+### Markdown transformation tool (preview)
+
+We have released a preview of a new tool to help you represent the documentation in your apps - as markdown. You can access it using `MarkdownTransform` object. `MarkdownTransform` allows you to convert pages to markdown just by creating it with desired mode, and feeding it with documentation page objects:
+
+```typescript
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+
+// Fetch documentation pages needed for the index construction
+let docs = await version.documentation()
+let pages = await docs.pages()
+
+// Construct markdown transformer with one of the available modes
+let transformer = new MarkdownTransform(MarkdownTransformType.commonmark)
+let pageAsMarkdown = transformer.convertPageToMarkdown(pages[0])
+
+/*
+
+Your result will look similar to this (depending on content)
+
+# Page Title
+
+Page description
+
+Block 1 content
+## Block 2 content
+- Block 3 content
+1. Block 4 content
+
+...
+
+*/
+
+```
+
+We are continuing to improve the markdown transformer every day, for now, enjoy!
+
+## [1.7.17] - 2022-15-07
 ### Doc search tool
 
 We have released a new tool to help you search the documentation. You can access it using `DocSearch` object. `DocSearch` constructs search index from the documentation pages and you can then use it to fuzzy (or precise)-search your docs locally. Here is how you can use it:
@@ -23,6 +61,21 @@ searchEngine.updateSearchIndex(pages)
 // You can now search for whatever you want! Search is VERY quick as index gets created beforehand, so sync searchin is not a problem (althought throttling is recommended for RT inputs)
 const results = searchEngine.search("component")
 
+/*
+
+Your results will look similar to this:
+
+    [{
+      id: 27,
+      text: 'Some interesting information about this component that you didn't know',
+      type: 'contentBlock',
+      blockId: 'd518e990-4d43-11ec-8ce5-cb0f56bcf344',
+      pageId: '159467',
+      pageName: 'Typography'
+    }]
+    ...
+*/
+
 ```
 
 ## [1.7.10] - 2022-19-06
@@ -31,7 +84,7 @@ const results = searchEngine.search("component")
 Component API is now stable and can be used in production
 
 ## [1.7.5] - 2022-19-05
-### Component API Preview
+### Component API (preview)
 
 We are releasing component API for preview. (true) Components are new concept coming to Supernova and we will be building upon them heavily in the upcoming months. You can access their first iteration through both version and brand accessors:
 

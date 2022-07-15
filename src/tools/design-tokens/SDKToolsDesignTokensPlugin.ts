@@ -12,17 +12,15 @@
 
 import { DesignSystemVersion } from "../../core/SDKDesignSystemVersion"
 import { Supernova } from "../../core/SDKSupernova"
-import { TokenType } from "../../model/enums/SDKTokenType"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
 import { Token } from "../../model/tokens/SDKToken"
 import _ from "lodash"
-import { Brand } from "../.."
-import { TokenWriteResponse } from "../../core/SDKBrandWriter"
 import { DTJSONLoader, DTParsedNode } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
 import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
 import { DTTokenMerger } from "./utilities/SDKDTTokenMerger"
+import { Brand } from "../../core/SDKBrand"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

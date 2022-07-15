@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.7.17",
+    "version": "1.7.18",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -16,6 +16,7 @@
         "Assets",
         "Components",
         "Documentation",
+        "Markdown",
         "CMS"
     ],
     "files": [

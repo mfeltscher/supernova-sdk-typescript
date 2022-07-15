@@ -10,8 +10,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { TokenGroup } from "../.."
 import { TokenType } from "../../model/enums/SDKTokenType"
+import { TokenGroup } from "../../model/groups/SDKTokenGroup"
 import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
 import { TokenRemoteModel, ColorTokenRemoteModel, BorderTokenRemoteModel, FontTokenRemoteModel, GradientTokenRemoteModel, MeasureTokenRemoteModel, RadiusTokenRemoteModel, ShadowTokenRemoteModel, TextTokenRemoteModel, TypographyTokenRemoteModel, BlurTokenRemoteModel, GenericTokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
 import { ColorTokenRemoteValue, FontTokenRemoteValue, GradientStopRemoteValue, MeasureTokenRemoteValue } from "../../model/tokens/remote/SDKRemoteTokenValue"

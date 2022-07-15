@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { TokenGroup } from "../../../.."
+import { TokenGroup } from "../../../../model/groups/SDKTokenGroup"
 import { TokenTreeElement } from "./SDKDTGroupTreeNode"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

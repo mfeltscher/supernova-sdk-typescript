@@ -12,10 +12,10 @@
 import { TokenGroup } from "../../../model/groups/SDKTokenGroup"
 import { Token } from "../../../model/tokens/SDKToken"
 import { BorderTokenValue, ColorTokenValue, FontTokenValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TypographyTokenValue } from "../../../model/tokens/SDKTokenValue"
-import { TokenJSONBuilderOptionsInternal } from "../SDKToolsJSONBuilder"
+import { JSONBuilderNamingOption, TokenJSONBuilderOptionsInternal } from "../SDKToolsJSONBuilder"
 import { TokenJSONElementTransformer } from "./SDKToolsJSONElementTransformer"
 import _ from "lodash"
-import { JSONBuilderNamingOption, TokenType } from "../../.."
+import { TokenType } from "../../../model/enums/SDKTokenType"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

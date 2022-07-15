@@ -11,10 +11,11 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, Supernova } from ".."
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
+import { Brand } from "./SDKBrand"
+import { Supernova } from "./SDKSupernova"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

@@ -15,7 +15,6 @@ import { Asset } from "../model/assets/SDKAsset"
 import { RenderedAsset } from "../model/assets/SDKRenderedAsset"
 import { AssetFormat } from "../model/enums/SDKAssetFormat"
 import { AssetScale } from "../model/enums/SDKAssetScale"
-import { Supernova } from ".."
 import { DesignComponent } from "../model/components/SDKDesignComponent"
 import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
@@ -26,6 +25,7 @@ import { DataCore } from "./data/SDKDataCore"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { Component } from "../model/components/SDKComponent"
 import { BrandWriter } from "./SDKBrandWriter"
+import { Supernova } from "./SDKSupernova"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

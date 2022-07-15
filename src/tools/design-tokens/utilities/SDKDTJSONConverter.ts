@@ -9,8 +9,16 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand, ColorToken, DesignSystemVersion, GenericToken, MeasureToken, RadiusToken, ShadowToken, Token, TokenType, TypographyToken } from "../../.."
-import { SupernovaError } from "../../../core/errors/SDKSupernovaError"
+import { Brand } from "../../../core/SDKBrand"
+import { DesignSystemVersion } from "../../../core/SDKDesignSystemVersion"
+import { TokenType } from "../../../model/enums/SDKTokenType"
+import { ColorToken } from "../../../model/tokens/SDKColorToken"
+import { GenericToken } from "../../../model/tokens/SDKGenericToken"
+import { MeasureToken } from "../../../model/tokens/SDKMeasureToken"
+import { RadiusToken } from "../../../model/tokens/SDKRadiusToken"
+import { ShadowToken } from "../../../model/tokens/SDKShadowToken"
+import { Token } from "../../../model/tokens/SDKToken"
+import { TypographyToken } from "../../../model/tokens/SDKTypographyToken"
 import { DTParsedNode } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
 import { DTTokenReferenceResolver } from "./SDKDTTokenReferenceResolver"
