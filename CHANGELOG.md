@@ -2,14 +2,14 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
-## [1.7.19] - 2022-15-07
+## [1.7.19] - 2022-17-07
 ### URL conveniences
 
 We have released an update where you can more easily access your design system data from the original source. Specifically, it is now possible to access `Source` available on each `DesignSystem` which uniquely identifies and links to Figma files associated with design components. 
 
 Additionally, each `DesignComponent` contains precise information to be able to reconstruct Figma URL to point directly to the node of origin. You can use `remoteDesignComponentUrl()` method to generate the URL for you.
 
-Finally, we have added conveniences and additional information about documentation pages and the ability to retrieve URL of the deployment documentation site / page. Use `deployedDocumentationPageUrl()` on each `DocumentationPage` object to access it. Enjoy!
+Finally, we have added conveniences and additional information about documentation pages and the ability to retrieve URL of the deployment documentation site / page. Use `fullPath` on each `DocumentationPage` object to access it and `fullFirstPagePath` on each `DocumentationGroup`.
 
 
 ## [1.7.18] - 2022-15-07
