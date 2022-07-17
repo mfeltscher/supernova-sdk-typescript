@@ -104,7 +104,6 @@ export { FrameLayout } from '../src/model/enums/SDKFrameLayout'
 export { GradientType } from '../src/model/enums/SDKGradientType'
 export { RichTextSpanAttributeType } from '../src/model/enums/SDKRichTextSpanAttributeType'
 export { ShadowType } from '../src/model/enums/SDKShadowType'
-export { SourceType } from '../src/model/enums/SDKSourceType'
 export { TextCase } from '../src/model/enums/SDKTextCase'
 export { TextDecoration } from '../src/model/enums/SDKTextDecoration'
 export { TokenType } from '../src/model/enums/SDKTokenType'
@@ -112,7 +111,7 @@ export { Unit } from '../src/model/enums/SDKUnit'
 
 // Supporting objects
 export { DesignComponentOrigin } from '../src/model/support/SDKDesignComponentOrigin'
-export { File } from '../src/model/support/SDKFile'
+export { Source } from '../src/model/support/SDKSource'
 export { Size } from '../src/model/support/SDKSize'
 export { TokenOrigin } from '../src/model/support/SDKTokenOrigin'
 
@@ -136,5 +135,5 @@ export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustom
 // Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption, } from './tools/json-builder/SDKToolsJSONBuilder'
 export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
-export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
+// export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
 export { MarkdownTransform, MarkdownTransformType } from '../src/tools/markdown-transform/SDKToolsMarkdownTransform'

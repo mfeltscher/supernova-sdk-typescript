@@ -17,6 +17,9 @@ import { DocumentationPageModel, DocumentationPage } from "../../model/documenta
 import { DocumentationPageBlock } from "../../model/documentation/SDKDocumentationPageBlock"
 import { DocumentationItemType } from "../../model/enums/SDKDocumentationItemType"
 import { DocumentationPageBlockType } from "../../model/enums/SDKDocumentationPageBlockType"
+import { Workspace } from "../SDKWorkspace"
+import { DesignSystem, DesignSystemRemoteModel } from "../SDKDesignSystem"
+import { DesignSystemVersion } from "../SDKDesignSystemVersion"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -30,6 +33,9 @@ export class DocumentationItemResolver {
   resolvedItems = new Map<string, DocumentationItem>()
   customBlocks: Array<ExporterCustomBlock>
   configuration: DocumentationConfiguration
+
+  workspace: Workspace
+  designSystem: DesignSystemRemoteModel
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -72,10 +78,22 @@ export class DocumentationItemResolver {
 
     // Retrieve created objects
     let items = Array.from(this.resolvedItems.values())
+
+    // Compute slugs
+    for (const item of items) {
+      if (item instanceof DocumentationPage) {
+        const pathFragment = this.pageUrl(item)
+        item.setFullPath(pathFragment)
+      } else if (item instanceof DocumentationGroup) {
+        const pathFragment = this.pageUrl(item)
+        item.setFirstPageFullPath(pathFragment)
+      }
+    }
+
     return items
   }
 
-  async resolveItemsForGroup(group: DocumentationGroup) {
+  private async resolveItemsForGroup(group: DocumentationGroup) {
     // Store items
     this.resolvedItems.set(group.id, group)
 
@@ -112,18 +130,19 @@ export class DocumentationItemResolver {
     }
   }
 
-  resolveBlockChains(page: DocumentationPage) {
+  private resolveBlockChains(page: DocumentationPage) {
     // Resolve initial block group
     this.resolveBlockGroup(page.blocks)
   }
 
-  resolveBlockGroup(blocks: Array<DocumentationPageBlock>) {
+  private resolveBlockGroup(blocks: Array<DocumentationPageBlock>) {
   
     // Ignore empty groups
     if (blocks.length === 0) {
       return
     }
     if (blocks.length === 1 && blocks[0] === undefined) {
+      // Note in some really rare cases, blocks[0] can be undefined. We should not be resolving undefined groups, rather ignoring it. This bug points to issue somewhere else however.
       throw new Error("The fuck?")
     }
 
@@ -146,5 +165,80 @@ export class DocumentationItemResolver {
 
     // Final block always ends chain
     previousBlock.endsTypeChain = true
+  }
+
+  /** Create page URL or group URL pointing to the first contained page */
+  private pageUrl(object: DocumentationPage | DocumentationGroup): string | undefined {
+  
+    let page: DocumentationPage | null = null
+    if (object.type === "Page") {
+      page = object as DocumentationPage
+    } else {
+      page = this.firstPageFromTop(object as DocumentationGroup)
+    }
+  
+    if (!page) {
+      return ""
+    }
+  
+    let pageSlug = page.userSlug ?? page.slug
+    let subpaths: Array<string> = []
+  
+    // Construct group path segments
+    let parent: DocumentationGroup | null = page.parent
+    while (parent) {
+      subpaths.push(this.slugify(parent.title))
+      parent = parent.parent
+    }
+  
+    // Remove last segment added, because we don't care about root group
+    subpaths.pop()
+  
+    // Retrieve url-safe path constructed as [host][group-slugs][path-slug][.html]
+    let path = [...subpaths.reverse(), pageSlug].join("/") + ".html"
+    return path
+  }
+
+
+  /** Find first showable page from the top of the provided root */
+  private firstPageFromTop(documentationRoot: DocumentationGroup): DocumentationPage | null {
+    for (let child of documentationRoot.children) {
+      if (child.type === "Page") {
+        return child as DocumentationPage
+      } else {
+        let possiblePage = this.firstPageFromTop(child as DocumentationGroup)
+        if (possiblePage) {
+          return possiblePage
+        }
+      }
+    }
+    return null
+  }
+
+  /** Slugify text to be usable as URL */
+  private slugify(str: string): string {
+
+    if (!str) {
+      return ""
+    }
+    
+    // Thanks to https://gist.github.com/codeguy/6684588
+    str = str.replace(/^\s+|\s+$/g, "")
+    str = str.toLowerCase()
+
+    // remove accents, swap ñ for n, etc
+    var from = "àáãäâèéëêìíïîòóöôùúüûñç·/_,:;"
+    var to = "aaaaaeeeeiiiioooouuuunc------"
+
+    for (var i = 0, l = from.length; i < l; i++) {
+      str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i))
+    }
+
+    str = str
+      .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+      .replace(/\s+/g, "-") // collapse whitespace and replace by -
+      .replace(/-+/g, "-") // collapse dashes
+
+    return str
   }
 }

@@ -11,7 +11,7 @@
 // MARK: - Imports
 
 import { Supernova } from "../core/SDKSupernova"
-import { File, FileRemoteModel } from "../model/support/SDKFile"
+import { Source, SourceRemoteModel } from "../model/support/SDKSource"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 
 
@@ -26,7 +26,7 @@ export interface DesignSystemRemoteModel {
     }
     workspaceId: string
     basePrefixes: string[]
-    sources: Array<FileRemoteModel>
+    sources: Array<SourceRemoteModel>
 
     isPublic: boolean
     isMultibrand: boolean
@@ -58,7 +58,7 @@ export class DesignSystem {
     description: string
 
     /** Sources that are used to feed the design system with the data (design & code) */
-    sources: Array<File>
+    sources: Array<Source>
 
     /** If enabled, parts of the design system can be accessed by public (for example, documentation site) */
     isPublic: boolean
@@ -98,7 +98,7 @@ export class DesignSystem {
       this.documentationUserSlug = model.docUserSlug ?? null
       
       if (model.sources) {
-        this.sources = model.sources.map(s => new File(s))
+        this.sources = model.sources.map(s => new Source(s))
       } else {
         this.sources = []
       }
@@ -118,5 +118,30 @@ export class DesignSystem {
     async activeVersion(): Promise<DesignSystemVersion> {
 
       return this.engine.activeDesignSystemVersion(this.id)
+    }
+
+    /** Get source by source id */
+    sourceById(sourceId: string): Source | undefined {
+
+      let source = this.sources.filter(s => s.id === sourceId)[0]
+      return source
+    }
+
+    /** Get Figma file from source id */
+    figmaFileIdForSourceId(sourceId: string): string | undefined {
+
+      let source = this.sources.filter(s => s.id === sourceId)[0]
+      if (source) {
+        return source.fileId
+      }
+    }
+
+    /** Get Figma file name from source id */
+    figmaFileNameForSourceId(sourceId: string): string | undefined {
+
+      let source = this.sources.filter(s => s.id === sourceId)[0]
+      if (source) {
+        return source.fileName
+      }
     }
   }

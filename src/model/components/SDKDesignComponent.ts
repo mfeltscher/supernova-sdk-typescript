@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { DesignComponentOrigin, DesignComponentOriginModel } from '../support/SDKDesignComponentOrigin'
+import { Source } from '../support/SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -55,7 +56,7 @@ export class DesignComponent {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DesignComponentRemoteModel) {
+  constructor(model: DesignComponentRemoteModel, sources: Array<Source>) {
     this.id = model.persistentId
     this.brandId = model.brandId
     this.thumbnailUrl = model.thumbnailUrl ?? null
@@ -63,6 +64,6 @@ export class DesignComponent {
     this.name = model.meta.name
     this.description = model.meta.description
     
-    this.origin = new DesignComponentOrigin(model.originComponent)
+    this.origin = new DesignComponentOrigin(model.originComponent, sources)
   }
 }

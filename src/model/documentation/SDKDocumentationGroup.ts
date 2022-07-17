@@ -31,18 +31,32 @@ export class DocumentationGroup extends DocumentationItem {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
+  /** If true, this is unique within documentation (just one) that contains all top-level objects and is root of the docs tree (root > groups > items > blocks ...) */
   isRoot: boolean
+
+  /** IDs of items belonging to the documentation group. Can be page or group */
   childrenIds: Array<string>
+
+  /** Items belonging to the documentation group. Can be page or group */
   children: Array<DocumentationItem>
+
+  /** Parent group reference */
   parent: DocumentationGroup | null
+
+  /** Signifies how the group should behave. If set to "tabs", group behaves as "page", but contains multiple tabbed pages inside it. "Group" signifies virtual group used for content structuring */
   groupBehavior: DocumentationGroupBehavior
 
+  /** Children filtered to be only groups */
   get subgroups(): Array<DocumentationGroup> {
     return this.children.filter(c => c.type === DocumentationItemType.group) as Array<DocumentationGroup>
   }
+
+  /** Children filtered to be only pages */
   get pages(): Array<DocumentationPage> {
     return this.children.filter(c => c.type === DocumentationItemType.page) as Array<DocumentationPage>
   }
+
+  firstPageFullPath: string | undefined
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -53,6 +67,7 @@ export class DocumentationGroup extends DocumentationItem {
     this.childrenIds = model.childrenIds
     this.children = new Array<DocumentationItem>()
     this.groupBehavior = model.groupBehavior
+    this.firstPageFullPath = null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -68,5 +83,9 @@ export class DocumentationGroup extends DocumentationItem {
 
   setParent(parent: DocumentationGroup | null) {
     this.parent = parent ?? null
+  }
+
+  setFirstPageFullPath(path: string) {
+    this.firstPageFullPath = path
   }
 }

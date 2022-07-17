@@ -27,6 +27,7 @@ test('test_tooling_markdown_transform', async t => {
   // Fetch documentation pages needed for the index construction
   let docs = await version.documentation()
   let pages = await docs.pages()
+  let pageGroups = await docs.groups()
 
   // Construct markdown transformer with one of the available modes
   let transformer = new MarkdownTransform(MarkdownTransformType.commonmark)

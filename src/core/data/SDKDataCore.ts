@@ -657,15 +657,17 @@ export class DataCore {
 
   private async resolveDesignComponentAndAssetData(
     data: Array<DesignComponentRemoteModel>,
-    _version: DesignSystemVersion
+    version: DesignSystemVersion
   ): Promise<{ 
     designComponents: Array<DesignComponent>, 
     assets: Array<Asset> 
   }> {
     // For now, transform all designComponents into designComponents
     let designComponents: Array<DesignComponent> = []
+    let ds = version.designSystem
+
     for (let designComponent of data) {
-      designComponents.push(new DesignComponent(designComponent))
+      designComponents.push(new DesignComponent(designComponent, ds.sources))
     }
 
     // For duplicates
@@ -779,7 +781,7 @@ export class DataCore {
     pageDetails: Array<DocumentationPageModel>,
     groupDetails: Array<DocumentationGroupModel>,
     blocks: Array<ExporterCustomBlock>,
-    configuration: DocumentationConfiguration
+    configuration: DocumentationConfiguration,
   ): Promise<Array<DocumentationItem>> {
     let resolver = new DocumentationItemResolver(blocks, configuration)
     let result = await resolver.resolveItemData(pageDetails, groupDetails)

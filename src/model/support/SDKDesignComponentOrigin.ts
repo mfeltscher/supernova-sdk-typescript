@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { SourceType } from '../enums/SDKSourceType'
+import { Source } from './SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -28,8 +28,10 @@ export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  source: SourceType
+  sourceType: "Figma"
   sourceId: string | null
+  fileId: string | null
+  fileName: string | null
   id: string | null
   nodeId: string | null
   name: string | null
@@ -37,11 +39,33 @@ export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DesignComponentOriginModel) {
-    this.source = SourceType.figma // Always Figma for now
+  constructor(model: DesignComponentOriginModel, sources: Array<Source>) {
     this.sourceId = model.sourceId ?? null
     this.id = model.id ?? null
     this.nodeId = model.nodeId ?? null
     this.name = model.name ?? null
+    this.fileId = null
+    this.fileName = null
+
+    if (model.sourceId) {
+      let remoteSource = sources.filter(s => s.id === model.sourceId)[0]
+      if (remoteSource) {
+        this.sourceType = remoteSource.type
+        this.fileId = remoteSource.fileId ?? null
+        this.fileName = remoteSource.fileName ?? null
+      }
+    }
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Conveniences
+
+  remoteDesignComponentUrl(): string | undefined {
+
+    if (this.sourceType === "Figma" && this.fileId && this.nodeId) {
+      return `https://www.figma.com/file/${this.fileId}/${this.fileName ?? "unknown"}?node-id=${this.nodeId}`
+    } else {
+      return undefined
+    }
   }
 }
