@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.20] - 2022-19-07
+### Fixed radius linking issue
+
+If radius was used with referenced measure token that was itself referenced, due to incorrect priorities inside the resolution chain, entire resolution failed. This will no longer happen!
+
 ## [1.7.19] - 2022-17-07
 ### URL conveniences
 

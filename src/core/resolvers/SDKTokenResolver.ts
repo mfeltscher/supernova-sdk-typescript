@@ -139,8 +139,7 @@ export class TokenResolver {
       tokenType === TokenType.font ||
       tokenType === TokenType.measure ||
       tokenType === TokenType.text ||
-      tokenType === TokenType.generic ||
-      tokenType === TokenType.radius
+      tokenType === TokenType.generic
     )
   }
 
