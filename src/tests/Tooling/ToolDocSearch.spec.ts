@@ -11,7 +11,7 @@
 
 import { testInstance } from '../helpers'
 import test from 'ava'
-import { DocSearch } from '../../tools/search-index/SDKToolsDocSearch'
+import { DocSearch, DocSearchConfiguration, DocSearchResultData, DocSearchResultDataType, DocSearchResult } from '../../tools/search-index/SDKToolsDocSearch'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests

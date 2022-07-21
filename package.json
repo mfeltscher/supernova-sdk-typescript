@@ -33,7 +33,7 @@
         "test-build": "npm run build",
         "test": "run-s build:main test:*",
         "test-skipped:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
-        "test:unit": "npm run build && nyc --silent ava --verbose --timeout=60s",
+        "test:unit": "npm run build && ava --verbose --timeout=60s",
         "watch": "run-s clean build:main && run-p \"build:main -- -w\" \"test:unit -- --watch\"",
         "cov": "run-s build test:unit cov:html && open-cli coverage/index.html",
         "cov:html": "nyc report --reporter=html",
@@ -85,7 +85,7 @@
         "@types/lodash": "^4.14.159",
         "@types/node": "^14.14.6",
         "@types/uuid": "^8.3.0",
-        "ava": "4.0.1",
+        "ava": "4.3.1",
         "codecov": "^3.5.0",
         "dotenv": "^16.0.0",
         "esbuild-node-loader": "^0.6.5",
@@ -113,8 +113,7 @@
             "ts": "module"
         },
         "nodeArguments": [
-            "--loader=esbuild-node-loader",
-            "--experimental-specifier-resolution=node"
+            "--loader=ts-node/esm"
         ],
         "files": [
             "src/**/*.spec.ts"
