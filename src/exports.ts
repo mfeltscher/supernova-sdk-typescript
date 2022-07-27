@@ -137,3 +137,4 @@ export { TokenJSONBuilder, JSONBuilderNamingOption } from './tools/json-builder/
 export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
 export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
 export { MarkdownTransform, MarkdownTransformType } from '../src/tools/markdown-transform/SDKToolsMarkdownTransform'
+export { TokenTransform } from '../src/tools/token-transform/SDKToolsTokenTransform'

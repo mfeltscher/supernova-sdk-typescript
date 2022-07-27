@@ -2,6 +2,51 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.21] - 2022-27-07
+### Added token transformer utility
+
+We have added common utility to transform tokens and their values to specific formats, such as CSS. You can use the transformer as follows:
+
+```typescript
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+
+// Fetch documentation pages needed for the index construction
+let tokens = await version.tokens()
+
+// Construct token transformer and transform all tokens to their css representations
+let transformer = new TokenTransformer()
+let transformedCSSValues = tokens.map(token => {
+  return transformer.tokenToCSS(token) // Color: rgb(0,0,0,1), Border: 1px solid #fff etc.
+})
+
+/* 
+This transform will return: 
+rgb(0,0,0,1) (color)
+1px solid #fff (border)
+etc.
+*/
+
+```
+
+You can also use the transformer for many different purposes, such as creating CSS variables by providing name of the token:
+
+```typescript 
+
+// Transforms all tokens to variables by creating dashed-name and then creating variable / formatting values
+let transformedCSSValues = tokens.map(token => {
+  let dashedName = token.name.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
+  return transformer.tokenToCSSVariableDeclaration(token, dashedName) 
+})
+
+/* 
+This transform will return: 
+Color (Blue 100): "--blue-100: rgb(0,0,0,1)" 
+Border (Primary):  "--primary: 1px solid #fff" 
+etc.
+*/
+```
+
 ## [1.7.20] - 2022-19-07
 ### Fixed radius linking issue
 
