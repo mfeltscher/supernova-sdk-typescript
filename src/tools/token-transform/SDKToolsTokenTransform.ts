@@ -170,12 +170,12 @@ export class TokenTransform {
   
   /** Converts generic token value to css definition */
   genericTokenToCSS(value: GenericTokenValue): string {
-    return value.text
+    return "\"" + value.text + "\""
   }
   
   /** Converts generic token value to css definition */
   textTokenToCSS(value: TextTokenValue): string {
-    return value.text
+    return "\"" + value.text + "\""
   }
 
 

@@ -34,15 +34,22 @@ export class DocumentationItemResolver {
   customBlocks: Array<ExporterCustomBlock>
   configuration: DocumentationConfiguration
 
-  workspace: Workspace
-  designSystem: DesignSystemRemoteModel
+  workspaceHandle: string
+  designSystem: DesignSystem
+  version: DesignSystemVersion
+  docsUrl: string | undefined
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration, version: DesignSystemVersion, workspaceHandle: string, docsUrl: string | undefined) {
     this.customBlocks = customBlocks
     this.configuration = configuration
+
+    this.version = version
+    this.workspaceHandle = workspaceHandle
+    this.designSystem = version.designSystem
+    this.docsUrl = docsUrl
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -79,14 +86,16 @@ export class DocumentationItemResolver {
     // Retrieve created objects
     let items = Array.from(this.resolvedItems.values())
 
-    // Compute slugs
+    // Compute different paths of objects
     for (const item of items) {
       if (item instanceof DocumentationPage) {
-        const pathFragment = this.pageUrl(item)
-        item.setFullPath(pathFragment)
+        const deployed: string | null = this.deployedUrl(item)
+        const editor: string | null = this.editorUrl(item)
+        const relative: string | null = this.pageUrl(item)
+        item.internalOverridePaths(deployed, editor, relative)
       } else if (item instanceof DocumentationGroup) {
-        const pathFragment = this.pageUrl(item)
-        item.setFirstPageFullPath(pathFragment)
+        const relativeFirstPath = this.pageUrl(item)
+        item.internalOverridePaths(relativeFirstPath)
       }
     }
 
@@ -167,8 +176,24 @@ export class DocumentationItemResolver {
     previousBlock.endsTypeChain = true
   }
 
+  /** Create URL pointing to the deployed documentation page hosted on Supernova side. Will be empty if there was nothing deployed, or if not hosted at Supernova */
+  private deployedUrl(page: DocumentationPage): string | null {
+    if (this.docsUrl) {
+      const pageUrl = this.pageUrl(page)
+      if (pageUrl) {
+        return this.docsUrl + "/" + pageUrl
+      }
+    }
+    return null
+  }
+
+  /** Create editor URL pointing to editable page. Since Supernova doesn't link to pages directly yet, this will for now open the editor */
+  private editorUrl(item: DocumentationItem): string | null {
+    return `https://cloud.supernova.io/ws/${this.workspaceHandle}/ds/${this.designSystem.id}-${this.slugify(this.designSystem.name)}/${this.version.id}/documentation/editor`
+  }
+
   /** Create page URL or group URL pointing to the first contained page */
-  private pageUrl(object: DocumentationPage | DocumentationGroup): string | undefined {
+  private pageUrl(object: DocumentationPage | DocumentationGroup): string | null {
   
     let page: DocumentationPage | null = null
     if (object.type === "Page") {

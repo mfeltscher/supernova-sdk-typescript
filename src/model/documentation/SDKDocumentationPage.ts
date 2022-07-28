@@ -38,8 +38,14 @@ export class DocumentationPage extends DocumentationItem {
   /** Containing group. Can either be true group (abstract), or tab group */
   parent: DocumentationGroup
 
-  /** Full path that can be used to construct full URL for specific page. Fetch domain and join [domain][fullPath] to obtain full url */
-  fullPath: string | null
+  /** Internal */
+  private fullDeployedUrl: string | null
+
+  /** Internal */
+  private relativeUrl: string | null
+
+  /** Internal */
+  private editorUrl: string | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -49,17 +55,38 @@ export class DocumentationPage extends DocumentationItem {
     if (model.blocks) {
       this.blocks = model.blocks.map(b => DocumentationBlockBuilder.fromGenericModel(b, customBlocks, configuration))
     }
-    this.fullPath = null
+    this.fullDeployedUrl = null
+    this.relativeUrl = null
+    this.editorUrl = null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Convenience
 
-  setFullPath(path: string) {
-    this.fullPath = path
+  /** Internal: Modifies object with new paths. Don't use outside SDK environment as it doesn't propagate the data back to source */
+  internalOverridePaths(deployed: string | null, editor: string | null, relative: string | null) {
+    this.editorUrl = editor
+    this.fullDeployedUrl = deployed
+    this.relativeUrl = relative
   }
 
+  /** Internal: Sets new parent. Used when manipulating with object internally. Don't use outside SDK environment */
   setParent(parent: DocumentationGroup) {
     this.parent = parent
+  }
+
+  /** Retrieve editor page URL that can be opened */
+  editorPageUrl(): string | null {
+    return this.editorUrl
+  }
+
+  /** Retrieve documentation page URL, if the documentation was already deployed (either default or custom domain) */
+  deployedDocsPageUrl(): string | null {
+    return this.fullDeployedUrl
+  }
+
+  /** Retrieve relative page path without the associated domain. Will work even when documentation was not yet deployed */
+  relativeDocsPageUrl(): string | null {
+    return this.relativeUrl
   }
 }

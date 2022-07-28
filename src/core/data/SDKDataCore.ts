@@ -41,6 +41,7 @@ import { Component, ComponentRemoteModel } from "../../model/components/SDKCompo
 import { ComponentResolver } from "../resolvers/SDKComponentResolver"
 import { ComponentProperty, ComponentPropertyRemoteModel } from "../../model/components/SDKComponentProperty"
 import { ComponentPropertyValue, ComponentPropertyValueRemoteModel } from "../../model/components/values/SDKComponentPropertyValue"
+import { Workspace, WorkspaceRemoteModel } from "../SDKWorkspace"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -116,6 +117,39 @@ export class DataCore {
 
     this.documentationSynced = false
     this.documentation = null
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Private Accessors - Auxiliary helper functions
+
+  /** Get workspace handle from server */
+  private async currentWorkspaceHandle(workspaceId: string): Promise<string> {
+      
+    // Download workspace details
+    // Get remote data
+    const endpoint = `workspaces/${workspaceId}`
+    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(
+      endpoint
+    )).workspace as WorkspaceRemoteModel
+
+    // Extend with information coming from pulsar
+    return remoteWorkspace.profile.handle
+  }
+
+  /** Get deisgn system documentation url from server */
+  private async currentDeployedDocumentationUrl(workspaceId: string, versionId: string): Promise<string | undefined> {
+      
+    // Download detail of the last build that successfully deployed docs
+    const endpoint = `codegen/workspaces/${workspaceId}/jobs?designSystemVersionId=${versionId}&destinations[]=documentation&offset=0&limit=1`
+    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(
+      endpoint
+    )).jobs as any
+    if (remoteJob[0]) {
+      // Note: So far, there is no build functionality in SDK, so we are not doing this properly. This will change going forward as we introduce build CLI/SDK
+      return remoteJob[0]?.result?.documentation?.url ?? undefined
+    }
+
+    return undefined
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -754,9 +788,11 @@ export class DataCore {
   }
 
   private async getDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration): Promise<Array<DocumentationItem>> {
-    // Download the raw token data and resolve them
+    // Download the raw documentation data and resolve them
     let rawData = await this.getRawDocumentationItemData(designSystemId, designSystemVersion)
-    let resolvedItems = await this.resolveDocumentationItemData(rawData.pageDetails, rawData.groupDetails, blocks, configuration)
+    let workspaceHandle = await this.currentWorkspaceHandle(designSystemVersion.designSystem.workspaceId)
+    const deployedVersionUrl = await this.currentDeployedDocumentationUrl(designSystemVersion.designSystem.workspaceId, designSystemVersion.id)
+    let resolvedItems = await this.resolveDocumentationItemData(rawData.pageDetails, rawData.groupDetails, blocks, configuration, designSystemVersion, workspaceHandle, deployedVersionUrl)
     return resolvedItems
   }
 
@@ -782,8 +818,11 @@ export class DataCore {
     groupDetails: Array<DocumentationGroupModel>,
     blocks: Array<ExporterCustomBlock>,
     configuration: DocumentationConfiguration,
+    version: DesignSystemVersion,
+    workspaceHandle: string,
+    docsUrl: string | undefined,
   ): Promise<Array<DocumentationItem>> {
-    let resolver = new DocumentationItemResolver(blocks, configuration)
+    let resolver = new DocumentationItemResolver(blocks, configuration, version, workspaceHandle, docsUrl)
     let result = await resolver.resolveItemData(pageDetails, groupDetails)
     return result
   }
