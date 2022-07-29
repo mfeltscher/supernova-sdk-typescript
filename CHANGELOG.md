@@ -2,6 +2,29 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.23] - 2022-28-07
+### Added quick accessors for complex URLs
+
+We have added new options how you can render icons. 
+
+It is now possible to render either all assets in various formats, or specify only selected assets in various formats, from both version pool of assets as well as brand pool of assets. Use:
+
+- `specificRenderedAssets()` on `Brand`
+- `specificRenderedAssets()` on `Version`
+- `renderedAssets()` on `Brand`
+- `renderedAssets()` on `Version`
+
+
+## [1.7.22] - 2022-27-07
+### Added quick accessors for complex URLs
+
+We have added new accessors that you can use to access various pieces of information. This includes:
+
+- Design component URL using `remoteDesignComponentUrl()` on `DesignComponent` object
+- Documentation page editor URL for specific `DocumentationPage` using `editorPageUrl()`
+- Documentation page site URL for specific `DocumentationPage` using `deployedDocsPageUrl()`
+- Relative URL you can use for other targets (page site url without domain) for specific `DocumentationPage` using `relativeDocsPageUrl()`
+
 ## [1.7.21] - 2022-27-07
 ### Added token transformer utility
 

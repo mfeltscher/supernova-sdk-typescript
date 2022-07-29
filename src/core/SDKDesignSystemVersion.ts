@@ -12,6 +12,7 @@
 // MARK: - Imports
 
 import { Supernova } from "../core/SDKSupernova"
+import { AssetFormat, AssetScale, RenderedAsset } from "../exports"
 import { Asset } from "../model/assets/SDKAsset"
 import { Component } from "../model/components/SDKComponent"
 import { DesignComponent } from "../model/components/SDKDesignComponent"
@@ -211,5 +212,32 @@ export class DesignSystemVersion {
     async documentation(): Promise<Documentation> {
 
         return this.dataCore.currentDesignSystemDocumentation(this.designSystem, this)
+    }
+
+    /** Renders all assets in this version and retrieves URLs from which assets can be downloaded as key-value. You can only render one combination of size/format with one request - use more requests if you need to render more.
+     * 
+     * Assets that are rendered as "png" will use "scale" attribute, however, when the format is "svg" or "pdf", scale attribute is ignored and will always render the original size.
+     *  
+     * Note that assets are not persistent and URLs will expire quickly - you must download them and store them locally / remotely and can never use this URL publicly as it won't work after a short time */
+    async renderedAssets(format: AssetFormat, scale: AssetScale): Promise<Array<RenderedAsset>> {
+
+        let groups = await this.assetGroups()
+        let assets = await this.assets()
+      
+        // Construct rendering request. Only one size can be rendered at once
+        return await this.dataCore.renderAssetsForConfiguration(this.designSystem.id, this, assets, groups, format, scale)
+    }
+
+    /** Renders specific assets in this version and retrieves URLs from which assets can be downloaded as key-value. You can only render one combination of size/format with one request - use more requests if you need to render more.
+     * 
+     * Assets that are rendered as "png" will use "scale" attribute, however, when the format is "svg" or "pdf", scale attribute is ignored and will always render the original size.
+     *  
+     * Note that assets are not persistent and URLs will expire quickly - you must download them and store them locally / remotely and can never use this URL publicly as it won't work after a short time */
+    async specificRenderedAssets(assets: Array<Asset>, format: AssetFormat, scale: AssetScale): Promise<Array<RenderedAsset>> {
+      
+        let groups = await this.assetGroups()
+
+        // Construct rendering request. Only one size can be rendered at once
+        return await this.dataCore.renderAssetsForConfiguration(this.designSystem.id, this, assets, groups, format, scale)
     }
 }
