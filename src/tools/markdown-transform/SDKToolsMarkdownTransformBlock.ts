@@ -75,14 +75,13 @@ export class MarkdownTransformBlock {
 
   // --- Conversion
 
-  /** Converts a single block - depending on the type - to a markdown definition */
+  /** Converts a single block - depending on the type - to a markdown definition of specific type */
   convertBlockToMarkdown(block: DocumentationPageBlock): string | null {
 
     switch (block.type) {
+      // Following blocks are automatically transformed
       case DocumentationPageBlockType.callout: return this.convertCalloutBlock(block as DocumentationPageBlockCallout)
       case DocumentationPageBlockType.code: return this.convertCodeBlock(block as DocumentationPageBlockCode)
-      case DocumentationPageBlockType.column: return this.convertColumnBlock(block as DocumentationPageBlockColumn)
-      case DocumentationPageBlockType.columnItem: return this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem)
       case DocumentationPageBlockType.componentAssets: return this.convertComponentAssetBlock(block as DocumentationPageBlockAssets)
       case DocumentationPageBlockType.custom: return this.convertCustomBlock(block as DocumentationPageBlockCustom)
       case DocumentationPageBlockType.divider: return this.convertDividerBlock(block as DocumentationPageBlockDivider)
@@ -97,19 +96,27 @@ export class MarkdownTransformBlock {
       case DocumentationPageBlockType.renderCode: return this.convertLiveCodeBlock(block as DocumentationPageBlockRenderCode)
       case DocumentationPageBlockType.shortcuts: return this.convertShortcutsBlock(block as DocumentationPageBlockShortcuts)
       case DocumentationPageBlockType.storybookEmbed: return this.convertStorybookEmbedBlock(block as DocumentationPageBlockEmbedStorybook)
-      case DocumentationPageBlockType.tabItem: return this.convertTabItemBlock(block as DocumentationPageBlockTabItem)
-      case DocumentationPageBlockType.table: return this.convertTableBlock(block as DocumentationPageBlockTable)
-      case DocumentationPageBlockType.tableCell: return this.convertTableCellBlock(block as DocumentationPageBlockTableCell)
-      case DocumentationPageBlockType.tableRow: return this.convertTableRowBlock(block as DocumentationPageBlockTableRow)
-      case DocumentationPageBlockType.tabs: return this.convertTabsBlock(block as DocumentationPageBlockTab)
       case DocumentationPageBlockType.text: return this.convertTextBlock(block as DocumentationPageBlockText)
       case DocumentationPageBlockType.token: return this.converTokenBlock(block as DocumentationPageBlockToken)
       case DocumentationPageBlockType.tokenGroup: return this.convertTokenGroupBlock(block as DocumentationPageBlockTokenGroup)
       case DocumentationPageBlockType.tokenList: return this.convertTokenListBlock(block as DocumentationPageBlockTokenList)
       case DocumentationPageBlockType.unorderedList: return this.convertUnorderedListBlock(block as DocumentationPageUnorderedList)
       case DocumentationPageBlockType.youtubeEmbed: return this.convertYoutubeEmbedBlock(block as DocumentationPageBlockEmbedYoutube)
+
+      // Following blocks are special because their transformation is invoked manually (containers)
+      case DocumentationPageBlockType.column: return this.convertColumnBlock(block as DocumentationPageBlockColumn)
+      case DocumentationPageBlockType.table: return this.convertTableBlock(block as DocumentationPageBlockTable)
+      case DocumentationPageBlockType.tabs: return this.convertTabsBlock(block as DocumentationPageBlockTab)
+
+      // Following blocks are special because their transformation is invoked manually (contained items)
+      case DocumentationPageBlockType.tabItem: return this.convertTabItemBlock(block as DocumentationPageBlockTabItem)
+      case DocumentationPageBlockType.columnItem: return this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem)
+      case DocumentationPageBlockType.tableCell: return this.convertTableCellBlock(block as DocumentationPageBlockTableCell)
+      case DocumentationPageBlockType.tableRow: return this.convertTableRowBlock(block as DocumentationPageBlockTableRow)
     }
   }
+
+  // -- Plain blocks
 
   convertCalloutBlock(block: DocumentationPageBlockCallout): string | null {
     let text = this.textTransformer.convertTextBlockToMarkdown(block)
@@ -117,30 +124,11 @@ export class MarkdownTransformBlock {
   }
 
   convertCodeBlock(block: DocumentationPageBlockCode): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
-
-    // TODO: Block conversion
-    return null
+    const codeLanguageDefinition = block.codeLanguage ? block.codeLanguage.toLowerCase() : ""
+    return `\`\`\`${codeLanguageDefinition}\n${block.text.asPlainText()}\n\`\`\``
   }
 
   convertComponentAssetBlock(block: DocumentationPageBlockAssets): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertCustomBlock(block: DocumentationPageBlockCustom): string | null {
 
     // TODO: Block conversion
     return null
@@ -206,9 +194,8 @@ export class MarkdownTransformBlock {
   }
 
   convertLiveCodeBlock(block: DocumentationPageBlockRenderCode): string | null {
-
-    // TODO: Block conversion
-    return null
+    const codeLanguageDefinition = "javascript"
+    return `\`\`\`${codeLanguageDefinition}\n${block.code}\n\`\`\``
   }
 
   convertShortcutsBlock(block: DocumentationPageBlockShortcuts): string | null {
@@ -218,36 +205,6 @@ export class MarkdownTransformBlock {
   }
 
   convertStorybookEmbedBlock(block: DocumentationPageBlockEmbedStorybook): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTabItemBlock(block: DocumentationPageBlockTabItem): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTableBlock(block: DocumentationPageBlockTable): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTableCellBlock(block: DocumentationPageBlockTableCell): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTableRowBlock(block: DocumentationPageBlockTableRow): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTabsBlock(block: DocumentationPageBlockTab): string | null {
 
     // TODO: Block conversion
     return null
@@ -281,6 +238,60 @@ export class MarkdownTransformBlock {
   }
 
   convertYoutubeEmbedBlock(block: DocumentationPageBlockEmbedYoutube): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  // -- Containers
+
+  convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  convertTabsBlock(block: DocumentationPageBlockTab): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  convertTableBlock(block: DocumentationPageBlockTable): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  // -- Contained items
+
+  convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  convertTabItemBlock(block: DocumentationPageBlockTabItem): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  convertTableCellBlock(block: DocumentationPageBlockTableCell): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  convertTableRowBlock(block: DocumentationPageBlockTableRow): string | null {
+
+    // TODO: Block conversion
+    return null
+  }
+
+  // -- Unsupported
+
+  convertCustomBlock(block: DocumentationPageBlockCustom): string | null {
 
     // TODO: Block conversion
     return null
