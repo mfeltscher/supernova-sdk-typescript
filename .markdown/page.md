@@ -68,7 +68,7 @@ Blue 600: rgb(69, 135, 205)
 ### Token Group
 
   
-Token Group Semantic / Success:    
+**Token Group Semantic / Success**:    
 success.color: rgb(45, 105, 68)  
 success.icon: rgb(60, 136, 77)  
 success.border: rgb(143, 218, 117)  
@@ -78,7 +78,7 @@ success.background: rgb(221, 243, 217)
 ### Token Groups Nested
 
   
-Token Group Palette / Green:    
+**Token Group Palette / Green**:    
 Green 1100: rgb(14, 42, 33)  
 Green 1000: rgb(28, 65, 48)  
 Green 900: rgb(45, 105, 68)  
@@ -93,7 +93,7 @@ Green 100: rgb(221, 243, 217)
 Green 0: rgb(238, 249, 236)  
   
   
-Token Group Palette / Green:    
+**Token Group Palette / Green**:    
 Green 1100: rgb(14, 42, 33)  
 Green 1000: rgb(28, 65, 48)  
 Green 900: rgb(45, 105, 68)  
@@ -108,7 +108,7 @@ Green 100: rgb(221, 243, 217)
 Green 0: rgb(238, 249, 236)  
   
   
-Token Group Palette / Blue:    
+**Token Group Palette / Blue**:    
 Blue 1100: rgb(8, 32, 54)  
 Blue 1000: rgb(24, 57, 93)  
 Blue 900: rgb(36, 86, 133)  
@@ -123,7 +123,7 @@ Blue 100: rgb(224, 241, 254)
 Blue 0: rgb(236, 248, 254)  
   
   
-Token Group Palette / Blue:    
+**Token Group Palette / Blue**:    
 Blue 1100: rgb(8, 32, 54)  
 Blue 1000: rgb(24, 57, 93)  
 Blue 900: rgb(36, 86, 133)  
@@ -138,7 +138,7 @@ Blue 100: rgb(224, 241, 254)
 Blue 0: rgb(236, 248, 254)  
   
   
-Token Group Palette / Aqua:    
+**Token Group Palette / Aqua**:    
 Aqua 1100: rgb(11, 39, 55)  
 Aqua 1000: rgb(25, 60, 77)  
 Aqua 900: rgb(38, 93, 113)  
@@ -153,7 +153,7 @@ Aqua 100: rgb(208, 247, 248)
 Aqua 0: rgb(224, 251, 251)  
   
   
-Token Group Palette / Aqua:    
+**Token Group Palette / Aqua**:    
 Aqua 1100: rgb(11, 39, 55)  
 Aqua 1000: rgb(25, 60, 77)  
 Aqua 900: rgb(38, 93, 113)  
@@ -168,7 +168,7 @@ Aqua 100: rgb(208, 247, 248)
 Aqua 0: rgb(224, 251, 251)  
   
   
-Token Group Palette / Purple:    
+**Token Group Palette / Purple**:    
 Purple 1100: rgb(29, 30, 54)  
 Purple 1000: rgb(43, 38, 103)  
 Purple 900: rgb(69, 62, 150)  
@@ -183,7 +183,7 @@ Purple 100: rgb(234, 234, 248)
 Purple 0: rgb(242, 242, 248)  
   
   
-Token Group Palette / Purple:    
+**Token Group Palette / Purple**:    
 Purple 1100: rgb(29, 30, 54)  
 Purple 1000: rgb(43, 38, 103)  
 Purple 900: rgb(69, 62, 150)  
@@ -198,7 +198,7 @@ Purple 100: rgb(234, 234, 248)
 Purple 0: rgb(242, 242, 248)  
   
   
-Token Group Palette / Neutral:    
+**Token Group Palette / Neutral**:    
 Neutral 1100: rgb(4, 4, 4)  
 Neutral 1000: rgb(24, 32, 32)  
 Neutral 900: rgb(41, 51, 51)  
@@ -213,7 +213,7 @@ Neutral 100: rgb(243, 244, 244)
 Neutral 0: rgb(255, 255, 255)  
   
   
-Token Group Palette / Neutral:    
+**Token Group Palette / Neutral**:    
 Neutral 1100: rgb(4, 4, 4)  
 Neutral 1000: rgb(24, 32, 32)  
 Neutral 900: rgb(41, 51, 51)  
@@ -228,7 +228,7 @@ Neutral 100: rgb(243, 244, 244)
 Neutral 0: rgb(255, 255, 255)  
   
   
-Token Group Palette / Teal:    
+**Token Group Palette / Teal**:    
 Teal 1100: rgb(11, 36, 39)  
 Teal 1000: rgb(27, 62, 62)  
 Teal 900: rgb(42, 100, 97)  
@@ -243,7 +243,7 @@ Teal 100: rgb(213, 246, 239)
 Teal 0: rgb(233, 248, 245)  
   
   
-Token Group Palette / Teal:    
+**Token Group Palette / Teal**:    
 Teal 1100: rgb(11, 36, 39)  
 Teal 1000: rgb(27, 62, 62)  
 Teal 900: rgb(42, 100, 97)  
@@ -258,7 +258,7 @@ Teal 100: rgb(213, 246, 239)
 Teal 0: rgb(233, 248, 245)  
   
   
-Token Group Palette / Pink:    
+**Token Group Palette / Pink**:    
 Pink 1100: rgb(40, 24, 33)  
 Pink 1000: rgb(79, 25, 48)  
 Pink 900: rgb(135, 38, 71)  
@@ -273,7 +273,7 @@ Pink 100: rgb(247, 220, 234)
 Pink 0: rgb(251, 234, 242)  
   
   
-Token Group Palette / Pink:    
+**Token Group Palette / Pink**:    
 Pink 1100: rgb(40, 24, 33)  
 Pink 1000: rgb(79, 25, 48)  
 Pink 900: rgb(135, 38, 71)  
@@ -288,7 +288,7 @@ Pink 100: rgb(247, 220, 234)
 Pink 0: rgb(251, 234, 242)  
   
   
-Token Group Palette / Red:    
+**Token Group Palette / Red**:    
 Red 1100: rgb(40, 18, 18)  
 Red 1000: rgb(100, 28, 24)  
 Red 900: rgb(141, 45, 40)  
@@ -303,7 +303,7 @@ Red 100: rgb(248, 215, 211)
 Red 0: rgb(251, 235, 233)  
   
   
-Token Group Palette / Red:    
+**Token Group Palette / Red**:    
 Red 1100: rgb(40, 18, 18)  
 Red 1000: rgb(100, 28, 24)  
 Red 900: rgb(141, 45, 40)  
@@ -318,7 +318,7 @@ Red 100: rgb(248, 215, 211)
 Red 0: rgb(251, 235, 233)  
   
   
-Token Group Palette / Orange:    
+**Token Group Palette / Orange**:    
 Orange 1100: rgb(42, 20, 15)  
 Orange 1000: rgb(88, 29, 9)  
 Orange 900: rgb(138, 52, 26)  
@@ -333,7 +333,7 @@ Orange 100: rgb(247, 221, 206)
 Orange 0: rgb(252, 238, 228)  
   
   
-Token Group Palette / Orange:    
+**Token Group Palette / Orange**:    
 Orange 1100: rgb(42, 20, 15)  
 Orange 1000: rgb(88, 29, 9)  
 Orange 900: rgb(138, 52, 26)  
@@ -348,7 +348,7 @@ Orange 100: rgb(247, 221, 206)
 Orange 0: rgb(252, 238, 228)  
   
   
-Token Group Palette / Yellow:    
+**Token Group Palette / Yellow**:    
 Yellow 1100: rgb(42, 27, 8)  
 Yellow 1000: rgb(78, 44, 11)  
 Yellow 900: rgb(139, 79, 31)  
@@ -363,7 +363,7 @@ Yellow 100: rgb(251, 238, 209)
 Yellow 0: rgb(254, 248, 228)  
   
   
-Token Group Palette / Yellow:    
+**Token Group Palette / Yellow**:    
 Yellow 1100: rgb(42, 27, 8)  
 Yellow 1000: rgb(78, 44, 11)  
 Yellow 900: rgb(139, 79, 31)  
@@ -378,7 +378,7 @@ Yellow 100: rgb(251, 238, 209)
 Yellow 0: rgb(254, 248, 228)  
   
   
-Token Group Palette / Magenta:    
+**Token Group Palette / Magenta**:    
 Magenta 1100: rgb(39, 26, 44)  
 Magenta 1000: rgb(63, 26, 78)  
 Magenta 900: rgb(100, 42, 115)  
@@ -393,7 +393,7 @@ Magenta 100: rgb(245, 228, 250)
 Magenta 0: rgb(252, 240, 254)  
   
   
-Token Group Palette / Magenta:    
+**Token Group Palette / Magenta**:    
 Magenta 1100: rgb(39, 26, 44)  
 Magenta 1000: rgb(63, 26, 78)  
 Magenta 900: rgb(100, 42, 115)  
