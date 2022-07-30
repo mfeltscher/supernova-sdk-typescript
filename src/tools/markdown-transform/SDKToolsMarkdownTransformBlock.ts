@@ -334,9 +334,7 @@ export class MarkdownTransformBlock {
     ]
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockTableRow) {
-        console.log(child.children)
         let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c)))
-        console.log(childContent)
         let rowDefinition = "| " + childContent.join(" | ") + " |"
         tableRows.push(rowDefinition)
       }
@@ -358,10 +356,23 @@ export class MarkdownTransformBlock {
 
   // -- Containers: Tabs
 
-  convertTabsBlock(block: DocumentationPageBlockTab): string | null {
+  async convertTabsBlock(block: DocumentationPageBlockTab): Promise<string | null> {
 
-    // TODO: Block conversion
-    return null
+    // No empty tables
+    if (block.children.length === 0) {
+      return null
+    }
+
+    let tabContent: Array<string> = []
+    for (let child of block.children) {
+      if (child instanceof DocumentationPageBlockTabItem ) {
+        let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c)))
+        let tabDefinition = this.newlineSeparator + `**${child.caption}**` + this.newlineSeparator + childContent.join(this.newlineSeparator)
+        tabContent.push(tabDefinition)
+      }
+    }
+
+    return tabContent.join(this.newlineSeparator) + this.newlineSeparator
   }
 
   convertTabItemBlock(block: DocumentationPageBlockTabItem): string | null {
@@ -374,13 +385,13 @@ export class MarkdownTransformBlock {
 
   convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
 
-    // TODO: Block conversion
+    // TODO: Columns are not yet implemented on FE
     return null
   }  
 
   convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
 
-    // TODO: Block conversion
+    // TODO: Columns are not yet implemented on FE
     return null
   }
 
