@@ -107,15 +107,15 @@ export class MarkdownTransformBlock {
       case DocumentationPageBlockType.youtubeEmbed: return this.convertYoutubeEmbedBlock(block as DocumentationPageBlockEmbedYoutube)
 
       // Following blocks are special because their transformation is invoked manually (containers)
-      case DocumentationPageBlockType.column: return this.convertColumnBlock(block as DocumentationPageBlockColumn)
-      case DocumentationPageBlockType.table: return this.convertTableBlock(block as DocumentationPageBlockTable)
-      case DocumentationPageBlockType.tabs: return this.convertTabsBlock(block as DocumentationPageBlockTab)
+      case DocumentationPageBlockType.column: return await this.convertColumnBlock(block as DocumentationPageBlockColumn)
+      case DocumentationPageBlockType.table: return await this.convertTableBlock(block as DocumentationPageBlockTable)
+      case DocumentationPageBlockType.tabs: return await this.convertTabsBlock(block as DocumentationPageBlockTab)
 
       // Following blocks are special because their transformation is invoked manually (contained items)
-      case DocumentationPageBlockType.tabItem: return this.convertTabItemBlock(block as DocumentationPageBlockTabItem)
-      case DocumentationPageBlockType.columnItem: return this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem)
-      case DocumentationPageBlockType.tableCell: return this.convertTableCellBlock(block as DocumentationPageBlockTableCell)
-      case DocumentationPageBlockType.tableRow: return this.convertTableRowBlock(block as DocumentationPageBlockTableRow)
+      case DocumentationPageBlockType.tabItem: return await this.convertTabItemBlock(block as DocumentationPageBlockTabItem)
+      case DocumentationPageBlockType.columnItem: return await this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem)
+      case DocumentationPageBlockType.tableCell: return await this.convertTableCellBlock(block as DocumentationPageBlockTableCell)
+      case DocumentationPageBlockType.tableRow: return await this.convertTableRowBlock(block as DocumentationPageBlockTableRow)
     }
   }
 
@@ -263,7 +263,7 @@ export class MarkdownTransformBlock {
     let segments: Array<string> = []
     for (let group of groupsToShow) {
       let tokensToShow = tokens.filter(t => group.tokenIds.includes(t.id) || group.tokenIds.includes(t.versionedId))
-      let segment = `\n${`Token Group ${group.path.join(" / ")}`}\n${tokens.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+      let segment = `\n${`Token Group ${group.path.join(" / ")}`}\n${tokensToShow.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
       segments.push(segment)
     }
 
@@ -320,10 +320,26 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  convertTableBlock(block: DocumentationPageBlockTable): string | null {
+  async convertTableBlock(block: DocumentationPageBlockTable): Promise<string | null> {
 
-    // TODO: Block conversion
-    return null
+    let tableRows: Array<string> = []
+    for (let child of block.children) {
+      if (child instanceof DocumentationPageBlockTableRow) {
+        console.log(child.children)
+        let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c)))
+        console.log(childContent)
+        let rowDefinition = "| " + childContent.join(" | ") + " |"
+        tableRows.push(rowDefinition)
+      }
+    }
+
+    return "\n" + tableRows.join("\n") + "\n"
+  }
+
+  async convertTableCellBlock(block: DocumentationPageBlockTableCell): Promise<string | null> {
+
+    let cellContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+    return cellContent.join("<br>") // Multiline cell needs non-regular line breaks
   }
 
   // -- Contained items
@@ -335,12 +351,6 @@ export class MarkdownTransformBlock {
   }
 
   convertTabItemBlock(block: DocumentationPageBlockTabItem): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTableCellBlock(block: DocumentationPageBlockTableCell): string | null {
 
     // TODO: Block conversion
     return null
@@ -375,3 +385,4 @@ export class MarkdownTransformBlock {
     return null
   }
 }
+

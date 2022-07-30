@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { DocumentationPageBlockType } from '../../exports'
 import { DocumentationPage } from '../../model/documentation/SDKDocumentationPage'
 import { DocumentationPageBlock } from '../../model/documentation/SDKDocumentationPageBlock'
 import { MarkdownTransformBlock } from './SDKToolsMarkdownTransformBlock'
@@ -19,8 +20,8 @@ import { MarkdownTransformBlock } from './SDKToolsMarkdownTransformBlock'
 
 /** Output markdown mode. Commonmark and GitHub is currently supported */
 export enum MarkdownTransformType {
-    commonmark = "commonmark",
-    github = "github"
+  commonmark = 'commonmark',
+  github = 'github'
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -28,7 +29,6 @@ export enum MarkdownTransformType {
 
 /** Markdown transformers */
 export class MarkdownTransform {
-
   // --- Properties
   conversionType: MarkdownTransformType
   blockTransformer: MarkdownTransformBlock
@@ -39,7 +39,7 @@ export class MarkdownTransform {
     this.conversionType = type
     this.version = version
     if (type === MarkdownTransformType.github) {
-        console.log("Note: GitHub mode of markdown is currently in development and is not yet fully supported")
+      console.log('Note: GitHub mode of markdown is currently in development and is not yet fully supported')
     }
     this.blockTransformer = new MarkdownTransformBlock(type, version)
   }
@@ -69,19 +69,35 @@ export class MarkdownTransform {
   private flattenedBlocksOfPage = (page: DocumentationPage): Array<DocumentationPageBlock> => {
     let blocks: Array<DocumentationPageBlock> = page.blocks
     for (let block of page.blocks) {
-        blocks = blocks.concat(this.flattenedBlocksOfBlock(block))
+      blocks = blocks.concat(this.flattenedBlocksOfBlock(block))
     }
-    
+
     return blocks
   }
 
   /** Flattens one leaf of blocks */
   private flattenedBlocksOfBlock = (block: DocumentationPageBlock): Array<DocumentationPageBlock> => {
+    // For containers, we will ignore all their children - they are generated separately by the behavior of the container itself (tables, tabs etc.)
+    if (this.isContainer(block.type)) {
+      return []
+    }
     let subblocks: Array<DocumentationPageBlock> = block.children
     for (let subblock of block.children) {
-        subblocks = subblocks.concat(this.flattenedBlocksOfBlock(subblock))
+      subblocks = subblocks.concat(this.flattenedBlocksOfBlock(subblock))
     }
 
     return subblocks
-  } 
+  }
+
+  isContainer(blockType: DocumentationPageBlockType): boolean {
+    return (
+      blockType === DocumentationPageBlockType.table ||
+      blockType === DocumentationPageBlockType.tableCell ||
+      blockType === DocumentationPageBlockType.tableRow ||
+      blockType === DocumentationPageBlockType.column ||
+      blockType === DocumentationPageBlockType.columnItem ||
+      blockType === DocumentationPageBlockType.tabs ||
+      blockType === DocumentationPageBlockType.tabItem
+    )
+  }
 }
