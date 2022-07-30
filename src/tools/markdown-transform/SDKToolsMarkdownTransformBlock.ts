@@ -70,6 +70,7 @@ export class MarkdownTransformBlock {
   // --- Conversion
   constructor(type: MarkdownTransformType, version: DesignSystemVersion) {
     this.transformType = type
+    this.version = version
     if (type === MarkdownTransformType.github) {
         console.log("Note: GitHub mode of markdown is currently in development and is not yet fully supported")
     }
@@ -267,8 +268,10 @@ export class MarkdownTransformBlock {
     let segments: Array<string> = []
     for (let group of groupsToShow) {
       let tokensToShow = tokens.filter(t => group.tokenIds.includes(t.id) || group.tokenIds.includes(t.versionedId))
-      let segment = `\n${`Token Group ${group.path.join(" / ")}`}\n${tokensToShow.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
-      segments.push(segment)
+      if (tokensToShow.length > 0) {
+        let segment = `\n${`Token Group ${[...group.path, group.name].join(" / ")}:`}\n${tokensToShow.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+        segments.push(segment)
+      }
     }
 
     // Convert to single string
