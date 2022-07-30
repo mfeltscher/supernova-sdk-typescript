@@ -202,6 +202,10 @@ export class MarkdownTransformBlock {
     return this.convertURLBlock(block, block.url ?? "Open Youtube Video")
   }
 
+  convertFigmaEmbedBlock(block: DocumentationPageBlockEmbedFigma): string | null {
+    return this.convertURLBlock(block, block.url ?? "Open Figma Prototype / File")
+  }
+
   // -- Token blocks
 
   async convertTokenBlock(block: DocumentationPageBlockToken): Promise<string | null> {
@@ -288,12 +292,6 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  convertFigmaEmbedBlock(block: DocumentationPageBlockEmbedFigma): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
   convertFigmaFramesBlock(block: DocumentationPageBlockFrames): string | null {
 
     // TODO: Block conversion
@@ -306,19 +304,7 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  // -- Containers
-
-  convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTabsBlock(block: DocumentationPageBlockTab): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
+  // -- Containers: Table
 
   async convertTableBlock(block: DocumentationPageBlockTable): Promise<string | null> {
 
@@ -336,15 +322,20 @@ export class MarkdownTransformBlock {
     return "\n" + tableRows.join("\n") + "\n"
   }
 
+  convertTableRowBlock(block: DocumentationPageBlockTableRow): string | null {
+    // Not used, rows are used when generating table directly in the table
+    return null
+  }
+
   async convertTableCellBlock(block: DocumentationPageBlockTableCell): Promise<string | null> {
 
     let cellContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
     return cellContent.join("<br>") // Multiline cell needs non-regular line breaks
   }
 
-  // -- Contained items
+  // -- Containers: Tabs
 
-  convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
+  convertTabsBlock(block: DocumentationPageBlockTab): string | null {
 
     // TODO: Block conversion
     return null
@@ -356,11 +347,20 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  convertTableRowBlock(block: DocumentationPageBlockTableRow): string | null {
+  // -- Containers: Columns
+
+  convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
+
+    // TODO: Block conversion
+    return null
+  }  
+
+  convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
 
     // TODO: Block conversion
     return null
   }
+
 
   // -- Unsupported
 
