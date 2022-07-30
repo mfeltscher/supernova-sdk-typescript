@@ -12,6 +12,8 @@
 import { testInstance } from '../helpers'
 import test from 'ava'
 import { MarkdownTransform, MarkdownTransformType } from '../../tools/markdown-transform/SDKToolsMarkdownTransform'
+import fs from "fs"
+import path from 'path'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -27,11 +29,16 @@ test('test_tooling_markdown_transform', async t => {
   // Fetch documentation pages needed for the index construction
   let docs = await version.documentation()
   let pages = await docs.pages()
-  let pageGroups = await docs.groups()
 
   // Construct markdown transformer with one of the available modes
-  let transformer = new MarkdownTransform(MarkdownTransformType.commonmark)
-  let pageAsMarkdown = transformer.convertPageToMarkdown(pages[0])
+  let transformer = new MarkdownTransform(MarkdownTransformType.commonmark, version)
+  let pageAsMarkdown = await transformer.convertPageToMarkdown(pages[0])
+
+  console.log(pageAsMarkdown)
+
+  // Write markdown page so we can preview it as well
+  let writePath = path.join(process.cwd(), '.markdown', 'page.md')
+  fs.writeFileSync(writePath, pageAsMarkdown) 
 
   // Search for keyword
   await t.true(pageAsMarkdown.length > 0)

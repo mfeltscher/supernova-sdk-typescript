@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { TokenGroup } from '../..'
+import { DocumentationCalloutType, TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DocumentationPageBlockAsset } from '../../model/documentation/blocks/SDKDocumentationPageBlockAsset'
 import { DocumentationPageBlockAssets } from '../../model/documentation/blocks/SDKDocumentationPageBlockAssets'
@@ -137,7 +137,14 @@ export class MarkdownTransformBlock {
 
   convertCalloutBlock(block: DocumentationPageBlockCallout): string | null {
     let text = this.utilTransformer.convertTextBlockToMarkdown(block)
-    return `> ${text}`
+    let calloutType: string
+    switch (block.calloutType) {
+      case DocumentationCalloutType.info: calloutType = "Some extra info:"; break;
+      case DocumentationCalloutType.warning: calloutType = "Be warned:"; break;
+      case DocumentationCalloutType.success: calloutType = "Yay:"; break;
+      case DocumentationCalloutType.error: calloutType = "Please note:"; break;
+    }
+    return `> ${calloutType}\n> ${text}`
   }
 
   convertQuoteBlock(block: DocumentationPageBlockQuote): string | null {
@@ -162,7 +169,7 @@ export class MarkdownTransformBlock {
 
   convertUnorderedListBlock(block: DocumentationPageUnorderedList): string | null {
     let text = this.utilTransformer.convertTextBlockToMarkdown(block)
-    return `1. ` + text
+    return `- ` + text
   }
 
   convertLiveCodeBlock(block: DocumentationPageBlockRenderCode): string | null {
