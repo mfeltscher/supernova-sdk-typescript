@@ -43,7 +43,7 @@ Another regular page block with text
 ---
 
 
-| Test<br>Multiline table content | Test2 |
+| Test<br>Multiline table content | Test2 |<br>
 | Test3 | Test4 |
 
 
@@ -52,7 +52,7 @@ Another regular page block with text
 ### Token list
 
 
-Green 1000: rgb(28, 65, 48)
+Green 1000: rgb(28, 65, 48)<br>
 Green 700: rgb(76, 164, 90)
 Green 500: rgb(120, 199, 103)
 
