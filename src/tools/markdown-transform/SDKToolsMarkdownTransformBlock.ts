@@ -66,6 +66,7 @@ export class MarkdownTransformBlock {
   private transformType: MarkdownTransformType
   private utilTransformer: MarkdownTransformUtil
   private version: DesignSystemVersion
+  newlineSeparator: string = "  \n"
 
   // --- Conversion
   constructor(type: MarkdownTransformType, version: DesignSystemVersion) {
@@ -145,7 +146,7 @@ export class MarkdownTransformBlock {
       case DocumentationCalloutType.success: calloutType = "Yay:"; break;
       case DocumentationCalloutType.error: calloutType = "Please note:"; break;
     }
-    return `> ${calloutType}\n> ${text}`
+    return `> ${calloutType}${this.newlineSeparator}> ${text}`
   }
 
   convertQuoteBlock(block: DocumentationPageBlockQuote): string | null {
@@ -175,12 +176,12 @@ export class MarkdownTransformBlock {
 
   convertLiveCodeBlock(block: DocumentationPageBlockRenderCode): string | null {
     const codeLanguageDefinition = "javascript"
-    return `\`\`\`${codeLanguageDefinition}\n${block.code}\n\`\`\``
+    return `\`\`\`${codeLanguageDefinition}${this.newlineSeparator}${block.code}${this.newlineSeparator}\`\`\``
   }
 
   convertCodeBlock(block: DocumentationPageBlockCode): string | null {
     const codeLanguageDefinition = block.codeLanguage ? block.codeLanguage.toLowerCase() : ""
-    return `\`\`\`${codeLanguageDefinition}\n${block.text.asPlainText()}\n\`\`\``
+    return `\`\`\`${codeLanguageDefinition}${this.newlineSeparator}${block.text.asPlainText()}${this.newlineSeparator}\`\`\``
   }
 
   convertTextBlock(block: DocumentationPageBlockText): string | null {
@@ -223,7 +224,7 @@ export class MarkdownTransformBlock {
     }
 
     // Convert token
-    return `\n${this.utilTransformer.convertTokenToMarkdown(tokens[0])}\n`
+    return `${this.newlineSeparator}${this.utilTransformer.convertTokenToMarkdown(tokens[0])}${this.newlineSeparator}`
   }
 
   async convertTokenListBlock(block: DocumentationPageBlockTokenList): Promise<string | null> {
@@ -240,7 +241,7 @@ export class MarkdownTransformBlock {
     }
 
     // Convert token
-    return `\n${tokens.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+    return `${this.newlineSeparator}${tokens.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join(this.newlineSeparator)}${this.newlineSeparator}`
   }
 
   async convertTokenGroupBlock(block: DocumentationPageBlockTokenGroup): Promise<string | null> {
@@ -269,13 +270,13 @@ export class MarkdownTransformBlock {
     for (let group of groupsToShow) {
       let tokensToShow = tokens.filter(t => group.tokenIds.includes(t.id) || group.tokenIds.includes(t.versionedId))
       if (tokensToShow.length > 0) {
-        let segment = `\n${`Token Group ${[...group.path, group.name].join(" / ")}:`}\n${tokensToShow.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+        let segment = `${this.newlineSeparator}${`**Token Group ${[...group.path, group.name].join(" / ")}**:  `}${this.newlineSeparator}${tokensToShow.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join(this.newlineSeparator)}${this.newlineSeparator}`
         segments.push(segment)
       }
     }
 
     // Convert to single string
-    return segments.join("\n")
+    return segments.join(this.newlineSeparator)
   }
 
   private flattenedGroupsFromRoot(root: TokenGroup): Array<TokenGroup> {
@@ -311,7 +312,26 @@ export class MarkdownTransformBlock {
 
   async convertTableBlock(block: DocumentationPageBlockTable): Promise<string | null> {
 
-    let tableRows: Array<string> = []
+    // No empty tables
+    if (block.children.length === 0) {
+      return null
+    }
+
+    // Generate header row
+    let firstRow = block.children[0]
+    let rowContent: Array<string> = []
+    let separatorContent: Array<string> = []
+    let count = 1
+    for (let child of firstRow.children) {
+      rowContent.push(`Column ${count}`)
+      separatorContent.push(`---`)
+      count++
+    }
+    
+    let tableRows: Array<string> = [
+      "| " + rowContent.join(" | ") + " |",
+      "| " + separatorContent.join(" | ") + " |"
+    ]
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockTableRow) {
         console.log(child.children)
@@ -322,7 +342,7 @@ export class MarkdownTransformBlock {
       }
     }
 
-    return "\n" + tableRows.join("\n") + "\n"
+    return this.newlineSeparator + tableRows.join(this.newlineSeparator) + this.newlineSeparator
   }
 
   convertTableRowBlock(block: DocumentationPageBlockTableRow): string | null {
@@ -382,8 +402,8 @@ export class MarkdownTransformBlock {
     // [Action prompt, ie. "Open Figma File"](url)
     // ^ caption_if_provided
     if (block.url) {
-      const caption = block.caption ? `^ ${block.caption}\n` : ""
-      return `\n[${userAction}](${block.url})\n${caption}`
+      const caption = block.caption ? `^ ${block.caption}${this.newlineSeparator}` : ""
+      return `${this.newlineSeparator}[${userAction}](${block.url})${this.newlineSeparator}${caption}`
     }
     return null
   }
