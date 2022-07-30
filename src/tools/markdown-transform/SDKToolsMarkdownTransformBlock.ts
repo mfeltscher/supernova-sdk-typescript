@@ -9,6 +9,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { TokenGroup } from '../..'
+import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DocumentationPageBlockAsset } from '../../model/documentation/blocks/SDKDocumentationPageBlockAsset'
 import { DocumentationPageBlockAssets } from '../../model/documentation/blocks/SDKDocumentationPageBlockAssets'
 import { DocumentationPageBlockCallout } from '../../model/documentation/blocks/SDKDocumentationPageBlockCallout'
@@ -48,7 +50,7 @@ import { DocumentationHeadingType } from '../../model/enums/SDKDocumentationHead
 import { DocumentationPageBlockType } from '../../model/enums/SDKDocumentationPageBlockType'
 import { RichTextSpanAttributeType } from '../../model/enums/SDKRichTextSpanAttributeType'
 import { MarkdownTransformType } from './SDKToolsMarkdownTransform'
-import { MarkdownTransformText } from './SDKToolsMarkdownTransformText'
+import { MarkdownTransformUtil } from './SDKToolsMarkdownTransformUtil'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -62,21 +64,22 @@ export class MarkdownTransformBlock {
   // -- Properties
 
   private transformType: MarkdownTransformType
-  private textTransformer: MarkdownTransformText
+  private utilTransformer: MarkdownTransformUtil
+  private version: DesignSystemVersion
 
   // --- Conversion
-  constructor(type: MarkdownTransformType) {
+  constructor(type: MarkdownTransformType, version: DesignSystemVersion) {
     this.transformType = type
     if (type === MarkdownTransformType.github) {
         console.log("Note: GitHub mode of markdown is currently in development and is not yet fully supported")
     }
-    this.textTransformer = new MarkdownTransformText(this.transformType)
+    this.utilTransformer = new MarkdownTransformUtil(this.transformType, version)
   }
 
   // --- Conversion
 
   /** Converts a single block - depending on the type - to a markdown definition of specific type */
-  convertBlockToMarkdown(block: DocumentationPageBlock): string | null {
+  async convertBlockToMarkdown(block: DocumentationPageBlock): Promise<string | null> {
 
     switch (block.type) {
       // Following blocks are automatically transformed
@@ -97,7 +100,7 @@ export class MarkdownTransformBlock {
       case DocumentationPageBlockType.shortcuts: return this.convertShortcutsBlock(block as DocumentationPageBlockShortcuts)
       case DocumentationPageBlockType.storybookEmbed: return this.convertStorybookEmbedBlock(block as DocumentationPageBlockEmbedStorybook)
       case DocumentationPageBlockType.text: return this.convertTextBlock(block as DocumentationPageBlockText)
-      case DocumentationPageBlockType.token: return this.converTokenBlock(block as DocumentationPageBlockToken)
+      case DocumentationPageBlockType.token: return await this.convertTokenBlock(block as DocumentationPageBlockToken)
       case DocumentationPageBlockType.tokenGroup: return this.convertTokenGroupBlock(block as DocumentationPageBlockTokenGroup)
       case DocumentationPageBlockType.tokenList: return this.convertTokenListBlock(block as DocumentationPageBlockTokenList)
       case DocumentationPageBlockType.unorderedList: return this.convertUnorderedListBlock(block as DocumentationPageUnorderedList)
@@ -118,9 +121,53 @@ export class MarkdownTransformBlock {
 
   // -- Plain blocks
 
+  convertHeadingBlock(block: DocumentationPageBlockHeading): string | null {
+
+    let heading = block as DocumentationPageBlockHeading
+    let text = this.utilTransformer.convertTextBlockToMarkdown(heading)
+    switch (heading.headingType) {
+      case DocumentationHeadingType.h1:
+        return `# ${text}`
+      case DocumentationHeadingType.h2:
+        return `## ${text}`
+      case DocumentationHeadingType.h3:
+        return `### ${text}`
+    }
+  }
+
   convertCalloutBlock(block: DocumentationPageBlockCallout): string | null {
-    let text = this.textTransformer.convertTextBlockToMarkdown(block)
+    let text = this.utilTransformer.convertTextBlockToMarkdown(block)
     return `> ${text}`
+  }
+
+  convertQuoteBlock(block: DocumentationPageBlockQuote): string | null {
+    let text = this.utilTransformer.convertTextBlockToMarkdown(block)
+    return `> ${text}`
+  }
+
+  convertDividerBlock(block: DocumentationPageBlockDivider): string | null {
+    return "---"
+  }
+
+  convertImageBlock(block: DocumentationPageBlockImage): string | null {
+    if (block.url) {
+      return `![Img](${block.url})`
+    }
+  }
+
+  convertOrderedListBlock(block: DocumentationPageOrderedList): string | null {
+    let text = this.utilTransformer.convertTextBlockToMarkdown(block)
+    return `1. ` + text
+  }
+
+  convertUnorderedListBlock(block: DocumentationPageUnorderedList): string | null {
+    let text = this.utilTransformer.convertTextBlockToMarkdown(block)
+    return `1. ` + text
+  }
+
+  convertLiveCodeBlock(block: DocumentationPageBlockRenderCode): string | null {
+    const codeLanguageDefinition = "javascript"
+    return `\`\`\`${codeLanguageDefinition}\n${block.code}\n\`\`\``
   }
 
   convertCodeBlock(block: DocumentationPageBlockCode): string | null {
@@ -128,14 +175,110 @@ export class MarkdownTransformBlock {
     return `\`\`\`${codeLanguageDefinition}\n${block.text.asPlainText()}\n\`\`\``
   }
 
+  convertTextBlock(block: DocumentationPageBlockText): string | null {
+    return this.utilTransformer.convertTextBlockToMarkdown(block)
+  }
+
+  convertGenericEmbedBlock(block: DocumentationPageBlockEmbedGeneric): string | null {
+    return this.convertURLBlock(block, block.url ?? "Open link")
+  }
+
+  convertStorybookEmbedBlock(block: DocumentationPageBlockEmbedStorybook): string | null {
+    return this.convertURLBlock(block, "Open Storybook Canvas")
+  }
+
+  convertLinkBlock(block: DocumentationPageBlockEmbedLink): string | null {
+    return this.convertURLBlock(block, block.url ?? "Open link")
+  }
+
+  convertYoutubeEmbedBlock(block: DocumentationPageBlockEmbedYoutube): string | null {
+    return this.convertURLBlock(block, block.url ?? "Open Youtube Video")
+  }
+
+  // -- Token blocks
+
+  async convertTokenBlock(block: DocumentationPageBlockToken): Promise<string | null> {
+
+    if (!block.tokenId) {
+      return null
+    }
+
+    // Fetch token
+    let tokens = await this.version.tokens()
+    tokens = tokens.filter(t => t.id === block.tokenId || t.versionedId === block.tokenId)
+    if (tokens.length === 0) {
+      return null
+    }
+
+    // Convert token
+    return `\n${this.utilTransformer.convertTokenToMarkdown(tokens[0])}\n`
+  }
+
+  async convertTokenListBlock(block: DocumentationPageBlockTokenList): Promise<string | null> {
+
+    if (!block.tokenIds) {
+      return null
+    }
+
+    // Fetch tokens
+    let tokens = await this.version.tokens()
+    tokens = tokens.filter(t => block.tokenIds.includes(t.id) || block.tokenIds.includes(t.versionedId))
+    if (tokens.length === 0) {
+      return null
+    }
+
+    // Convert token
+    return `\n${tokens.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+  }
+
+  async convertTokenGroupBlock(block: DocumentationPageBlockTokenGroup): Promise<string | null> {
+
+    if (!block.groupId) {
+      return null
+    }
+
+    // Fetch tokens
+    let tokens = await this.version.tokens()
+    let groups = await this.version.tokenGroups()
+    groups = groups.filter(g => g.id === block.groupId || g.versionedId === block.groupId)
+    
+    if (groups.length !== 1) {
+      return null
+    }
+
+    // Show either single group or all nested groups
+    let groupsToShow = [groups[0]]
+    if (block.showNestedGroups) {
+      groupsToShow = this.flattenedGroupsFromRoot(groups[0])
+    }
+
+    // Convert group and all its tokens
+    let segments: Array<string> = []
+    for (let group of groupsToShow) {
+      let tokensToShow = tokens.filter(t => group.tokenIds.includes(t.id) || group.tokenIds.includes(t.versionedId))
+      let segment = `\n${`Token Group ${group.path.join(" / ")}`}\n${tokens.map(t => this.utilTransformer.convertTokenToMarkdown(t)).join("\n")}\n`
+      segments.push(segment)
+    }
+
+    // Convert to single string
+    return segments.join("\n")
+  }
+
+  private flattenedGroupsFromRoot(root: TokenGroup): Array<TokenGroup> {
+
+    let groups = [root]
+    for (let group of root.subgroups) {
+      groups.push(group)
+      groups = groups.concat(this.flattenedGroupsFromRoot(group))
+    }
+
+    return groups
+  }
+
   convertComponentAssetBlock(block: DocumentationPageBlockAssets): string | null {
 
     // TODO: Block conversion
     return null
-  }
-
-  convertDividerBlock(block: DocumentationPageBlockDivider): string | null {
-    return "---"
   }
 
   convertFigmaEmbedBlock(block: DocumentationPageBlockEmbedFigma): string | null {
@@ -150,94 +293,7 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  convertGenericEmbedBlock(block: DocumentationPageBlockEmbedGeneric): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertHeadingBlock(block: DocumentationPageBlockHeading): string | null {
-
-    let heading = block as DocumentationPageBlockHeading
-    let text = this.textTransformer.convertTextBlockToMarkdown(heading)
-    switch (heading.headingType) {
-      case DocumentationHeadingType.h1:
-        return `# ${text}`
-      case DocumentationHeadingType.h2:
-        return `## ${text}`
-      case DocumentationHeadingType.h3:
-        return `### ${text}`
-    }
-  }
-
-  convertImageBlock(block: DocumentationPageBlockImage): string | null {
-
-    if (block.url) {
-      return `![Img](${block.url})`
-    }
-  }
-
-  convertLinkBlock(block: DocumentationPageBlockEmbedLink): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertOrderedListBlock(block: DocumentationPageOrderedList): string | null {
-    let text = this.textTransformer.convertTextBlockToMarkdown(block)
-    return `1. ` + text
-  }
-
-  convertQuoteBlock(block: DocumentationPageBlockQuote): string | null {
-    let text = this.textTransformer.convertTextBlockToMarkdown(block)
-    return `> ${text}`
-  }
-
-  convertLiveCodeBlock(block: DocumentationPageBlockRenderCode): string | null {
-    const codeLanguageDefinition = "javascript"
-    return `\`\`\`${codeLanguageDefinition}\n${block.code}\n\`\`\``
-  }
-
   convertShortcutsBlock(block: DocumentationPageBlockShortcuts): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertStorybookEmbedBlock(block: DocumentationPageBlockEmbedStorybook): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTextBlock(block: DocumentationPageBlockText): string | null {
-    return this.textTransformer.convertTextBlockToMarkdown(block)
-  }
-
-  converTokenBlock(block: DocumentationPageBlockToken): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTokenListBlock(block: DocumentationPageBlockTokenList): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertTokenGroupBlock(block: DocumentationPageBlockTokenGroup): string | null {
-
-    // TODO: Block conversion
-    return null
-  }
-
-  convertUnorderedListBlock(block: DocumentationPageUnorderedList): string | null {
-    let text = this.textTransformer.convertTextBlockToMarkdown(block)
-    return `1. ` + text
-  }
-
-  convertYoutubeEmbedBlock(block: DocumentationPageBlockEmbedYoutube): string | null {
 
     // TODO: Block conversion
     return null
@@ -292,8 +348,23 @@ export class MarkdownTransformBlock {
   // -- Unsupported
 
   convertCustomBlock(block: DocumentationPageBlockCustom): string | null {
+    // Custom blocks will not be transformed for now, as we can't realistically 
+    // know what they are supposed to do and right now we also can't invoke them
+    return null
+    // TODO: Custom component blocks should still be converted, probably
+  }
 
-    // TODO: Block conversion
+  // -- Conveniences
+
+  convertURLBlock(block: DocumentationPageBlockEmbedGeneric, userAction: string): string | null {
+
+    // Will generate:
+    // [Action prompt, ie. "Open Figma File"](url)
+    // ^ caption_if_provided
+    if (block.url) {
+      const caption = block.caption ? `^ ${block.caption}\n` : ""
+      return `\n[${userAction}](${block.url})\n${caption}`
+    }
     return null
   }
 }

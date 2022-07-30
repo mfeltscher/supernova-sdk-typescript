@@ -9,11 +9,12 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { RichTextSpanAttribute } from '../../model/documentation/SDKDocumentationRichTextSpanAttribute'
 import { DocumentationRichText } from '../../model/documentation/SDKDocumentationRichText'
 import { MarkdownTransformType } from './SDKToolsMarkdownTransform'
 import { RichTextSpanAttributeType } from '../../model/enums/SDKRichTextSpanAttributeType'
 import { DocumentationPageBlockText } from '../../model/documentation/blocks/SDKDocumentationPageBlockText'
+import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { Token, TokenTransform } from '../..'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -22,14 +23,17 @@ import { DocumentationPageBlockText } from '../../model/documentation/blocks/SDK
 // MARK: - Search Instance
 
 /** Markdown block transformer */
-export class MarkdownTransformText {
+export class MarkdownTransformUtil {
   // -- Properties
 
   private transformType: MarkdownTransformType
+  private version: DesignSystemVersion
+  private tokenTransformer: TokenTransform
 
   // --- Conversion
-  constructor(type: MarkdownTransformType) {
+  constructor(type: MarkdownTransformType, version: DesignSystemVersion) {
     this.transformType = type
+    this.tokenTransformer = new TokenTransform()
   }
 
   // --- Conversion
@@ -76,5 +80,12 @@ export class MarkdownTransformText {
       }
     }
     return outputString
+  }
+
+
+  /** Convert token to markdown representation */
+  convertTokenToMarkdown(token: Token): string {
+    
+    return `${token.name}: ${this.tokenTransformer.tokenToCSS(token)}`
   }
 }

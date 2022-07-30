@@ -9,17 +9,9 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationPageBlockHeading } from '../../model/documentation/blocks/SDKDocumentationPageBlockHeading'
-import { DocumentationPageBlockImage } from '../../model/documentation/blocks/SDKDocumentationPageBlockImage'
-import { DocumentationPageOrderedList } from '../../model/documentation/blocks/SDKDocumentationPageBlockOrderedList'
-import { DocumentationPageBlockText } from '../../model/documentation/blocks/SDKDocumentationPageBlockText'
-import { DocumentationPageUnorderedList } from '../../model/documentation/blocks/SDKDocumentationPageBlockUnorderedList'
+import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DocumentationPage } from '../../model/documentation/SDKDocumentationPage'
 import { DocumentationPageBlock } from '../../model/documentation/SDKDocumentationPageBlock'
-import { DocumentationRichText } from '../../model/documentation/SDKDocumentationRichText'
-import { DocumentationHeadingType } from '../../model/enums/SDKDocumentationHeadingType'
-import { DocumentationPageBlockType } from '../../model/enums/SDKDocumentationPageBlockType'
-import { RichTextSpanAttributeType } from '../../model/enums/SDKRichTextSpanAttributeType'
 import { MarkdownTransformBlock } from './SDKToolsMarkdownTransformBlock'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -40,24 +32,26 @@ export class MarkdownTransform {
   // --- Properties
   conversionType: MarkdownTransformType
   blockTransformer: MarkdownTransformBlock
+  version: DesignSystemVersion
 
   // --- Constructor
-  constructor(type: MarkdownTransformType) {
+  constructor(type: MarkdownTransformType, version: DesignSystemVersion) {
     this.conversionType = type
+    this.version = version
     if (type === MarkdownTransformType.github) {
         console.log("Note: GitHub mode of markdown is currently in development and is not yet fully supported")
     }
-    this.blockTransformer = new MarkdownTransformBlock(type)
+    this.blockTransformer = new MarkdownTransformBlock(type, version)
   }
 
   // --- Conversion
 
   /** Converts entire definition of the page, including its metadata like title and description, to markdown */
-  convertPageToMarkdown = (page: DocumentationPage) => {
+  async convertPageToMarkdown(page: DocumentationPage): Promise<string> {
     const blocks = this.flattenedBlocksOfPage(page)
     let pageContent: Array<string> = []
     for (let block of blocks) {
-      let blockContent = this.blockTransformer.convertBlockToMarkdown(block)
+      let blockContent = await this.blockTransformer.convertBlockToMarkdown(block)
       if (blockContent) {
         pageContent.push(blockContent)
       }
