@@ -132,3 +132,29 @@ Export
 List  
 ![Price](https://studio-assets-dev.supernova.io/design-systems/1956/2ddd24ee-d839-4b3f-9763-00d5134656f3.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni8yZGRkMjRlZS1kODM5LTRiM2YtOTc2My0wMGQ1MTM0NjU2ZjMucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=Uo~1hUwMUX6PSfCQHpf-T74QQPp5VP8VrPybjqLFvHcmQNDci-zeM4V3LhSl03teSJ62Kq9okrLpLRdBXhGjnqRKyMxgMNB81wZ64h3cwCmqZN2n02J3gmcCRUMpryl3SMJD0LOe2Z9JPrfmwqVhEPSq~pLILFsirlOehzBFv76BQNvVJ3MptHkaQSsqusFvuMlEqYmSIl7uLbdgEwKRYdHLyt2nkjP9qOaFC6NoOvZtwAHC6xpYIgsugaldEwOf4mSsz4QfhZBe8v3-mOcwRCYauJRFlvp1KPgYy05GHsJeoRI4~v1C3A4PnXWbH~tZ35OXRfXkyAMVgOUbcXKJiA__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)  
 Price  
+
+
+## Image heading
+
+![Img](https://studio-assets-dev.supernova.io/design-systems/1956/e073b396-76ff-488f-b6a4-0352713b472e.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni9lMDczYjM5Ni03NmZmLTQ4OGYtYjZhNC0wMzUyNzEzYjQ3MmUucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=TKFo1zi~aze97dAPMHMRlQb4QKjEeb-M5zVcq7HpCXivoMJSyNdhoSr4u28NTnxzn4wB7JgdEYRA9Xw6JtFpctOeMAYnWp0SnDGviGr8YvahLBcB3lSOjJ1-Gkd~NsZ2Fw8CHGqjGYjguabXzSooEZYQMVqdIJ3vXXXEu0-sh1ffNF3tSalbqcYfnOaymA-bdDBRIlVD9u2Y3zZTJbttCZVwydfuH-JLxFRkzgMeyKnYbuO7IgrRxxgXrhPDpQpIPF0Kbyg5dHg72pbCPqEMfFTQOxssH2wYbQvWaafx9U0M6zWljV89cweOabQktCz0FUJg2k1g6IcoqTS4c6UB4Q__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)
+
+## Embeds
+
+  
+[Open Storybook Canvas](https://storybooks-official.netlify.app/iframe.html?full=1&addons=0&stories=0&panel=false&nav=false&viewMode=story)  
+
+
+  
+[Open link](https://google.com)  
+
+
+  
+[Open Youtube Video](https://www.youtube.com/embed/lj9OgGQ_QkY)  
+
+
+  
+[Open link](https://tesla.com/)  
+
+
+  
+[Open Figma Prototype / File](https://www.figma.com/embed?embed_host=supernova&url=https://www.figma.com/file/uW0yJkw9BYkSRcAfen2Efm/Cloud%2520Components?node-id=97:31)  

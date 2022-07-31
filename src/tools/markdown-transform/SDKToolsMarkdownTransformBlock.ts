@@ -225,23 +225,23 @@ export class MarkdownTransformBlock {
   }
 
   convertGenericEmbedBlock(block: DocumentationPageBlockEmbedGeneric): string | null {
-    return this.convertURLBlock(block, block.url ?? 'Open link')
+    return this.convertURLBlock(block, 'Open link', true)
   }
 
   convertStorybookEmbedBlock(block: DocumentationPageBlockEmbedStorybook): string | null {
-    return this.convertURLBlock(block, 'Open Storybook Canvas')
+    return this.convertURLBlock(block, 'Open Storybook Canvas', false)
   }
 
   convertLinkBlock(block: DocumentationPageBlockEmbedLink): string | null {
-    return this.convertURLBlock(block, block.url ?? 'Open link')
+    return this.convertURLBlock(block, 'Open link', true)
   }
 
   convertYoutubeEmbedBlock(block: DocumentationPageBlockEmbedYoutube): string | null {
-    return this.convertURLBlock(block, block.url ?? 'Open Youtube Video')
+    return this.convertURLBlock(block, 'Open Youtube Video', false)
   }
 
   convertFigmaEmbedBlock(block: DocumentationPageBlockEmbedFigma): string | null {
-    return this.convertURLBlock(block, block.url ?? 'Open Figma Prototype / File')
+    return this.convertURLBlock(block, 'Open Figma Prototype / File', false)
   }
 
   // -- Token blocks
@@ -401,7 +401,7 @@ export class MarkdownTransformBlock {
   // -- Containers: Tabs
 
   async convertTabsBlock(block: DocumentationPageBlockTab): Promise<string | null> {
-    // No empty tables
+    // No empty tabs
     if (block.children.length === 0) {
       return null
     }
@@ -409,34 +409,44 @@ export class MarkdownTransformBlock {
     let tabContent: Array<string> = []
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockTabItem) {
-        let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c)))
-        let tabDefinition =
-          this.newlineSeparator +
-          `**${child.caption}**` +
-          this.newlineSeparator +
-          childContent.join(this.newlineSeparator)
-        tabContent.push(tabDefinition)
+        let result = await this.convertTabItemBlock(child)
+        tabContent.push(result)
       }
     }
 
     return tabContent.join(this.newlineSeparator) + this.newlineSeparator
   }
 
-  convertTabItemBlock(block: DocumentationPageBlockTabItem): string | null {
-    // TODO: Block conversion
-    return null
+  async convertTabItemBlock(block: DocumentationPageBlockTabItem): Promise<string | null> {
+    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+    let tabDefinition =
+      this.newlineSeparator + `**${block.caption}**` + this.newlineSeparator + childContent.join(this.newlineSeparator)
+    return tabDefinition
   }
 
   // -- Containers: Columns
 
-  convertColumnBlock(block: DocumentationPageBlockColumn): string | null {
-    // TODO: Columns are not yet implemented on FE
-    return null
+  async convertColumnBlock(block: DocumentationPageBlockColumn): Promise<string | null> {
+    // No empty columns
+    if (block.children.length === 0) {
+      return null
+    }
+
+    let columnContent: Array<string> = []
+    for (let child of block.children) {
+      if (child instanceof DocumentationPageBlockColumnItem) {
+        let result = await this.convertColumnItemBlock(child)
+        columnContent.push(result)
+      }
+    }
+
+    return columnContent.join(this.newlineSeparator) + this.newlineSeparator
   }
 
-  convertColumnItemBlock(block: DocumentationPageBlockColumnItem): string | null {
-    // TODO: Columns are not yet implemented on FE
-    return null
+  async convertColumnItemBlock(block: DocumentationPageBlockColumnItem): Promise<string | null> {
+    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+    let tabDefinition = this.newlineSeparator + childContent.join(this.newlineSeparator)
+    return tabDefinition
   }
 
   // -- Unsupported
@@ -450,7 +460,7 @@ export class MarkdownTransformBlock {
 
   // -- Conveniences
 
-  convertURLBlock(block: DocumentationPageBlockEmbedGeneric, userAction: string): string | null {
+  convertURLBlock(block: DocumentationPageBlockEmbedGeneric, userAction: string, showLink: boolean): string | null {
     // Will generate:
     // [Action prompt, ie. "Open Figma File"](url)
     // ^ caption_if_provided
