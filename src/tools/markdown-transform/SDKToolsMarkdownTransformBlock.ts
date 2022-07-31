@@ -9,7 +9,6 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationCalloutType, TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DocumentationPageBlockAsset } from '../../model/documentation/blocks/SDKDocumentationPageBlockAsset'
 import { DocumentationPageBlockAssets } from '../../model/documentation/blocks/SDKDocumentationPageBlockAssets'
@@ -44,11 +43,14 @@ import { DocumentationPageBlockToken } from '../../model/documentation/blocks/SD
 import { DocumentationPageBlockTokenGroup } from '../../model/documentation/blocks/SDKDocumentationPageBlockTokenGroup'
 import { DocumentationPageBlockTokenList } from '../../model/documentation/blocks/SDKDocumentationPageBlockTokenList'
 import { DocumentationPageUnorderedList } from '../../model/documentation/blocks/SDKDocumentationPageBlockUnorderedList'
+import { DocumentationPage } from '../../model/documentation/SDKDocumentationPage'
 import { DocumentationPageBlock } from '../../model/documentation/SDKDocumentationPageBlock'
 import { DocumentationRichText } from '../../model/documentation/SDKDocumentationRichText'
+import { DocumentationCalloutType } from '../../model/enums/SDKDocumentationCalloutType'
 import { DocumentationHeadingType } from '../../model/enums/SDKDocumentationHeadingType'
 import { DocumentationPageBlockType } from '../../model/enums/SDKDocumentationPageBlockType'
 import { RichTextSpanAttributeType } from '../../model/enums/SDKRichTextSpanAttributeType'
+import { TokenGroup } from '../../model/groups/SDKTokenGroup'
 import { MarkdownTransformType } from './SDKToolsMarkdownTransform'
 import { MarkdownTransformUtil } from './SDKToolsMarkdownTransformUtil'
 
@@ -80,7 +82,7 @@ export class MarkdownTransformBlock {
   // --- Conversion
 
   /** Converts a single block - depending on the type - to a markdown definition of specific type */
-  async convertBlockToMarkdown(block: DocumentationPageBlock): Promise<string | null> {
+  async convertBlockToMarkdown(block: DocumentationPageBlock, pageContext: DocumentationPage): Promise<string | null> {
     switch (block.type) {
       // Following blocks are automatically transformed
       case DocumentationPageBlockType.callout:
@@ -112,7 +114,7 @@ export class MarkdownTransformBlock {
       case DocumentationPageBlockType.renderCode:
         return this.convertLiveCodeBlock(block as DocumentationPageBlockRenderCode)
       case DocumentationPageBlockType.shortcuts:
-        return this.convertShortcutsBlock(block as DocumentationPageBlockShortcuts)
+        return this.convertShortcutsBlock(block as DocumentationPageBlockShortcuts, pageContext)
       case DocumentationPageBlockType.storybookEmbed:
         return this.convertStorybookEmbedBlock(block as DocumentationPageBlockEmbedStorybook)
       case DocumentationPageBlockType.text:
@@ -130,19 +132,19 @@ export class MarkdownTransformBlock {
 
       // Following blocks are special because their transformation is invoked manually (containers)
       case DocumentationPageBlockType.column:
-        return await this.convertColumnBlock(block as DocumentationPageBlockColumn)
+        return await this.convertColumnBlock(block as DocumentationPageBlockColumn, pageContext)
       case DocumentationPageBlockType.table:
-        return await this.convertTableBlock(block as DocumentationPageBlockTable)
+        return await this.convertTableBlock(block as DocumentationPageBlockTable, pageContext)
       case DocumentationPageBlockType.tabs:
-        return await this.convertTabsBlock(block as DocumentationPageBlockTab)
+        return await this.convertTabsBlock(block as DocumentationPageBlockTab, pageContext)
 
       // Following blocks are special because their transformation is invoked manually (contained items)
       case DocumentationPageBlockType.tabItem:
-        return await this.convertTabItemBlock(block as DocumentationPageBlockTabItem)
+        return await this.convertTabItemBlock(block as DocumentationPageBlockTabItem, pageContext)
       case DocumentationPageBlockType.columnItem:
-        return await this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem)
+        return await this.convertColumnItemBlock(block as DocumentationPageBlockColumnItem, pageContext)
       case DocumentationPageBlockType.tableCell:
-        return await this.convertTableCellBlock(block as DocumentationPageBlockTableCell)
+        return await this.convertTableCellBlock(block as DocumentationPageBlockTableCell, pageContext)
       case DocumentationPageBlockType.tableRow:
         return await this.convertTableRowBlock(block as DocumentationPageBlockTableRow)
     }
@@ -364,12 +366,20 @@ export class MarkdownTransformBlock {
     return this.newlineSeparator + convertedFrames.join(this.newlineSeparator) + this.newlineSeparator
   }
 
-  convertShortcutsBlock(block: DocumentationPageBlockShortcuts): string | null {
+  async convertShortcutsBlock(block: DocumentationPageBlockShortcuts, pageContext: DocumentationPage): Promise<string | null> {
 
-    let url = "https://xxx.com"
+    let url: string = "#"
     let convertedShortcut: Array<string> = []
+    let pages = await (await this.version.documentation()).pages()
     for (let shortcut of block.shortcuts) {
-      console.log(shortcut)
+      if (shortcut.externalUrl) {
+        url = shortcut.externalUrl
+      } else if (shortcut.internalId) {
+        let destinationPage = pages.filter(p => p.id === shortcut.internalId || p.persistentId === shortcut.internalId)[0]
+        if (destinationPage) {
+          url = this.relativePathToPage(destinationPage, pageContext)
+        }
+      }
       if (shortcut.previewUrl) {
         // Generate shortcut with image preview
         let previewUrl = shortcut.previewUrl
@@ -395,9 +405,25 @@ export class MarkdownTransformBlock {
     return this.newlineSeparator + convertedShortcut.join(this.newlineSeparator) + this.newlineSeparator
   }
 
+  private relativePathToPage(page: DocumentationPage, currentPage: DocumentationPage): string {
+
+    // Compute level of depth
+    let parent = currentPage.parent
+    let depth = 0
+    while (parent) {
+      depth++
+      parent = parent.parent
+    }
+
+    // Compute path
+    let prefix = depth === 1 ? "./" : "../".repeat(depth - 1)
+    let pageUrl = page.relativeDocsPageUrl()
+    return prefix + pageUrl
+  }
+
   // -- Containers: Table
 
-  async convertTableBlock(block: DocumentationPageBlockTable): Promise<string | null> {
+  async convertTableBlock(block: DocumentationPageBlockTable, pageContext: DocumentationPage): Promise<string | null> {
     // No empty tables
     if (block.children.length === 0) {
       return null
@@ -417,7 +443,7 @@ export class MarkdownTransformBlock {
     let tableRows: Array<string> = ['| ' + rowContent.join(' | ') + ' |', '| ' + separatorContent.join(' | ') + ' |']
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockTableRow) {
-        let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c)))
+        let childContent = await Promise.all(child.children.map(c => this.convertBlockToMarkdown(c, pageContext)))
         let rowDefinition = '| ' + childContent.join(' | ') + ' |'
         tableRows.push(rowDefinition)
       }
@@ -431,14 +457,14 @@ export class MarkdownTransformBlock {
     return null
   }
 
-  async convertTableCellBlock(block: DocumentationPageBlockTableCell): Promise<string | null> {
-    let cellContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+  async convertTableCellBlock(block: DocumentationPageBlockTableCell, pageContext: DocumentationPage): Promise<string | null> {
+    let cellContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c, pageContext)))
     return cellContent.join('<br>') // Multiline cell needs non-regular line breaks
   }
 
   // -- Containers: Tabs
 
-  async convertTabsBlock(block: DocumentationPageBlockTab): Promise<string | null> {
+  async convertTabsBlock(block: DocumentationPageBlockTab, pageContext: DocumentationPage): Promise<string | null> {
     // No empty tabs
     if (block.children.length === 0) {
       return null
@@ -447,7 +473,7 @@ export class MarkdownTransformBlock {
     let tabContent: Array<string> = []
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockTabItem) {
-        let result = await this.convertTabItemBlock(child)
+        let result = await this.convertTabItemBlock(child, pageContext)
         tabContent.push(result)
       }
     }
@@ -455,8 +481,8 @@ export class MarkdownTransformBlock {
     return tabContent.join(this.newlineSeparator) + this.newlineSeparator
   }
 
-  async convertTabItemBlock(block: DocumentationPageBlockTabItem): Promise<string | null> {
-    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+  async convertTabItemBlock(block: DocumentationPageBlockTabItem, pageContext: DocumentationPage): Promise<string | null> {
+    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c, pageContext)))
     let tabDefinition =
       this.newlineSeparator + `**${block.caption}**` + this.newlineSeparator + childContent.join(this.newlineSeparator)
     return tabDefinition
@@ -464,7 +490,7 @@ export class MarkdownTransformBlock {
 
   // -- Containers: Columns
 
-  async convertColumnBlock(block: DocumentationPageBlockColumn): Promise<string | null> {
+  async convertColumnBlock(block: DocumentationPageBlockColumn, pageContext: DocumentationPage): Promise<string | null> {
     // No empty columns
     if (block.children.length === 0) {
       return null
@@ -473,7 +499,7 @@ export class MarkdownTransformBlock {
     let columnContent: Array<string> = []
     for (let child of block.children) {
       if (child instanceof DocumentationPageBlockColumnItem) {
-        let result = await this.convertColumnItemBlock(child)
+        let result = await this.convertColumnItemBlock(child, pageContext)
         columnContent.push(result)
       }
     }
@@ -481,8 +507,8 @@ export class MarkdownTransformBlock {
     return columnContent.join(this.newlineSeparator) + this.newlineSeparator
   }
 
-  async convertColumnItemBlock(block: DocumentationPageBlockColumnItem): Promise<string | null> {
-    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c)))
+  async convertColumnItemBlock(block: DocumentationPageBlockColumnItem, pageContext: DocumentationPage): Promise<string | null> {
+    let childContent = await Promise.all(block.children.map(c => this.convertBlockToMarkdown(c, pageContext)))
     let tabDefinition = this.newlineSeparator + childContent.join(this.newlineSeparator)
     return tabDefinition
   }

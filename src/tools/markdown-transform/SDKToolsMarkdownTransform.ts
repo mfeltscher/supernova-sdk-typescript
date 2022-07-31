@@ -51,7 +51,7 @@ export class MarkdownTransform {
     const blocks = this.flattenedBlocksOfPage(page)
     let pageContent: Array<string> = []
     for (let block of blocks) {
-      let blockContent = await this.blockTransformer.convertBlockToMarkdown(block)
+      let blockContent = await this.blockTransformer.convertBlockToMarkdown(block, page)
       if (blockContent) {
         pageContent.push(blockContent)
       }
