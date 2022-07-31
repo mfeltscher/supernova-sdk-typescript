@@ -34,8 +34,6 @@ test('test_tooling_markdown_transform', async t => {
   let transformer = new MarkdownTransform(MarkdownTransformType.commonmark, version)
   let pageAsMarkdown = await transformer.convertPageToMarkdown(pages[0])
 
-  console.log(pageAsMarkdown)
-
   // Write markdown page so we can preview it as well
   let writePath = path.join(process.cwd(), '.markdown', 'page.md')
   fs.writeFileSync(writePath, pageAsMarkdown) 

@@ -29,7 +29,7 @@ export class DocumentationPageBlockShortcuts extends DocumentationPageBlock {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-    shortcuts: Array<DocumentationPageBlockShortcutModel>
+    shortcuts: Array<DocumentationPageBlockShortcut>
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor

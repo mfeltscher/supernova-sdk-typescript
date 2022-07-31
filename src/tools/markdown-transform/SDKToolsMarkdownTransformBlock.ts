@@ -369,13 +369,14 @@ export class MarkdownTransformBlock {
     let url = "https://xxx.com"
     let convertedShortcut: Array<string> = []
     for (let shortcut of block.shortcuts) {
-      if (shortcut.assetUrl) {
+      console.log(shortcut)
+      if (shortcut.previewUrl) {
         // Generate shortcut with image preview
-        let assetUrl = shortcut.assetUrl
+        let previewUrl = shortcut.previewUrl
         let title = shortcut.title ?? undefined
         let description = shortcut.description ?? undefined
         convertedShortcut.push(
-          `[![${title}][${assetUrl}]][${url}]` +
+          `[![${title}](${previewUrl})](${url})` +
             this.newlineSeparator +
             `${title ? title : ""}` +
             (description ? `, ${description}` + this.newlineSeparator : this.newlineSeparator)
