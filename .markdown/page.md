@@ -158,3 +158,29 @@ Price
 
   
 [Open Figma Prototype / File](https://www.figma.com/embed?embed_host=supernova&url=https://www.figma.com/file/uW0yJkw9BYkSRcAfen2Efm/Cloud%2520Components?node-id=97:31)  
+
+
+## Shortcuts
+
+  
+[Typography](https://xxx.com)  
+  
+[Design](https://xxx.com)  
+  
+[Design tokens](https://xxx.com)  
+  
+[Google](https://xxx.com), Celebrating Pétanque #GoogleDoodle  
+  
+
+
+## Frames
+
+  
+![Icon=False, State=Active](https://studio-assets-dev.supernova.io/design-systems/1956/37e5d221-7fec-4a3e-8d83-b92e5d9bd64c.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni8zN2U1ZDIyMS03ZmVjLTRhM2UtOGQ4My1iOTJlNWQ5YmQ2NGMucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=N04z8ChLbicHpsss7mTEDhLto367s6OvPS4MSgrvHl92cF99C8fDUUDrjjx4Zk9D74mb~UHdsb4-Rz0GDJROAk4WC9m9BZAU7hy-HaXpyxErq~yASBhHtvAh5qTYinXxVyMOYPHPjlWlb26fcDfLr7X9~C-rkJ6A7mX7wdMka9DnKbzxjzSWcFHw509iDzMN~URNmrVF~sj9FFEXMuMQGYAD30asW8LHfB-YNSmwWTSJvvFuz7SkBodvwL0d3L9SUbRoDxPEmcDnBaXNAxtA5QDFd3K-JYZNlYQY1uIAPBHU2bR~XLf-d31uW7RdE1wHIH5tOK8khNzluLI-oARRQA__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)  
+Icon=False, State=Active  
+![Icon=False, State=Hover](https://studio-assets-dev.supernova.io/design-systems/1956/d581ea26-aa2d-425e-8548-4257f7964211.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni9kNTgxZWEyNi1hYTJkLTQyNWUtODU0OC00MjU3Zjc5NjQyMTEucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=aHeMVk5sbHkeK1ac9tgqj~U2buuZ~-sjJ9lFsbGhxwYMpgg7TcIU4SIcDLX3UCEIOiQgakODAzU~VHHjD8xn1ieGe1mvH2FFp8rUdpOVwu24FK9bvzC1UsQYDlEXDFE1ZiV712NXQJEbvtZ3pq47CL48Tpn84~lEDDTGN~QzdAnw2vgNrtRIvYUogZxteX6mmUMjng1DAGOCTMSdL7vzPf~53Iq8W6bOjBRbGN9pHTAb69n-lIWf5Yz5h9P~Qn0HtJtOW-T3uTOWwKw6IRS40NAXO2l4nhbP6an1k1noTnq9qXcAYZdEMtzcrhluNIOjmXy6prDZGeaEbYotuglR3A__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)  
+Icon=False, State=Hover  
+![Icon=True, State=Active](https://studio-assets-dev.supernova.io/design-systems/1956/8e0404f3-5862-4702-a6ed-068937d6584c.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni84ZTA0MDRmMy01ODYyLTQ3MDItYTZlZC0wNjg5MzdkNjU4NGMucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=Bb4u26IO7-iKbJPWR5a0x2fydAiSGJ4Oo3JAQuQDdL5gKisCW~GxGpwar3cD4LwJYNwNfMXbTOmIXNSWet10q--W7oWvxgDSueMp3CYBXAbrb7kFAVHxukSl~VHDZDLMaf-JwZTVNVlTdbnjzLmttRyATPX8myJ12mFj044-YiVfud-t0HG4oVNJnmZVvhJl0Q6UlP~D5D-royAtjkeGGCOHTELsUgfw2w~mXUFPK47zZIoxN9wTV0perFpe1~J-cfSwsxLVhYijfto3pVpQUya47YsWmmr6ph4RiggiFTgJHiD89or0zC3hyYQN1y07C29uhHiCM~a1lvXNE-xR-g__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)  
+Icon=True, State=Active  
+![Icon=True, State=Active](https://studio-assets-dev.supernova.io/design-systems/1956/487a7dfe-3e99-468b-93a7-6732dfbf3a7d.png?Expires=1972252800&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9zdHVkaW8tYXNzZXRzLWRldi5zdXBlcm5vdmEuaW8vZGVzaWduLXN5c3RlbXMvMTk1Ni80ODdhN2RmZS0zZTk5LTQ2OGItOTNhNy02NzMyZGZiZjNhN2QucG5nIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxOTcyMjUyODAwfX19XX0_&Signature=TfJ39ODcDuKkOz7YzxeNj~y1ayb1BQRVqrHneDk8YISyikICf2TUYexNDEwrTQeUrgevLeXmX7hUpINkXwo4jHcPHj-aI-EYvq3K0GZwnZ~WmCOpX6ji~zp7HF9tJaNbb5VYgG8Iw~du~C0yK2W71gTKasF5H7LsiLt-QDwo8H4IhgrEGugtu~S-WgKIkZCXxfc3HMhJVynyLhlfw4~NpoOid~uGgineF4lCTEUFNgDWmiNZ0xk0VG~rayH9mEYC90R6mApnXuf1VEV2jBE6MFEhWtkDhonx8dmJ2WaovMCRnakAHJUbwixX9-06z5xHz4-HJkCByHf08RsW4JrqUg__&Key-Pair-Id=APKAJGK34LCCAUR7N6LA)  
+Icon=True, State=Active  

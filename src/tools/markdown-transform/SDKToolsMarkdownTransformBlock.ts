@@ -348,13 +348,50 @@ export class MarkdownTransformBlock {
   }
 
   convertFigmaFramesBlock(block: DocumentationPageBlockFrames): string | null {
-    // TODO: Block conversion
-    return null
+
+    let convertedFrames: Array<string> = []
+    for (let frame of block.frames) {
+      if (frame.previewUrl) {
+        convertedFrames.push(
+          `![${frame.title ?? "Image"}](${frame.previewUrl})` +
+            this.newlineSeparator +
+            `${frame.title ? frame.title : ""}` +
+            (frame.description ? `, ${frame.description}` + this.newlineSeparator : '')
+        )
+      }
+    }
+
+    return this.newlineSeparator + convertedFrames.join(this.newlineSeparator) + this.newlineSeparator
   }
 
   convertShortcutsBlock(block: DocumentationPageBlockShortcuts): string | null {
-    // TODO: Block conversion
-    return null
+
+    let url = "https://xxx.com"
+    let convertedShortcut: Array<string> = []
+    for (let shortcut of block.shortcuts) {
+      if (shortcut.assetUrl) {
+        // Generate shortcut with image preview
+        let assetUrl = shortcut.assetUrl
+        let title = shortcut.title ?? undefined
+        let description = shortcut.description ?? undefined
+        convertedShortcut.push(
+          `[![${title}][${assetUrl}]][${url}]` +
+            this.newlineSeparator +
+            `${title ? title : ""}` +
+            (description ? `, ${description}` + this.newlineSeparator : this.newlineSeparator)
+        )
+      } else {
+        // Generate shortcut without image preview
+        let title = shortcut.title ?? undefined
+        let description = shortcut.description ?? undefined
+        convertedShortcut.push(
+          `[${title}](${url})` +
+            (description ? `, ${description}` + this.newlineSeparator : this.newlineSeparator)
+        )
+      }
+    }
+
+    return this.newlineSeparator + convertedShortcut.join(this.newlineSeparator) + this.newlineSeparator
   }
 
   // -- Containers: Table
