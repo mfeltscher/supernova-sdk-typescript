@@ -2,7 +2,12 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
-## [1.7.24] - 2022-15-07
+## [1.7.25] - 2022-31-07
+### Markdown fix
+
+Hotfixed issue where markdown transformer would not properly generate .md page links, but instead would append html as with regular pages as it was the last thing not tranformed. Oh well!
+
+## [1.7.24] - 2022-31-07
 ### Markdown transformation tool (preview)
 
 Markdown transformer is now out of the preview. It allows transformation of all pieces of information from your documentation into commonmark markdown. To use markdown transformer, simply request transformation through the new utility object, `MarkdownTransform`, now available also through SDK external tooling.
