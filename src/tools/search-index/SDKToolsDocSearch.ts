@@ -72,7 +72,7 @@ export class DocSearch {
   // --- Search index
 
   /* Removes previous data from search index and creates new one */
-  updateSearchIndex = (pages: Array<DocumentationPage>): boolean => {
+  updateSearchIndex = (pages: Array<DocumentationPage>): Array<DocSearchResultData> => {
 
     let id: number = 0
     let data: Array<DocSearchResultData> = []
@@ -112,7 +112,7 @@ export class DocSearch {
     }
 
     this.searchEngine = this.reconstructSearchIndex(data, this.searchConfiguration)
-    return true
+    return data
   }
   
   /* Removes previous data from search index and creates new one */

@@ -22,7 +22,7 @@ export class Configuration {
 
   /** Retrieve API URL for default target */
   static apiUrlForDefaultEnvironment(): string {
-    return 'https://alpha1.api2.supernova.io/api'
+    return 'https://api.supernova.io'
   }
 
   /** Retrieve API version for the specific environment accesse */

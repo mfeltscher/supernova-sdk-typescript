@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.27] - 2022-10-08
+### Public API endpoint
+
+We are switching our test API to its final destination, in preparation for Supernova SDK launch. The SDK will now access all the data through `https://api.supernova.io/`.
+
 ## [1.7.25] - 2022-31-07
 ### Markdown fix
 
