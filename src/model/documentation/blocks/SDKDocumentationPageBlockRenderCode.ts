@@ -43,6 +43,12 @@ type DocumentationPageBlockRenderCodeSandboxData = {
     verticalAlignment: DocumentationPageBlockRenderCodeSandboxAlignment,  
     backgroundHex: string
   }
+  registry: {
+    enabledScopes: Array<string>
+    limitToScopes: boolean
+    registryUrl: string
+    proxyUrl: string
+  } | null
 }
 
 enum DocumentationPageBlockRenderCodeSandboxAlignment {
@@ -109,7 +115,8 @@ export class DocumentationPageBlockRenderCode extends DocumentationPageBlock {
         horizontalAlignment: localAlignment,
         verticalAlignment: DocumentationPageBlockRenderCodeSandboxAlignment.center,
         backgroundHex: this.backgroundColor ?? null
-      }
+      },
+      registry: configuration.npmRegistry ?? null
     }
 
     return this.btoaUnicode(JSON.stringify(definition))

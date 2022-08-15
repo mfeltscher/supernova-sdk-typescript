@@ -114,6 +114,7 @@ export { DesignComponentOrigin } from '../src/model/support/SDKDesignComponentOr
 export { Source } from '../src/model/support/SDKSource'
 export { Size } from '../src/model/support/SDKSize'
 export { TokenOrigin } from '../src/model/support/SDKTokenOrigin'
+export { WorkspaceNPMRegistry } from '../src/model/support/SDKWorkspaceNPMRegistry'
 
 // Tokens
 export { BlurToken } from '../src/model/tokens/SDKBlurToken'

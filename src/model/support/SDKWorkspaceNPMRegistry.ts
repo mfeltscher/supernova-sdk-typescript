@@ -1,12 +1,10 @@
 //
-//  SDKDocumentationConfiguration.ts
+//  SDKWorkspaceNPMRegistry.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
 //  Copyright © 2021 Supernova. All rights reserved.
 //
-
-import { WorkspaceNPMRegistry } from "../support/SDKWorkspaceNPMRegistry"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -14,32 +12,32 @@ import { WorkspaceNPMRegistry } from "../support/SDKWorkspaceNPMRegistry"
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface DocumentationConfigurationModel {
-  tabbed: boolean
-  storybookEmbedErrorMessage?: string
-  renderCodePackageJson?: string
+export interface WorkspaceNPMRegistryModel {
+  enabledScopes: Array<string>,
+  limitToScopes: boolean,
+  registryUrl: string,
+  proxyUrl: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class DocumentationConfiguration {
+export class WorkspaceNPMRegistry {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  tabbedNavigation: boolean
-  storybookError: string | null
-  packageJson: string | null
-  npmRegistry: WorkspaceNPMRegistry | null
-
+  enabledScopes: Array<string>
+  limitToScopes: boolean
+  registryUrl: string
+  proxyUrl: string
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationConfigurationModel, registry: WorkspaceNPMRegistry | null) {
-    this.tabbedNavigation = model.tabbed
-    this.storybookError = model.storybookEmbedErrorMessage ?? null
-    this.packageJson = model.renderCodePackageJson ?? null
-    this.npmRegistry = registry ?? null
+  constructor(model: WorkspaceNPMRegistryModel) {
+    this.enabledScopes = model.enabledScopes
+    this.limitToScopes = model.limitToScopes
+    this.registryUrl = model.registryUrl
+    this.proxyUrl = model.proxyUrl
   }
 }
