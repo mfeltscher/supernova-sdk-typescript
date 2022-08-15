@@ -2,6 +2,13 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.28] - 2022-1-08
+### Workspace NPM registry
+
+We have exposed new information to `DocumentationConfiguration` about new workspace settings object, `WorkspaceNPMRegistry`, in preparation for support for private repositories in code blocks. Workspace registry provides information about how to access the private repositories, however, it doesn't provide auth token to do so which is usually required to access the data. 
+
+The token information is currently exclusive to internal systems of Supernova for security reasons (securely stored and encrypted without outside access) and are only available to users through browser session through some secure dark magic - we'll make updates to what information is available publicly as we feel comfortable with the full system integration and security on release and if we see the need to expose such information through SDK (unlikely).
+
 ## [1.7.27] - 2022-10-08
 ### Public API endpoint
 

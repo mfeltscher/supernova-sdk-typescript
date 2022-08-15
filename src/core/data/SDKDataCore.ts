@@ -42,6 +42,7 @@ import { ComponentResolver } from "../resolvers/SDKComponentResolver"
 import { ComponentProperty, ComponentPropertyRemoteModel } from "../../model/components/SDKComponentProperty"
 import { ComponentPropertyValue, ComponentPropertyValueRemoteModel } from "../../model/components/values/SDKComponentPropertyValue"
 import { Workspace, WorkspaceRemoteModel } from "../SDKWorkspace"
+import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from "../../model/support/SDKWorkspaceNPMRegistry"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -458,10 +459,28 @@ export class DataCore {
       designSystemVersion.id,
       endpoint
     )).documentation as DocumentationModel
+    let registry = await this.getNPMRegistry(designSystem, designSystemVersion)
 
     // Extend with information coming from pulsar
-    let configuration = new Documentation(designSystemVersion, designSystem, remoteDocumentation)
+    let configuration = new Documentation(designSystemVersion, designSystem, remoteDocumentation, registry)
     return configuration
+  }
+
+  private async getNPMRegistry(designSystem: DesignSystem, designSystemVersion: DesignSystemVersion): Promise<WorkspaceNPMRegistry | null> {
+
+    // Download NPM registry from the API, if exists
+    const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
+    let registry = (await this.bridge.getDSMDataFromEndpoint(
+      designSystem.id, 
+      designSystemVersion.id,
+      endpoint
+    )).npmRegistrySettings as WorkspaceNPMRegistryModel
+
+    if (registry) {
+      return new WorkspaceNPMRegistry(registry)
+    } else {
+      return null
+    }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

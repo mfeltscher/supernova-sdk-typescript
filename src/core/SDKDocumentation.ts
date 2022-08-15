@@ -16,6 +16,7 @@ import { DocumentationPage } from "../model/documentation/SDKDocumentationPage"
 import { DocumentationItemType } from "../model/enums/SDKDocumentationItemType"
 import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { DesignSystem } from "./SDKDesignSystem"
+import { WorkspaceNPMRegistry } from "../model/support/SDKWorkspaceNPMRegistry"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -52,10 +53,10 @@ export class Documentation {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, designSystem: DesignSystem, model: DocumentationModel) {
+  constructor(version: DesignSystemVersion, designSystem: DesignSystem, model: DocumentationModel, registry: WorkspaceNPMRegistry | null) {
       this.version = version
       this.designSystem = designSystem
-      this.settings = new DocumentationConfiguration(model.settings)
+      this.settings = new DocumentationConfiguration(model.settings, registry)
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
