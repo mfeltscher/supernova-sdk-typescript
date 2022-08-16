@@ -470,9 +470,7 @@ export class DataCore {
 
     // Download NPM registry from the API, if exists
     const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
-    let registry = (await this.bridge.getDSMDataFromEndpoint(
-      designSystem.id, 
-      designSystemVersion.id,
+    let registry = (await this.bridge.getDSMGenericDataFromEndpoint(
       endpoint
     )).npmRegistrySettings as WorkspaceNPMRegistryModel
 
