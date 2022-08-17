@@ -9,41 +9,43 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Mutex } from "async-mutex"
-import { Asset } from "../../model/assets/SDKAsset"
-import { RenderedAsset, RenderedAssetModel } from "../../model/assets/SDKRenderedAsset"
-import { AssetFormat } from "../../model/enums/SDKAssetFormat"
-import { AssetScale } from "../../model/enums/SDKAssetScale"
-import { DesignComponent, DesignComponentRemoteModel } from "../../model/components/SDKDesignComponent"
-import { ExporterCustomBlock, ExporterCustomBlockModel } from "../../model/exporters/custom_blocks/SDKExporterCustomBlock"
-import { DocumentationConfiguration } from "../../model/documentation/SDKDocumentationConfiguration"
-import { DocumentationGroupModel } from "../../model/documentation/SDKDocumentationGroup"
-import { DocumentationItem } from "../../model/documentation/SDKDocumentationItem"
-import { DocumentationPageModel } from "../../model/documentation/SDKDocumentationPage"
-import { AssetGroup } from "../../model/groups/SDKAssetGroup"
-import { DesignComponentGroup, DesignComponentGroupRemoteModel } from "../../model/groups/SDKDesignComponentGroup"
-import { TokenGroup, TokenGroupRemoteModel } from "../../model/groups/SDKTokenGroup"
-import { TokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
-import { Token } from "../../model/tokens/SDKToken"
-import { AssetGroupResolver } from "../resolvers/SDKAssetGroupResolver"
-import { DesignComponentGroupResolver } from "../resolvers/SDKDesignComponentGroupResolver"
-import { DocumentationItemResolver } from "../resolvers/SDKDocumentationItemResolver"
-import { TokenGroupResolver } from "../resolvers/SDKTokenGroupResolver"
-import { TokenResolver } from "../resolvers/SDKTokenResolver"
-import { DesignSystemVersion } from "../SDKDesignSystemVersion"
-import { Documentation, DocumentationModel } from "../SDKDocumentation"
-import { DataBridge } from "./SDKDataBridge"
-import { ExporterConfigurationProperty, ExporterConfigurationPropertyModel } from "../../model/exporters/custom_properties/SDKExporterConfigurationProperty"
-import { Exporter, ExporterModel } from "../../model/exporters/SDKExporter"
-import { DesignSystem } from "../SDKDesignSystem"
-import { ExporterCustomBlockVariant } from "../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant"
-import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
-import { ComponentResolver } from "../resolvers/SDKComponentResolver"
-import { ComponentProperty, ComponentPropertyRemoteModel } from "../../model/components/SDKComponentProperty"
-import { ComponentPropertyValue, ComponentPropertyValueRemoteModel } from "../../model/components/values/SDKComponentPropertyValue"
-import { Workspace, WorkspaceRemoteModel } from "../SDKWorkspace"
-import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from "../../model/support/SDKWorkspaceNPMRegistry"
-
+import { Mutex } from 'async-mutex'
+import { Asset } from '../../model/assets/SDKAsset'
+import { RenderedAsset, RenderedAssetModel } from '../../model/assets/SDKRenderedAsset'
+import { AssetFormat } from '../../model/enums/SDKAssetFormat'
+import { AssetScale } from '../../model/enums/SDKAssetScale'
+import { DesignComponent, DesignComponentRemoteModel } from '../../model/components/SDKDesignComponent'
+import {
+  ExporterCustomBlock,
+  ExporterCustomBlockModel
+} from '../../model/exporters/custom_blocks/SDKExporterCustomBlock'
+import { DocumentationConfiguration } from '../../model/documentation/SDKDocumentationConfiguration'
+import { DocumentationGroupModel } from '../../model/documentation/SDKDocumentationGroup'
+import { DocumentationItem } from '../../model/documentation/SDKDocumentationItem'
+import { DocumentationPageModel } from '../../model/documentation/SDKDocumentationPage'
+import { AssetGroup } from '../../model/groups/SDKAssetGroup'
+import { DesignComponentGroup, DesignComponentGroupRemoteModel } from '../../model/groups/SDKDesignComponentGroup'
+import { TokenGroup, TokenGroupRemoteModel } from '../../model/groups/SDKTokenGroup'
+import { TokenRemoteModel } from '../../model/tokens/remote/SDKRemoteTokenModel'
+import { Token } from '../../model/tokens/SDKToken'
+import { AssetGroupResolver } from '../resolvers/SDKAssetGroupResolver'
+import { DesignComponentGroupResolver } from '../resolvers/SDKDesignComponentGroupResolver'
+import { DocumentationItemResolver } from '../resolvers/SDKDocumentationItemResolver'
+import { TokenGroupResolver } from '../resolvers/SDKTokenGroupResolver'
+import { TokenResolver } from '../resolvers/SDKTokenResolver'
+import { DesignSystemVersion } from '../SDKDesignSystemVersion'
+import { Documentation, DocumentationModel } from '../SDKDocumentation'
+import { DataBridge } from './SDKDataBridge'
+import { ExporterConfigurationProperty } from '../../model/exporters/custom_properties/SDKExporterConfigurationProperty'
+import { Exporter, ExporterModel } from '../../model/exporters/SDKExporter'
+import { DesignSystem } from '../SDKDesignSystem'
+import { ExporterCustomBlockVariant } from '../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant'
+import { Component, ComponentRemoteModel } from '../../model/components/SDKComponent'
+import { ComponentResolver } from '../resolvers/SDKComponentResolver'
+import { ComponentPropertyRemoteModel } from '../../model/components/SDKComponentProperty'
+import { ComponentPropertyValueRemoteModel } from '../../model/components/values/SDKComponentPropertyValue'
+import { Workspace, WorkspaceRemoteModel } from '../SDKWorkspace'
+import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from '../../model/support/SDKWorkspaceNPMRegistry'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
@@ -52,7 +54,7 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Configuration
 
-  // Synchronization 
+  // Synchronization
   private tokensSynced: boolean
   private tokenGroupsSynced: boolean
   private componentsSynced: boolean
@@ -85,7 +87,6 @@ export class DataCore {
   private exporterCustomBlocks: Array<ExporterCustomBlock>
 
   private bridge: DataBridge
-
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -125,13 +126,10 @@ export class DataCore {
 
   /** Get workspace handle from server */
   private async currentWorkspaceHandle(workspaceId: string): Promise<string> {
-      
     // Download workspace details
     // Get remote data
     const endpoint = `workspaces/${workspaceId}`
-    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(
-      endpoint
-    )).workspace as WorkspaceRemoteModel
+    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).workspace as WorkspaceRemoteModel
 
     // Extend with information coming from pulsar
     return remoteWorkspace.profile.handle
@@ -139,12 +137,9 @@ export class DataCore {
 
   /** Get deisgn system documentation url from server */
   private async currentDeployedDocumentationUrl(workspaceId: string, versionId: string): Promise<string | undefined> {
-      
     // Download detail of the last build that successfully deployed docs
     const endpoint = `codegen/workspaces/${workspaceId}/jobs?designSystemVersionId=${versionId}&destinations[]=documentation&offset=0&limit=1`
-    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(
-      endpoint
-    )).jobs as any
+    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
     if (remoteJob[0]) {
       // Note: So far, there is no build functionality in SDK, so we are not doing this properly. This will change going forward as we introduce build CLI/SDK
       return remoteJob[0]?.result?.documentation?.url ?? undefined
@@ -156,7 +151,10 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public Accessors - Tokens
 
-  async currentDesignSystemTokens(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Token>> {
+  async currentDesignSystemTokens(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<Token>> {
     // Thread-lock the call
     const release = await this.tokenMutex.acquire()
 
@@ -172,7 +170,10 @@ export class DataCore {
     return this.tokens
   }
 
-  async currentDesignSystemTokenGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenGroup>> {
+  async currentDesignSystemTokenGroups(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenGroup>> {
     // Thread-lock the call
     const release = await this.tokenGroupMutex.acquire()
 
@@ -191,7 +192,10 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public Accessors - Assets
 
-  async currentDesignSystemAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Asset>> {
+  async currentDesignSystemAssets(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<Asset>> {
     // Thread-lock the call
     const release = await this.designComponentAssetMutex.acquire()
 
@@ -207,7 +211,10 @@ export class DataCore {
     return this.assets
   }
 
-  async currentDesignSystemAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<AssetGroup>> {
+  async currentDesignSystemAssetGroups(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<AssetGroup>> {
     // Thread-lock the call
     const release = await this.designComponentAssetGroupMutex.acquire()
 
@@ -226,28 +233,32 @@ export class DataCore {
     return this.assetGroups
   }
 
-
-  async renderAssetsForConfiguration(designSystemId: string, designSystemVersion: DesignSystemVersion, assets: Array<Asset>, groups: Array<AssetGroup>, format: AssetFormat, scale: AssetScale): Promise<Array<RenderedAsset>> {
-    
+  async renderAssetsForConfiguration(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    assets: Array<Asset>,
+    groups: Array<AssetGroup>,
+    format: AssetFormat,
+    scale: AssetScale
+  ): Promise<Array<RenderedAsset>> {
     // Configure payload
     let configuration = {
-        "settings": [{
-            prefix: "",
-            suffix: "",
-            scale: scale,
-            format: format
-        }],
-        "persistentIds": assets.map(a => a.id)
+      settings: [
+        {
+          prefix: '',
+          suffix: '',
+          scale: scale,
+          format: format
+        }
+      ],
+      persistentIds: assets.map(a => a.id)
     }
 
     // Render items
     const endpoint = `components/assets/download-list`
-    let items = (await this.bridge.postDSMDataToEndpoint(
-      designSystemId, 
-      designSystemVersion.id,
-      endpoint,
-      configuration
-    )).items as Array<RenderedAssetModel>
+    let items = (
+      await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, configuration)
+    ).items as Array<RenderedAssetModel>
 
     if (items.length !== assets.length) {
       throw new Error("Number of rendered assets doesn't align with number of requested assets")
@@ -255,7 +266,7 @@ export class DataCore {
 
     let counter = 0
     let resultingAssets: Array<RenderedAsset> = []
-    
+
     // For duplicates
     let names = new Map<string, number>()
     for (let item of items) {
@@ -291,11 +302,13 @@ export class DataCore {
     return resultingAssets
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public Accessors - Components
 
-  async currentDesignSystemComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+  async currentDesignSystemComponents(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<Component>> {
     // Thread-lock the call
     const release = await this.componentMutex.acquire()
 
@@ -311,11 +324,13 @@ export class DataCore {
     return this.components
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public Accessors - Design Components
 
-  async currentDesignSystemDesignComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponent>> {
+  async currentDesignSystemDesignComponents(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<DesignComponent>> {
     // Thread-lock the call
     const release = await this.designComponentAssetMutex.acquire()
 
@@ -331,7 +346,10 @@ export class DataCore {
     return this.designComponents
   }
 
-  async currentDesignSystemDesignComponentGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentGroup>> {
+  async currentDesignSystemDesignComponentGroups(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<DesignComponentGroup>> {
     // Thread-lock the call
     const release = await this.designComponentAssetGroupMutex.acquire()
 
@@ -350,11 +368,13 @@ export class DataCore {
     return this.designComponentGroups
   }
 
-  
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public Accessors - Documentation
 
-  async currentDesignSystemDocumentationItems(designSystem: DesignSystem, designSystemVersion: DesignSystemVersion): Promise<Array<DocumentationItem>> {
+  async currentDesignSystemDocumentationItems(
+    designSystem: DesignSystem,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<DocumentationItem>> {
     // Thread-lock the call
     const release = await this.documentationItemMutex.acquire()
 
@@ -374,7 +394,10 @@ export class DataCore {
     return this.documentationItems
   }
 
-  async currentDesignSystemDocumentation(designSystem: DesignSystem, designSystemVersion: DesignSystemVersion): Promise<Documentation> {
+  async currentDesignSystemDocumentation(
+    designSystem: DesignSystem,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Documentation> {
     // Thread-lock the call
     const release = await this.configurationMutex.acquire()
 
@@ -390,8 +413,10 @@ export class DataCore {
     return this.documentation
   }
 
-  async currentExporterCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlock>> {
- 
+  async currentExporterCustomBlocks(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ExporterCustomBlock>> {
     // Thread-lock the call
     const release = await this.exporterCustomBlocksMutex.acquire()
 
@@ -407,13 +432,20 @@ export class DataCore {
     return this.exporterCustomBlocks
   }
 
-  async currentExporterConfigurationProperties(workspaceId: string, designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterConfigurationProperty>> {
- 
+  async currentExporterConfigurationProperties(
+    workspaceId: string,
+    designSystemId: string,
+    exporterId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ExporterConfigurationProperty>> {
     // TODO: This call is currently not cached as we need multi-cache because of exporterId. Easy to implement, but will have to wait for later as ideally we create more sophisticated caching system
     let exporter = await this.getExporter(workspaceId, exporterId, designSystemVersion)
-    let propertyValues = await this.getExporterConfigurationPropertyUserValues(designSystemId, exporterId, designSystemVersion)
+    let propertyValues = await this.getExporterConfigurationPropertyUserValues(
+      designSystemId,
+      exporterId,
+      designSystemVersion
+    )
 
-    
     // Update properties with the downloaded data
     for (let property of exporter.contributes.configuration) {
       for (let settings of propertyValues) {
@@ -427,15 +459,18 @@ export class DataCore {
     return exporter.contributes.configuration
   }
 
-  async currentExporterBlockVariants(workspaceId: string, designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlockVariant>> {
- 
+  async currentExporterBlockVariants(
+    workspaceId: string,
+    designSystemId: string,
+    exporterId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ExporterCustomBlockVariant>> {
     // TODO: This call is currently not cached as we need multi-cache because of exporterId. Easy to implement, but will have to wait for later as ideally we create more sophisticated caching system
     let exporter = await this.getExporter(workspaceId, exporterId, designSystemVersion)
     let variants = exporter.contributes.blockVariants
 
     return variants
   }
-
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Documentation
@@ -449,16 +484,16 @@ export class DataCore {
     }
   }
 
-  private async getDocumentation(designSystem: DesignSystem, designSystemVersion: DesignSystemVersion): Promise<Documentation> {
-
+  private async getDocumentation(
+    designSystem: DesignSystem,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Documentation> {
     // Download design system documentation from the API
     // Get remote data
     const endpoint = `documentation`
-    let remoteDocumentation = (await this.bridge.getDSMDataFromEndpoint(
-      designSystem.id, 
-      designSystemVersion.id,
-      endpoint
-    )).documentation as DocumentationModel
+    let remoteDocumentation = (
+      await this.bridge.getDSMDataFromEndpoint(designSystem.id, designSystemVersion.id, endpoint)
+    ).documentation as DocumentationModel
     let registry = await this.getNPMRegistry(designSystem, designSystemVersion)
 
     // Extend with information coming from pulsar
@@ -466,17 +501,22 @@ export class DataCore {
     return configuration
   }
 
-  private async getNPMRegistry(designSystem: DesignSystem, designSystemVersion: DesignSystemVersion): Promise<WorkspaceNPMRegistry | null> {
+  private async getNPMRegistry(
+    designSystem: DesignSystem,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<WorkspaceNPMRegistry | null> {
+    try {
+      // Download NPM registry from the API, if exists
+      const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
+      let registry = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint))
+        .npmRegistrySettings as WorkspaceNPMRegistryModel
 
-    // Download NPM registry from the API, if exists
-    const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
-    let registry = (await this.bridge.getDSMGenericDataFromEndpoint(
-      endpoint
-    )).npmRegistrySettings as WorkspaceNPMRegistryModel
-
-    if (registry) {
-      return new WorkspaceNPMRegistry(registry)
-    } else {
+      if (registry) {
+        return new WorkspaceNPMRegistry(registry)
+      } else {
+        return null
+      }
+    } catch (error) {
       return null
     }
   }
@@ -493,17 +533,25 @@ export class DataCore {
     }
   }
 
-  private async getExporterCustomBlocks(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlock>> {
+  private async getExporterCustomBlocks(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ExporterCustomBlock>> {
     // Download the raw token data and resolve them
     let rawBlocks = await this.getExporterCustomBlockData(designSystemId, designSystemVersion)
     let resolvedBlocks = await this.resolveExporterCustomBlockData(rawBlocks)
     return resolvedBlocks
   }
 
-  private async getExporterCustomBlockData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ExporterCustomBlockModel>> {
+  private async getExporterCustomBlockData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ExporterCustomBlockModel>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = 'documentation/custom-blocks'
-    let result: Array<ExporterCustomBlockModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).customBlocks
+    let result: Array<ExporterCustomBlockModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).customBlocks
     return result
   }
 
@@ -516,24 +564,40 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Exporter custom properties / values
 
-  private async getExporterConfigurationPropertyUserValues(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<{key: string, value: any}>> {
+  private async getExporterConfigurationPropertyUserValues(
+    designSystemId: string,
+    exporterId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<{ key: string; value: any }>> {
     // Download the raw token data and resolve them
-    let userValues = await this.getExporterConfigurationPropertiesUserValuesData(designSystemId, exporterId, designSystemVersion)
+    let userValues = await this.getExporterConfigurationPropertiesUserValuesData(
+      designSystemId,
+      exporterId,
+      designSystemVersion
+    )
     // let resolvedProperties = await this.resolveExporterConfigurationPropertiesUserValuesData(rawProperties) // no resolution needed
     return userValues
   }
 
-  private async getExporterConfigurationPropertiesUserValuesData(designSystemId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Array<{key: string, value: any}>> {
+  private async getExporterConfigurationPropertiesUserValuesData(
+    designSystemId: string,
+    exporterId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<{ key: string; value: any }>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = `design-systems/${designSystemId}/exporter-properties/${exporterId}`
-    let result: Array<{key: string, value: any}> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).items
+    let result: Array<{ key: string; value: any }> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).items
     return result
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Exporter
 
-  private async getExporter(workspaceId: string, exporterId: string, designSystemVersion: DesignSystemVersion): Promise<Exporter> {
+  private async getExporter(
+    workspaceId: string,
+    exporterId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Exporter> {
     // Download the raw token data and resolve them
     let rawExporter = await this.getExporterData(workspaceId, exporterId)
     let resolvedExporter = await this.resolveExporterData(rawExporter)
@@ -547,12 +611,9 @@ export class DataCore {
     return result
   }
 
-  private async resolveExporterData(
-    data: ExporterModel,
-  ): Promise<Exporter> {
+  private async resolveExporterData(data: ExporterModel): Promise<Exporter> {
     return new Exporter(data)
   }
-
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---e
   // MARK: - Tokens
@@ -576,10 +637,15 @@ export class DataCore {
     return resolvedTokens
   }
 
-  private async getRawTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenRemoteModel>> {
+  private async getRawTokenData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenRemoteModel>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = 'tokens'
-    let result: Array<TokenRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).tokens
+    let result: Array<TokenRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).tokens
     return result
   }
 
@@ -605,17 +671,25 @@ export class DataCore {
     }
   }
 
-  private async getTokenGroups(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenGroup>> {
+  private async getTokenGroups(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenGroup>> {
     // Download the raw token data and resolve them
     let rawData = await this.getRawTokenGroupData(designSystemId, designSystemVersion)
     let resolvedGroups = await this.resolveTokenGroupData(rawData)
     return resolvedGroups
   }
 
-  private async getRawTokenGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenGroupRemoteModel>> {
+  private async getRawTokenGroupData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenGroupRemoteModel>> {
     // Download token group data from the design system endpoint
     const endpoint = 'token-groups'
-    let result: Array<TokenGroupRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).groups
+    let result: Array<TokenGroupRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).groups
     return result
   }
 
@@ -638,42 +712,69 @@ export class DataCore {
     }
   }
 
-  private async getComponents(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+  private async getComponents(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<Component>> {
     // Download the raw component data, including their properties, and resolve them
     let rawComponents = await this.getRawComponentData(designSystemId, designSystemVersion)
     let rawProperties = await this.getRawComponentPropertyData(designSystemId, designSystemVersion)
     let rawValues = await this.getRawComponentPropertyValuesData(designSystemId, designSystemVersion)
-    let resolvedComponents = await this.resolveComponentData(rawComponents, rawProperties, rawValues, designSystemVersion)
+    let resolvedComponents = await this.resolveComponentData(
+      rawComponents,
+      rawProperties,
+      rawValues,
+      designSystemVersion
+    )
     return resolvedComponents
   }
 
-  private async getRawComponentData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentRemoteModel>> {
+  private async getRawComponentData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ComponentRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'design-system-components'
-    let result: Array<ComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).designSystemComponents
+    let result: Array<ComponentRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).designSystemComponents
     return result
   }
 
-  private async getRawComponentPropertyData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentPropertyRemoteModel>> {
+  private async getRawComponentPropertyData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ComponentPropertyRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/definitions'
-    let result: Array<ComponentPropertyRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).definitions
+    let result: Array<ComponentPropertyRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).definitions
     return result
   }
 
-  private async getRawComponentPropertyValuesData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<ComponentPropertyValueRemoteModel>> {
+  private async getRawComponentPropertyValuesData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<ComponentPropertyValueRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/values'
-    let result: Array<ComponentPropertyValueRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).values
+    let result: Array<ComponentPropertyValueRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).values
     return result
   }
 
-  private async resolveComponentData(components: Array<ComponentRemoteModel>, properties: Array<ComponentPropertyRemoteModel>, values: Array<ComponentPropertyValueRemoteModel>, designSystemVersion: DesignSystemVersion): Promise<Array<Component>> {
+  private async resolveComponentData(
+    components: Array<ComponentRemoteModel>,
+    properties: Array<ComponentPropertyRemoteModel>,
+    values: Array<ComponentPropertyValueRemoteModel>,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<Component>> {
     let resolver = new ComponentResolver()
     let result = await resolver.resolveComponentData(components, properties, values)
     return result
   }
-
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Assets & Design Components
@@ -689,9 +790,12 @@ export class DataCore {
     }
   }
 
-  private async getDesignComponentsAndAssets(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<{ 
-    designComponents: Array<DesignComponent>, 
-    assets: Array<Asset> 
+  private async getDesignComponentsAndAssets(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<{
+    designComponents: Array<DesignComponent>
+    assets: Array<Asset>
   }> {
     // Download the raw token data and resolve them
     let rawData = await this.getRawDesignComponentAndAssetData(designSystemId, designSystemVersion)
@@ -699,19 +803,24 @@ export class DataCore {
     return resolvedDesignComponentsAndAssets
   }
 
-  private async getRawDesignComponentAndAssetData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentRemoteModel>> {
+  private async getRawDesignComponentAndAssetData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<DesignComponentRemoteModel>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = 'components'
-    let result: Array<DesignComponentRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).components
+    let result: Array<DesignComponentRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).components
     return result
   }
 
   private async resolveDesignComponentAndAssetData(
     data: Array<DesignComponentRemoteModel>,
     version: DesignSystemVersion
-  ): Promise<{ 
-    designComponents: Array<DesignComponent>, 
-    assets: Array<Asset> 
+  ): Promise<{
+    designComponents: Array<DesignComponent>
+    assets: Array<Asset>
   }> {
     // For now, transform all designComponents into designComponents
     let designComponents: Array<DesignComponent> = []
@@ -752,7 +861,12 @@ export class DataCore {
   /** Prepare design system data for use for the entire design system, downloading and resolving all groups */
   async updateDesignComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
     // Download core design system token data
-    let result = await this.getDesignComponentAndAssetGroups(designSystemId, designSystemVersion, this.designComponents, this.assets)
+    let result = await this.getDesignComponentAndAssetGroups(
+      designSystemId,
+      designSystemVersion,
+      this.designComponents,
+      this.assets
+    )
     this.designComponentGroups = result.designComponentGroups
     this.assetGroups = result.assetGroups
     if (this.bridge.cache) {
@@ -760,8 +874,13 @@ export class DataCore {
     }
   }
 
-  private async getDesignComponentAndAssetGroups(designSystemId: string, designSystemVersion: DesignSystemVersion, designComponents: Array<DesignComponent>, assets: Array<Asset>): Promise<{
-    designComponentGroups: Array<DesignComponentGroup>,
+  private async getDesignComponentAndAssetGroups(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    designComponents: Array<DesignComponent>,
+    assets: Array<Asset>
+  ): Promise<{
+    designComponentGroups: Array<DesignComponentGroup>
     assetGroups: Array<AssetGroup>
   }> {
     // Download the raw token data and resolve them
@@ -774,20 +893,31 @@ export class DataCore {
     }
   }
 
-  private async getRawDesignComponentAndAssetGroupData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<DesignComponentGroupRemoteModel>> {
+  private async getRawDesignComponentAndAssetGroupData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<DesignComponentGroupRemoteModel>> {
     // Download token group data from the design system endpoint
     const endpoint = 'component-groups'
-    let result: Array<DesignComponentGroupRemoteModel> = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)).groups
+    let result: Array<DesignComponentGroupRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).groups
     return result
   }
 
-  private async resolveDesignComponentGroupData(data: Array<DesignComponentGroupRemoteModel>, designComponents: Array<DesignComponent>): Promise<Array<DesignComponentGroup>> {
+  private async resolveDesignComponentGroupData(
+    data: Array<DesignComponentGroupRemoteModel>,
+    designComponents: Array<DesignComponent>
+  ): Promise<Array<DesignComponentGroup>> {
     let resolver = new DesignComponentGroupResolver(designComponents)
     let result = await resolver.resolveGroupData(data)
     return result
   }
 
-  private async resolveAssetGroupData(data: Array<DesignComponentGroupRemoteModel>, assets: Array<Asset>): Promise<Array<AssetGroup>> {
+  private async resolveAssetGroupData(
+    data: Array<DesignComponentGroupRemoteModel>,
+    assets: Array<Asset>
+  ): Promise<Array<AssetGroup>> {
     let resolver = new AssetGroupResolver(assets)
     let result = await resolver.resolveGroupData(data)
     return result
@@ -796,24 +926,53 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Documentation Items
 
-  async updateDocumentationItemData(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
+  async updateDocumentationItemData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    blocks: Array<ExporterCustomBlock>,
+    configuration: DocumentationConfiguration
+  ) {
     // Download core design documentation item data
-    this.documentationItems = await this.getDocumentationItems(designSystemId, designSystemVersion, blocks, configuration)
+    this.documentationItems = await this.getDocumentationItems(
+      designSystemId,
+      designSystemVersion,
+      blocks,
+      configuration
+    )
     if (this.bridge.cache) {
       this.documentationItemsSynced = true
     }
   }
 
-  private async getDocumentationItems(designSystemId: string, designSystemVersion: DesignSystemVersion, blocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration): Promise<Array<DocumentationItem>> {
+  private async getDocumentationItems(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    blocks: Array<ExporterCustomBlock>,
+    configuration: DocumentationConfiguration
+  ): Promise<Array<DocumentationItem>> {
     // Download the raw documentation data and resolve them
     let rawData = await this.getRawDocumentationItemData(designSystemId, designSystemVersion)
     let workspaceHandle = await this.currentWorkspaceHandle(designSystemVersion.designSystem.workspaceId)
-    const deployedVersionUrl = await this.currentDeployedDocumentationUrl(designSystemVersion.designSystem.workspaceId, designSystemVersion.id)
-    let resolvedItems = await this.resolveDocumentationItemData(rawData.pageDetails, rawData.groupDetails, blocks, configuration, designSystemVersion, workspaceHandle, deployedVersionUrl)
+    const deployedVersionUrl = await this.currentDeployedDocumentationUrl(
+      designSystemVersion.designSystem.workspaceId,
+      designSystemVersion.id
+    )
+    let resolvedItems = await this.resolveDocumentationItemData(
+      rawData.pageDetails,
+      rawData.groupDetails,
+      blocks,
+      configuration,
+      designSystemVersion,
+      workspaceHandle,
+      deployedVersionUrl
+    )
     return resolvedItems
   }
 
-  private async getRawDocumentationItemData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<{
+  private async getRawDocumentationItemData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<{
     pageDetails: Array<DocumentationPageModel>
     groupDetails: Array<DocumentationGroupModel>
   }> {
@@ -837,7 +996,7 @@ export class DataCore {
     configuration: DocumentationConfiguration,
     version: DesignSystemVersion,
     workspaceHandle: string,
-    docsUrl: string | undefined,
+    docsUrl: string | undefined
   ): Promise<Array<DocumentationItem>> {
     let resolver = new DocumentationItemResolver(blocks, configuration, version, workspaceHandle, docsUrl)
     let result = await resolver.resolveItemData(pageDetails, groupDetails)
@@ -847,8 +1006,13 @@ export class DataCore {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Writing
 
-  async writeTokenData(designSystemId: string, designSystemVersion: DesignSystemVersion, tokens: Array<TokenRemoteModel>, groups: Array<TokenGroupRemoteModel>, deleteTokens: Array<Token>): Promise<{ tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> }> {
-
+  async writeTokenData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    tokens: Array<TokenRemoteModel>,
+    groups: Array<TokenGroupRemoteModel>,
+    deleteTokens: Array<Token>
+  ): Promise<{ tokens: Array<TokenRemoteModel>; tokenGroups: Array<TokenGroup> }> {
     const endpoint = 'bff/import'
     const payload = {
       tokens: tokens,
@@ -858,7 +1022,10 @@ export class DataCore {
       }
     }
 
-    let result: { tokens: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup> } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
+    let result: {
+      tokens: Array<TokenRemoteModel>
+      tokenGroups: Array<TokenGroup>
+    } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
     return result
   }
 }

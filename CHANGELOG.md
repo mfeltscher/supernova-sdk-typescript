@@ -2,7 +2,12 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
-## [1.7.28] - 2022-1-08
+## [1.7.31] - 2022-17-08
+### Inbuilt NPM registry in code blocks
+
+We have made the call to retrieve NPM packages core part of code blocks, so now code blocks will be autoconfigured with this when NPM registry is available.
+
+## [1.7.28] - 2022-15-08
 ### Workspace NPM registry
 
 We have exposed new information to `DocumentationConfiguration` about new workspace settings object, `WorkspaceNPMRegistry`, in preparation for support for private repositories in code blocks. Workspace registry provides information about how to access the private repositories, however, it doesn't provide auth token to do so which is usually required to access the data. 
