@@ -26,6 +26,8 @@ export interface DocumentationItemModel {
   slug: string
   userSlug?: string
   configuration: DocumentationItemConfigurationModel
+  createdAt?: string
+  updatedAt?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -43,6 +45,9 @@ export class DocumentationItem {
 
   slug: string
   userSlug: string | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -56,5 +61,8 @@ export class DocumentationItem {
     this.slug = model.slug
     this.userSlug = model.userSlug ?? null
     this.title = model.title
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 }

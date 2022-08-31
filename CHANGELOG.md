@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.7.32] - 2022-31-08
+### Timestamps for all objects
+
+We have added `createdAt` and `updatedAt` for all objects. This is not retroactive, so only objects created since September will have that information associated.
+
 ## [1.7.31] - 2022-17-08
 ### Inbuilt NPM registry in code blocks
 

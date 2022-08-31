@@ -34,6 +34,8 @@ export interface DesignComponentRemoteModel {
     // Not used RN, so not properly defined - will be defined properly when we extend  model with components as well
     properties: Array<any> 
     rootNode?: any
+    createdAt?: string
+    updatedAt?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -51,6 +53,8 @@ export class DesignComponent {
   description: string
 
   origin: DesignComponentOrigin | null
+  createdAt: Date | null
+  updatedAt: Date | null
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -65,5 +69,8 @@ export class DesignComponent {
     this.description = model.meta.description
     
     this.origin = new DesignComponentOrigin(model.originComponent, sources)
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 }

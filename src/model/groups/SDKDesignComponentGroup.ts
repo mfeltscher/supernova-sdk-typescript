@@ -24,6 +24,8 @@ export interface DesignComponentGroupRemoteModel {
     description: string
   }
   childrenIds: string[]
+  createdAt?: string
+  updatedAt?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -44,6 +46,9 @@ export class DesignComponentGroup {
   childrenIds: Array<string>
   componentIds: Array<string>
   parent: DesignComponentGroup | null
+  
+  createdAt: Date | null
+  updatedAt: Date | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -60,6 +65,9 @@ export class DesignComponentGroup {
     this.componentIds = new Array<string>()
     this.subgroups = new Array<DesignComponentGroup>()
     this.parent = null
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

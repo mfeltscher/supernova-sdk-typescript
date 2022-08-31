@@ -27,6 +27,8 @@ export interface TokenGroupRemoteModel {
     description: string
   }
   childrenIds: string[]
+  createdAt?: string
+  updatedAt?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -50,6 +52,9 @@ export class TokenGroup {
   tokenIds: Array<string>
   parent: TokenGroup | null
   sortOrder: number
+  
+  createdAt: Date | null
+  updatedAt: Date | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -72,6 +77,9 @@ export class TokenGroup {
 
     // Set unordered when constructing
     this.sortOrder = -1
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

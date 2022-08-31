@@ -29,6 +29,9 @@ export class Asset {
 
   componentId: string | null
   previouslyDuplicatedNames: number
+  
+  createdAt: Date | null
+  updatedAt: Date | null
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -45,5 +48,8 @@ export class Asset {
     this.description = model.meta.description
     
     this.componentId = model.id
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 }

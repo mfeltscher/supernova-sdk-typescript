@@ -35,6 +35,8 @@ export class Token implements TokenValue {
   properties: Array<TokenProperty>
   parent: TokenGroup | null
   sortOrder: number
+  createdAt: Date | null
+  updatedAt: Date | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -50,6 +52,8 @@ export class Token implements TokenValue {
     this.origin = model.originStyle ? new TokenOrigin(model.originStyle) : null
     this.properties = this.buildProperties(model, dsVersion)
     this.parent = null
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
 
     // Set unordered when constructing
     this.sortOrder = -1

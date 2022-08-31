@@ -51,6 +51,8 @@ export interface TokenRemoteModel {
     propertyId: string
     value: any
   }>
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type ColorTokenRemoteModel = TokenRemoteModel & {

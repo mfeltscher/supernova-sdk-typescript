@@ -24,8 +24,8 @@ export interface ComponentRemoteModel {
     name: string
     description: string
   }
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -42,11 +42,11 @@ export class Component {
 
   name: string
   description: string
-  createdAt: string
-  updatedAt: string
 
   properties: Array<ComponentProperty> 
   propertyValues: object
+  createdAt: Date | null
+  updatedAt: Date | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -63,8 +63,6 @@ export class Component {
 
     this.name = model.meta.name
     this.description = model.meta.description
-    this.createdAt = model.createdAt
-    this.updatedAt = model.updatedAt
 
     this.properties = properties
     this.propertyValues = {}
@@ -80,5 +78,8 @@ export class Component {
         }
       }
     }
+
+    this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+    this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
   }
 }

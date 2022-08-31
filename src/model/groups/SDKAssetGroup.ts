@@ -32,6 +32,9 @@ import { DesignComponentGroupRemoteModel } from "./SDKDesignComponentGroup"
     childrenIds: Array<string>
     assetIds: Array<string>
     parent: AssetGroup | null
+    
+    createdAt: Date | null
+    updatedAt: Date | null
   
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
     // MARK: - Constructor
@@ -48,6 +51,9 @@ import { DesignComponentGroupRemoteModel } from "./SDKDesignComponentGroup"
       this.assetIds = new Array<string>()
       this.subgroups = new Array<AssetGroup>()
       this.parent = null
+
+      this.createdAt = model.createdAt ? new Date(model.createdAt) : null
+      this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
     }
   
     // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
