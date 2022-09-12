@@ -20,6 +20,7 @@ import { Asset } from "./SDKAsset"
 
 export interface RenderedAssetModel {
 
+    assetId: string
     fileName: string
     sourceUrl: string
     settings: {
@@ -38,6 +39,7 @@ export class RenderedAsset {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
+  assetId: string
   fileName: string
   originalName: string
   sourceUrl: string
@@ -54,6 +56,7 @@ export class RenderedAsset {
 
   constructor(model: RenderedAssetModel, asset: Asset, group: AssetGroup, duplicates: number) {
     
+    this.assetId = model.assetId
     this.fileName = model.fileName
     this.sourceUrl = model.sourceUrl
     this.originalName = model.originalName

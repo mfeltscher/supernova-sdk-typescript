@@ -13,3 +13,4 @@ style-exporter
 exporters-wip
 .env
 .env.development
+.npmrc

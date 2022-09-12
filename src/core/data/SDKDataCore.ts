@@ -256,15 +256,25 @@ export class DataCore {
 
     // Render items
     const endpoint = `components/assets/download-list`
-    let items = (
+    const items = (
       await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, configuration)
     ).items as Array<RenderedAssetModel>
-
-    if (items.length !== assets.length) {
-      throw new Error("Number of rendered assets doesn't align with number of requested assets")
+    
+    // Create rendered items index
+    const renderedItemsMap = new Map<string, RenderedAssetModel>()
+    for (const renderedItem of items) {
+      renderedItemsMap.set(renderedItem.assetId, renderedItem)
     }
 
-    let counter = 0
+    if (Array.from(renderedItemsMap.entries()).length !== assets.length) {
+      throw new Error("Number of rendered assets doesn't align with number of requested assets");
+    }
+
+    const assetsMap = new Map<string, Asset>()
+    for (const asset of assets) {
+      assetsMap.set(asset.id, asset)
+    }
+
     let resultingAssets: Array<RenderedAsset> = []
 
     // For duplicates
@@ -273,11 +283,9 @@ export class DataCore {
       names.set(item.originalName.toLowerCase(), 0)
     }
 
-    // Create asset
-    for (let item of items) {
-      let asset = assets[counter]
+    for (const asset of assets) {
+      const item = renderedItemsMap.get(asset.id)
       let renderedGroup: AssetGroup
-      counter++
 
       for (let group of groups) {
         if (group.assetIds.includes(asset.id)) {
