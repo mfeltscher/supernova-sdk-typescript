@@ -10,7 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ElementProperty, ElementPropertyRemoteModel } from "../../model/elements/SDKElementProperty"
+import { ElementProperty, ElementPropertyRemoteModel, ElementPropertyTargetElementType } from "../../model/elements/SDKElementProperty"
 import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
 import { TokenType } from "../../model/enums/SDKTokenType"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
@@ -56,7 +56,7 @@ export class TokenResolver {
 
   resolveTokenData(data: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup>, properties: Array<ElementPropertyRemoteModel>, values: Array<ElementPropertyValueRemoteModel>): Array<Token> {
 
-    let resolvedProperties = properties.map(p => new ElementProperty(p))
+    let resolvedProperties = properties.map(p => new ElementProperty(p)).filter(p => p.targetElementType === ElementPropertyTargetElementType.token)
     let resolvedValues = values.map(v => new ElementPropertyValue(v))
 
     for (let rawToken of data) {

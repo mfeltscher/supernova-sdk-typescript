@@ -11,7 +11,7 @@
 // MARK: - Imports
 
 import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
-import { ElementProperty, ElementPropertyRemoteModel } from "../../model/elements/SDKElementProperty"
+import { ElementProperty, ElementPropertyRemoteModel, ElementPropertyTargetElementType } from "../../model/elements/SDKElementProperty"
 import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
 
 
@@ -32,7 +32,7 @@ export class ComponentResolver {
 
   async resolveComponentData(components: Array<ComponentRemoteModel>, properties: Array<ElementPropertyRemoteModel>, values: Array<ElementPropertyValueRemoteModel>): Promise<Array<Component>> {
     
-    let resolvedProperties = properties.map(p => new ElementProperty(p))
+    let resolvedProperties = properties.map(p => new ElementProperty(p)).filter(p => p.targetElementType === ElementPropertyTargetElementType.component)
     let resolvedValues = values.map(v => new ElementPropertyValue(v))
     let resolvedComponents = components.map(c => new Component(c, resolvedProperties, resolvedValues))
 
