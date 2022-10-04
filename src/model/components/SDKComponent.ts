@@ -9,8 +9,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ElementProperty } from './SDKElementProperty'
-import { ElementPropertyValue } from './values/SDKElementPropertyValue'
+import { ElementProperty } from '../elements/SDKElementProperty'
+import { ElementPropertyValue } from './../elements/values/SDKElementPropertyValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions

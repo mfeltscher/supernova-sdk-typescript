@@ -7,7 +7,6 @@
 //
 
 import { ElementPropertyOption, ElementPropertyOptionRemoteModel } from './SDKElementPropertyOption'
-import { ElementPropertyValue } from './values/SDKElementPropertyValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports

@@ -22,8 +22,8 @@ export { RenderedAsset } from '../src/model/assets/SDKRenderedAsset'
 
 // Components
 export { Component } from '../src/model/components/SDKComponent'
-export { ElementProperty, ElementPropertyLinkElementType, ElementPropertyTargetElementType, ElementPropertyType } from '../src/model/components/SDKElementProperty'
-export { ElementPropertyOption } from '../src/model/components/SDKElementPropertyOption'
+export { ElementProperty, ElementPropertyLinkElementType, ElementPropertyTargetElementType, ElementPropertyType } from './model/elements/SDKElementProperty'
+export { ElementPropertyOption } from '../src/model/elements/SDKElementPropertyOption'
 
 // Design Components
 export { DesignComponent } from '../src/model/components/SDKDesignComponent'

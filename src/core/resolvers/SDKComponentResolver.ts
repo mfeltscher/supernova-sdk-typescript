@@ -11,8 +11,8 @@
 // MARK: - Imports
 
 import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
-import { ElementProperty, ElementPropertyRemoteModel } from "../../model/components/SDKElementProperty"
-import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/components/values/SDKElementPropertyValue"
+import { ElementProperty, ElementPropertyRemoteModel } from "../../model/elements/SDKElementProperty"
+import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
