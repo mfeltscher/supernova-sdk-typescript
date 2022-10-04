@@ -10,14 +10,15 @@
 // MARK: - Imports
 
 import { v4 as uuidv4 } from 'uuid'
-import { Brand, RadiusToken, TokenType, MeasureToken, ColorToken, ShadowType } from '../..'
+import { Brand, TokenType, MeasureToken, ColorToken, ShadowType, ElementProperty } from '../..'
 import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
-import { RadiusTokenRemoteModel, ShadowTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
-import { RadiusTokenRemoteValue, ShadowTokenRemoteValue } from './remote/SDKRemoteTokenValue'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
+import { ShadowTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { ShadowTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
-import { MeasureTokenValue, RadiusTokenValue, ShadowTokenValue } from './SDKTokenValue'
+import { ShadowTokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -35,9 +36,11 @@ export class ShadowToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: ShadowTokenValue,
-    alias: ShadowToken | null
+    alias: ShadowToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
@@ -47,8 +50,17 @@ export class ShadowToken extends Token {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static building
 
-  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: object, alias: ShadowToken | null, referenceResolver: DTTokenReferenceResolver): ShadowToken {
-
+  static create(
+    version: DesignSystemVersion,
+    brand: Brand,
+    name: string,
+    description: string,
+    value: object,
+    alias: ShadowToken | null,
+    referenceResolver: DTTokenReferenceResolver,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ): ShadowToken {
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
       persistentId: uuidv4(),
@@ -66,7 +78,7 @@ export class ShadowToken extends Token {
     if (value) {
       // Raw value
       let tokenValue = this.shadowValueFromDefinition(value, referenceResolver)
-      return new ShadowToken(version, baseToken, tokenValue, undefined)
+      return new ShadowToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
       let tokenValue: ShadowTokenValue = {
@@ -78,14 +90,13 @@ export class ShadowToken extends Token {
         opacity: alias.value.opacity,
         type: alias.value.type,
         referencedToken: alias
-      } 
+      }
 
-      return new ShadowToken(version, baseToken, tokenValue, undefined)
+      return new ShadowToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     }
   }
 
   static shadowValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): ShadowTokenValue {
-
     // For now, handle only one shadow in multiple shadow layers
     if (definition instanceof Array) {
       if (definition.length > 0) {
@@ -95,25 +106,31 @@ export class ShadowToken extends Token {
       }
     }
 
-    if (!definition.hasOwnProperty("x") ||  
-        !definition.hasOwnProperty("y") ||  
-        !definition.hasOwnProperty("blur") ||  
-        !definition.hasOwnProperty("spread") ||  
-        !definition.hasOwnProperty("color") ||  
-        !definition.hasOwnProperty("type")) {
-        throw SupernovaError.fromSDKError(`Box Shadow definition is missing one of required properties (x, y, blur, spread, color, type), was ${JSON.stringify(definition)}`)
+    if (
+      !definition.hasOwnProperty('x') ||
+      !definition.hasOwnProperty('y') ||
+      !definition.hasOwnProperty('blur') ||
+      !definition.hasOwnProperty('spread') ||
+      !definition.hasOwnProperty('color') ||
+      !definition.hasOwnProperty('type')
+    ) {
+      throw SupernovaError.fromSDKError(
+        `Box Shadow definition is missing one of required properties (x, y, blur, spread, color, type), was ${JSON.stringify(
+          definition
+        )}`
+      )
     }
 
     let value = {} as ShadowTokenValue // Empty container
 
-    value.x = MeasureToken.measureValueFromDefinitionOrReference(definition["x"], referenceResolver)
-    value.y = MeasureToken.measureValueFromDefinitionOrReference(definition["y"], referenceResolver)
-    value.radius = MeasureToken.measureValueFromDefinitionOrReference(definition["blur"], referenceResolver)
-    value.spread = MeasureToken.measureValueFromDefinitionOrReference(definition["spread"], referenceResolver)
-    value.color = ColorToken.colorValueFromDefinitionOrReference(definition["color"], referenceResolver)
+    value.x = MeasureToken.measureValueFromDefinitionOrReference(definition['x'], referenceResolver)
+    value.y = MeasureToken.measureValueFromDefinitionOrReference(definition['y'], referenceResolver)
+    value.radius = MeasureToken.measureValueFromDefinitionOrReference(definition['blur'], referenceResolver)
+    value.spread = MeasureToken.measureValueFromDefinitionOrReference(definition['spread'], referenceResolver)
+    value.color = ColorToken.colorValueFromDefinitionOrReference(definition['color'], referenceResolver)
     value.opacity = 1
-    value.type = definition["type"] === "innerShadow" ? ShadowType.inner : ShadowType.drop
-    
+    value.type = definition['type'] === 'innerShadow' ? ShadowType.inner : ShadowType.drop
+
     return value
   }
 
@@ -121,20 +138,18 @@ export class ShadowToken extends Token {
   // MARK: - Writing
 
   toWriteObject(): ShadowTokenRemoteModel {
-
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as ShadowTokenRemoteModel
 
     specificData.data = {
       aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
     }
 
     return specificData
   }
 
   toWriteValueObject(): ShadowTokenRemoteValue {
-
     return {
       color: {
         aliasTo: this.value.color.referencedToken ? this.value.color.referencedToken.id : undefined,
@@ -143,32 +158,40 @@ export class ShadowToken extends Token {
       isEnabled: true,
       x: {
         aliasTo: this.value.x.referencedToken ? this.value.x.referencedToken.id : undefined,
-        value: this.value.x.referencedToken ? null : {
-          measure: this.value.x.measure,
-          unit: this.value.x.unit
-        } 
-      }, 
+        value: this.value.x.referencedToken
+          ? null
+          : {
+              measure: this.value.x.measure,
+              unit: this.value.x.unit
+            }
+      },
       y: {
         aliasTo: this.value.y.referencedToken ? this.value.y.referencedToken.id : undefined,
-        value: this.value.y.referencedToken ? null : {
-          measure: this.value.y.measure,
-          unit: this.value.y.unit
-        } 
-      }, 
+        value: this.value.y.referencedToken
+          ? null
+          : {
+              measure: this.value.y.measure,
+              unit: this.value.y.unit
+            }
+      },
       spread: {
         aliasTo: this.value.spread.referencedToken ? this.value.spread.referencedToken.id : undefined,
-        value: this.value.spread.referencedToken ? null : {
-          measure: this.value.spread.measure,
-          unit: this.value.spread.unit
-        } 
-      }, 
+        value: this.value.spread.referencedToken
+          ? null
+          : {
+              measure: this.value.spread.measure,
+              unit: this.value.spread.unit
+            }
+      },
       radius: {
         aliasTo: this.value.radius.referencedToken ? this.value.radius.referencedToken.id : undefined,
-        value: this.value.radius.referencedToken ? null : {
-          measure: this.value.radius.measure,
-          unit: this.value.radius.unit
-        } 
-      }, 
+        value: this.value.radius.referencedToken
+          ? null
+          : {
+              measure: this.value.radius.measure,
+              unit: this.value.radius.unit
+            }
+      },
       opacity: this.value.opacity,
       type: this.value.type
     }

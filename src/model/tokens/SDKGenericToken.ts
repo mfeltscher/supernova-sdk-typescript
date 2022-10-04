@@ -9,9 +9,10 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { v4 as uuidv4 } from 'uuid';
-import { Brand, TokenType } from '../..'
+import { v4 as uuidv4 } from 'uuid'
+import { Brand, ElementProperty, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { GenericTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { TextTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
@@ -33,9 +34,11 @@ export class GenericToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: GenericTokenValue,
-    alias: GenericToken | null
+    alias: GenericToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
@@ -45,8 +48,16 @@ export class GenericToken extends Token {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static building
 
-  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: string, alias: GenericToken | null): GenericToken {
-
+  static create(
+    version: DesignSystemVersion,
+    brand: Brand,
+    name: string,
+    description: string,
+    value: string,
+    alias: GenericToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ): GenericToken {
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
       persistentId: uuidv4(),
@@ -64,21 +75,20 @@ export class GenericToken extends Token {
     if (value) {
       // Raw value
       let tokenValue = this.measureValueFromDefinition(value)
-      return new GenericToken(version, baseToken, tokenValue, undefined)
+      return new GenericToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
       let tokenValue: GenericTokenValue = {
         text: alias.value.text,
         referencedToken: alias
-      } 
-      return new GenericToken(version, baseToken, tokenValue, undefined)
+      }
+      return new GenericToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     }
   }
 
   static measureValueFromDefinition(definition: string): GenericTokenValue {
-
     return {
-      text: definition ? definition : "",
+      text: definition ? definition : '',
       referencedToken: null
     }
   }
@@ -87,13 +97,12 @@ export class GenericToken extends Token {
   // MARK: - Writing
 
   toWriteObject(): GenericTokenRemoteModel {
-
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as GenericTokenRemoteModel
 
     specificData.data = {
       aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
     }
 
     return specificData

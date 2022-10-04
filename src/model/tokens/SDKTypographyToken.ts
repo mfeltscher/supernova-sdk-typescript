@@ -10,9 +10,10 @@
 // MARK: - Imports
 
 import { v4 as uuidv4 } from 'uuid'
-import { Brand, MeasureToken, TextCase, TextDecoration, TokenType } from '../..'
+import { Brand, ElementProperty, MeasureToken, TextCase, TextDecoration, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenRemoteModel, TypographyTokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { TypographyTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
@@ -34,21 +35,31 @@ export class TypographyToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: TypographyTokenValue,
-    alias: TypographyToken | null
+    alias: TypographyToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
     }
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static building
 
-  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: object, alias: TypographyToken | null, referenceResolver: DTTokenReferenceResolver): TypographyToken {
-
+  static create(
+    version: DesignSystemVersion,
+    brand: Brand,
+    name: string,
+    description: string,
+    value: object,
+    alias: TypographyToken | null,
+    referenceResolver: DTTokenReferenceResolver,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ): TypographyToken {
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
       persistentId: uuidv4(),
@@ -66,7 +77,7 @@ export class TypographyToken extends Token {
     if (value) {
       // Raw value
       let tokenValue = this.typographyValueFromDefinition(value, referenceResolver)
-      return new TypographyToken(version, baseToken, tokenValue, undefined)
+      return new TypographyToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
       let tokenValue: TypographyTokenValue = {
@@ -78,37 +89,49 @@ export class TypographyToken extends Token {
         paragraphSpacing: alias.value.paragraphSpacing,
         textDecoration: alias.value.textDecoration,
         textCase: alias.value.textCase,
-        referencedToken: alias,
+        referencedToken: alias
       }
 
-      return new TypographyToken(version, baseToken, tokenValue, undefined)
+      return new TypographyToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     }
   }
 
-  static typographyValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): TypographyTokenValue {
-
+  static typographyValueFromDefinition(
+    definition: object,
+    referenceResolver: DTTokenReferenceResolver
+  ): TypographyTokenValue {
     // No validation because
 
     let value = {} as TypographyTokenValue // Empty container
 
     value.font = {
-      family: definition["fontFamily"] ? definition["fontFamily"] : "Roboto",
-      subfamily: definition["fontWeight"] ? definition["fontWeight"] : "Regular",
+      family: definition['fontFamily'] ? definition['fontFamily'] : 'Roboto',
+      subfamily: definition['fontWeight'] ? definition['fontWeight'] : 'Regular',
       referencedToken: undefined
     }
 
-    value.fontSize = definition["fontSize"] ? MeasureToken.measureValueFromDefinitionOrReference(definition["fontSize"], referenceResolver) : MeasureToken.measureValueFromDefinition("12px")
-    value.letterSpacing = definition["letterSpacing"] ? MeasureToken.measureValueFromDefinitionOrReference(definition["letterSpacing"], referenceResolver) : MeasureToken.measureValueFromDefinition("0")
-    value.lineHeight = definition["lineHeight"] ? MeasureToken.measureValueFromDefinitionOrReference(definition["lineHeight"], referenceResolver) : null
-    value.paragraphIndent = definition["paragraphIndent"] ? MeasureToken.measureValueFromDefinitionOrReference(definition["paragraphIndent"], referenceResolver) : MeasureToken.measureValueFromDefinition("0")
-    value.paragraphSpacing = definition["paragraphSpacing"] ? MeasureToken.measureValueFromDefinitionOrReference(definition["paragraphSpacing"], referenceResolver) : MeasureToken.measureValueFromDefinition("0")
+    value.fontSize = definition['fontSize']
+      ? MeasureToken.measureValueFromDefinitionOrReference(definition['fontSize'], referenceResolver)
+      : MeasureToken.measureValueFromDefinition('12px')
+    value.letterSpacing = definition['letterSpacing']
+      ? MeasureToken.measureValueFromDefinitionOrReference(definition['letterSpacing'], referenceResolver)
+      : MeasureToken.measureValueFromDefinition('0')
+    value.lineHeight = definition['lineHeight']
+      ? MeasureToken.measureValueFromDefinitionOrReference(definition['lineHeight'], referenceResolver)
+      : null
+    value.paragraphIndent = definition['paragraphIndent']
+      ? MeasureToken.measureValueFromDefinitionOrReference(definition['paragraphIndent'], referenceResolver)
+      : MeasureToken.measureValueFromDefinition('0')
+    value.paragraphSpacing = definition['paragraphSpacing']
+      ? MeasureToken.measureValueFromDefinitionOrReference(definition['paragraphSpacing'], referenceResolver)
+      : MeasureToken.measureValueFromDefinition('0')
     value.referencedToken = undefined
 
-    let textDecoration = definition["textDecoration"]
-    if (textDecoration && typeof textDecoration === "string") {
-      if (textDecoration === "underline") {
+    let textDecoration = definition['textDecoration']
+    if (textDecoration && typeof textDecoration === 'string') {
+      if (textDecoration === 'underline') {
         value.textDecoration = TextDecoration.underline
-      } else if (textDecoration === "strikethrough") {
+      } else if (textDecoration === 'strikethrough') {
         value.textDecoration = TextDecoration.strikethrough
       } else {
         value.textDecoration = TextDecoration.original
@@ -117,14 +140,14 @@ export class TypographyToken extends Token {
       value.textDecoration = TextDecoration.original
     }
 
-    let textCase = definition["textCase"]
-    if (textCase && typeof textCase === "string") {
+    let textCase = definition['textCase']
+    if (textCase && typeof textCase === 'string') {
       textCase = textCase.toLowerCase().trim()
-      if (textCase === "camel" || textCase === "camelcase") {
+      if (textCase === 'camel' || textCase === 'camelcase') {
         value.textCase = TextCase.camel
-      } else if (textCase === "lower" || textCase === "lowercase") {
+      } else if (textCase === 'lower' || textCase === 'lowercase') {
         value.textCase = TextCase.lower
-      } else if (textCase === "upper" || textCase === "uppercase") {
+      } else if (textCase === 'upper' || textCase === 'uppercase') {
         value.textCase = TextCase.upper
       } else {
         value.textCase = TextCase.original
@@ -140,20 +163,18 @@ export class TypographyToken extends Token {
   // MARK: - Writing
 
   toWriteObject(): TypographyTokenRemoteModel {
-
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as TypographyTokenRemoteModel
 
     specificData.data = {
       aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
     }
 
     return specificData
   }
 
   toWriteValueObject(): TypographyTokenRemoteValue {
-
     return {
       font: {
         aliasTo: this.value.font.referencedToken ? this.value.font.referencedToken.id : undefined,
@@ -161,38 +182,50 @@ export class TypographyToken extends Token {
       },
       fontSize: {
         aliasTo: this.value.fontSize.referencedToken ? this.value.fontSize.referencedToken.id : undefined,
-        value: this.value.fontSize.referencedToken ? null : {
-          measure: this.value.fontSize.measure,
-          unit: this.value.fontSize.unit
-        }
+        value: this.value.fontSize.referencedToken
+          ? null
+          : {
+              measure: this.value.fontSize.measure,
+              unit: this.value.fontSize.unit
+            }
       },
       letterSpacing: {
         aliasTo: this.value.letterSpacing.referencedToken ? this.value.letterSpacing.referencedToken.id : undefined,
-        value: this.value.letterSpacing.referencedToken ? null : {
-          measure: this.value.letterSpacing.measure,
-          unit: this.value.letterSpacing.unit
-        }
+        value: this.value.letterSpacing.referencedToken
+          ? null
+          : {
+              measure: this.value.letterSpacing.measure,
+              unit: this.value.letterSpacing.unit
+            }
       },
       paragraphIndent: {
         aliasTo: this.value.paragraphIndent.referencedToken ? this.value.paragraphIndent.referencedToken.id : undefined,
-        value: this.value.paragraphIndent.referencedToken ? null : {
-          measure: this.value.paragraphIndent.measure,
-          unit: this.value.paragraphIndent.unit
-        }
+        value: this.value.paragraphIndent.referencedToken
+          ? null
+          : {
+              measure: this.value.paragraphIndent.measure,
+              unit: this.value.paragraphIndent.unit
+            }
       },
       paragraphSpacing: {
-        aliasTo: this.value.paragraphSpacing.referencedToken ? this.value.paragraphSpacing.referencedToken.id : undefined,
-        value: this.value.paragraphSpacing.referencedToken ? null : {
-          measure: this.value.paragraphSpacing.measure,
-          unit: this.value.paragraphSpacing.unit
-        }
+        aliasTo: this.value.paragraphSpacing.referencedToken
+          ? this.value.paragraphSpacing.referencedToken.id
+          : undefined,
+        value: this.value.paragraphSpacing.referencedToken
+          ? null
+          : {
+              measure: this.value.paragraphSpacing.measure,
+              unit: this.value.paragraphSpacing.unit
+            }
       },
       lineHeight: {
         aliasTo: this.value.lineHeight.referencedToken ? this.value.lineHeight.referencedToken.id : undefined,
-        value: this.value.lineHeight.referencedToken ? null : {
-          measure: this.value.lineHeight.measure,
-          unit: this.value.lineHeight.unit
-        }
+        value: this.value.lineHeight.referencedToken
+          ? null
+          : {
+              measure: this.value.lineHeight.measure,
+              unit: this.value.lineHeight.unit
+            }
       },
       textCase: this.value.textCase,
       textDecoration: this.value.textDecoration

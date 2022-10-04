@@ -9,7 +9,9 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { ElementProperty } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { Token } from './SDKToken'
 import { TextTokenValue } from './SDKTokenValue'
@@ -30,9 +32,11 @@ export class TextToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: TextTokenValue,
-    alias: TextToken | null
+    alias: TextToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias

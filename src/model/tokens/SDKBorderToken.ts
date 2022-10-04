@@ -9,7 +9,9 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { ElementProperty } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { Token } from './SDKToken'
 import { BorderTokenValue } from './SDKTokenValue'
@@ -30,9 +32,11 @@ export class BorderToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: BorderTokenValue,
-    alias: BorderToken | null
+    alias: BorderToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias

@@ -9,12 +9,12 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { TokenGroup } from '../..'
+import { ElementProperty, TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenType } from '../enums/SDKTokenType'
 import { TokenOrigin } from '../support/SDKTokenOrigin'
 import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
-import { TokenProperty } from './SDKTokenProperty'
 import { TokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -32,16 +32,23 @@ export class Token implements TokenValue {
   description: string
   tokenType: TokenType
   origin: TokenOrigin | null
-  properties: Array<TokenProperty>
   parent: TokenGroup | null
   sortOrder: number
+
+  properties: Array<ElementProperty> 
+  propertyValues: object
   createdAt: Date | null
   updatedAt: Date | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: TokenRemoteModel, dsVersion: DesignSystemVersion) {
+  constructor(
+    model: TokenRemoteModel,
+    dsVersion: DesignSystemVersion,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ) {
     this.id = model.persistentId
     this.versionedId = model.id
     this.brandId = model.brandId
@@ -50,13 +57,27 @@ export class Token implements TokenValue {
     this.description = model.meta.description
     this.tokenType = model.type
     this.origin = model.originStyle ? new TokenOrigin(model.originStyle) : null
-    this.properties = this.buildProperties(model, dsVersion)
     this.parent = null
     this.createdAt = model.createdAt ? new Date(model.createdAt) : null
     this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
 
     // Set unordered when constructing
     this.sortOrder = -1
+
+    this.properties = properties
+    this.propertyValues = {}
+
+    for (let value of propertyValues) {
+      if (value.targetElementId === this.id) {
+        // Property value refers to this element
+        for (let property of properties) {
+          if (property.persistentId === value.definitionId) {
+            // Property value refers to the correct property, we get codeName from it and add it to quick-access
+            this.propertyValues[property.codeName] = value.value
+          }
+        }
+      }
+    }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -70,32 +91,7 @@ export class Token implements TokenValue {
     this.sortOrder = order
   }
 
-  buildProperties(model: TokenRemoteModel, dsVersion: DesignSystemVersion): Array<TokenProperty> {
-    // Construct all custom properties of the tokens, even if they are not overriden, for easy export
-    let properties = new Array<TokenProperty>()
-    for (let property of dsVersion.customTokenProperties) {
-      let override = model.customPropertyOverrides.filter(p => p.propertyId === property.id)
-      let tokenProp
-      if (override.length > 0) {
-        // Create property with override
-        tokenProp = new TokenProperty(
-          property.name,
-          property.codeName,
-          property.type,
-          override[0].value ?? property.defaultValue
-        )
-      } else {
-        // Create property with just the default value
-        tokenProp = new TokenProperty(property.name, property.codeName, property.type, property.defaultValue)
-      }
-      properties.push(tokenProp)
-    }
-
-    return properties
-  }
-
   toBaseWriteObject(): TokenRemoteModel {
-
     return {
       id: this.versionedId,
       brandId: this.brandId,
@@ -104,20 +100,21 @@ export class Token implements TokenValue {
       type: this.tokenType,
       meta: {
         name: this.name,
-        description: this.description ?? ""
+        description: this.description ?? ''
       },
-      originStyle: this.origin ? {
-        id: this.origin.id ?? undefined,
-        name: this.origin.name ?? undefined,
-        sourceId: this.origin.sourceId ?? undefined
-      } : undefined,
+      originStyle: this.origin
+        ? {
+            id: this.origin.id ?? undefined,
+            name: this.origin.name ?? undefined,
+            sourceId: this.origin.sourceId ?? undefined
+          }
+        : undefined,
       customPropertyOverrides: [],
       data: undefined
     }
   }
 
   toWriteObject(): TokenRemoteModel {
-
-    throw Error("Unable to write generic token")
+    throw Error('Unable to write generic token')
   }
 }

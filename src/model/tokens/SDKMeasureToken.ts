@@ -9,10 +9,11 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { v4 as uuidv4 } from 'uuid';
-import { Brand, TokenType } from '../..'
+import { v4 as uuidv4 } from 'uuid'
+import { Brand, ElementProperty, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { Unit } from '../enums/SDKUnit'
 import { MeasureTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { MeasureTokenRemoteValue } from './remote/SDKRemoteTokenValue'
@@ -35,9 +36,11 @@ export class MeasureToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: MeasureTokenValue,
-    alias: MeasureToken | null
+    alias: MeasureToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
@@ -47,8 +50,16 @@ export class MeasureToken extends Token {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static building
 
-  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: string, alias: MeasureToken | null): MeasureToken {
-
+  static create(
+    version: DesignSystemVersion,
+    brand: Brand,
+    name: string,
+    description: string,
+    value: string,
+    alias: MeasureToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ): MeasureToken {
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
       persistentId: uuidv4(),
@@ -66,20 +77,19 @@ export class MeasureToken extends Token {
     if (value) {
       // Raw value
       let tokenValue = this.measureValueFromDefinition(value)
-      return new MeasureToken(version, baseToken, tokenValue, undefined)
+      return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
       let tokenValue: MeasureTokenValue = {
         unit: Unit.pixels,
         measure: 0,
         referencedToken: alias
-      } 
-      return new MeasureToken(version, baseToken, tokenValue, undefined)
+      }
+      return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     }
   }
 
   static measureValueFromDefinition(definition: string): MeasureTokenValue {
-
     let result = this.parseMeasure(definition)
     return {
       measure: result.measure,
@@ -88,24 +98,25 @@ export class MeasureToken extends Token {
     }
   }
 
-  static parseMeasure(definition: string): {
-    measure: number,
+  static parseMeasure(
+    definition: string
+  ): {
+    measure: number
     unit: Unit
   } {
-
     // Parse out unit
-    let measure = definition.replace(" ", "")
+    let measure = definition.replace(' ', '')
     let unit = Unit.pixels
-    if (definition.endsWith("px")) {
+    if (definition.endsWith('px')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.pixels
-    } else if (definition.endsWith("%")) {
+    } else if (definition.endsWith('%')) {
       measure = measure.substring(0, measure.length - 1)
       unit = Unit.percent
-    } else if (definition.endsWith("em")) {
+    } else if (definition.endsWith('em')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.ems
-    } else if (definition.endsWith("pt")) {
+    } else if (definition.endsWith('pt')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.points
     }
@@ -122,10 +133,12 @@ export class MeasureToken extends Token {
     }
   }
 
-  static measureValueFromDefinitionOrReference(definition: any, referenceResolver: DTTokenReferenceResolver): MeasureTokenValue {
-
+  static measureValueFromDefinitionOrReference(
+    definition: any,
+    referenceResolver: DTTokenReferenceResolver
+  ): MeasureTokenValue {
     if (referenceResolver.valueIsReference(definition)) {
-      let reference = (referenceResolver.lookupReferencedToken(definition) as MeasureToken)
+      let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
       return {
         referencedToken: reference,
         measure: reference.value.measure,
@@ -145,13 +158,12 @@ export class MeasureToken extends Token {
   // MARK: - Writing
 
   toWriteObject(): MeasureTokenRemoteModel {
-
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as MeasureTokenRemoteModel
 
     specificData.data = {
       aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
     }
 
     return specificData

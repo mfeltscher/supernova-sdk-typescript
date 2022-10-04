@@ -10,13 +10,13 @@
 // MARK: - Imports
 
 import { v4 as uuidv4 } from 'uuid'
-import { Brand, MeasureToken, TokenType, Unit } from '../..'
+import { Brand, ElementProperty, MeasureToken, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
-import { RadiusTokenRemoteData } from './remote/SDKRemoteTokenData'
-import { MeasureTokenRemoteModel, RadiusTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
-import { MeasureTokenRemoteValue, RadiusTokenRemoteValue } from './remote/SDKRemoteTokenValue'
+import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
+import { RadiusTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { RadiusTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
-import { MeasureTokenValue, RadiusTokenValue } from './SDKTokenValue'
+import { RadiusTokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -34,9 +34,11 @@ export class RadiusToken extends Token {
     version: DesignSystemVersion,
     baseToken: TokenRemoteModel,
     value: RadiusTokenValue,
-    alias: RadiusToken | null
+    alias: RadiusToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
-    super(baseToken, version)
+    super(baseToken, version, properties, propertyValues)
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
@@ -46,8 +48,16 @@ export class RadiusToken extends Token {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Static building
 
-  static create(version: DesignSystemVersion, brand: Brand, name: string, description: string, value: string, alias: RadiusToken | null): RadiusToken {
-
+  static create(
+    version: DesignSystemVersion,
+    brand: Brand,
+    name: string,
+    description: string,
+    value: string,
+    alias: RadiusToken | null,
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
+  ): RadiusToken {
     let baseToken: TokenRemoteModel = {
       id: undefined, // Ommited id will create new token
       persistentId: uuidv4(),
@@ -65,7 +75,7 @@ export class RadiusToken extends Token {
     if (value) {
       // Raw value
       let tokenValue = this.radiusValueFromDefinition(value)
-      return new RadiusToken(version, baseToken, tokenValue, undefined)
+      return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
       let tokenValue: RadiusTokenValue = {
@@ -74,35 +84,42 @@ export class RadiusToken extends Token {
           measure: alias.value.radius.measure,
           referencedToken: undefined
         },
-        topLeft: alias.value.topLeft ? {
-          unit: alias.value.topLeft.unit,
-          measure: alias.value.topLeft.measure,
-          referencedToken: undefined
-        } : null,
-        topRight: alias.value.topRight ? {
-          unit: alias.value.topRight.unit,
-          measure: alias.value.topRight.measure,
-          referencedToken: undefined
-        } : null,
-        bottomLeft: alias.value.bottomLeft ? {
-          unit: alias.value.bottomLeft.unit,
-          measure: alias.value.bottomLeft.measure,
-          referencedToken: undefined
-        } : null,
-        bottomRight: alias.value.bottomRight ? {
-          unit: alias.value.bottomRight.unit,
-          measure: alias.value.bottomRight.measure,
-          referencedToken: undefined
-        } : null,
+        topLeft: alias.value.topLeft
+          ? {
+              unit: alias.value.topLeft.unit,
+              measure: alias.value.topLeft.measure,
+              referencedToken: undefined
+            }
+          : null,
+        topRight: alias.value.topRight
+          ? {
+              unit: alias.value.topRight.unit,
+              measure: alias.value.topRight.measure,
+              referencedToken: undefined
+            }
+          : null,
+        bottomLeft: alias.value.bottomLeft
+          ? {
+              unit: alias.value.bottomLeft.unit,
+              measure: alias.value.bottomLeft.measure,
+              referencedToken: undefined
+            }
+          : null,
+        bottomRight: alias.value.bottomRight
+          ? {
+              unit: alias.value.bottomRight.unit,
+              measure: alias.value.bottomRight.measure,
+              referencedToken: undefined
+            }
+          : null,
         referencedToken: alias
-      } 
-      return new RadiusToken(version, baseToken, tokenValue, undefined)
+      }
+      return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     }
   }
 
   static radiusValueFromDefinition(definition: string): RadiusTokenValue {
-
-    let corners = definition.split(",")
+    let corners = definition.split(',')
     if (corners.length === 1) {
       // Uniform corner description
       let measure = MeasureToken.measureValueFromDefinition(definition)
@@ -126,7 +143,7 @@ export class RadiusToken extends Token {
       }
     } else {
       return {
-        radius: MeasureToken.measureValueFromDefinition("0"),
+        radius: MeasureToken.measureValueFromDefinition('0'),
         topLeft: null,
         topRight: null,
         bottomLeft: null,
@@ -140,13 +157,12 @@ export class RadiusToken extends Token {
   // MARK: - Writing
 
   toWriteObject(): RadiusTokenRemoteModel {
-
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as RadiusTokenRemoteModel
 
     specificData.data = {
       aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined,
+      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
     }
 
     return specificData
@@ -161,34 +177,42 @@ export class RadiusToken extends Token {
           unit: this.value.radius.unit
         }
       },
-      topLeft: this.value.topLeft ? {
-        aliasTo: undefined,
-        value: {
-          measure: this.value.topLeft.measure,
-          unit: this.value.topLeft.unit
-        }
-      } : null,
-      topRight: this.value.topRight ? {
-        aliasTo: undefined,
-        value: {
-          measure: this.value.topRight.measure,
-          unit: this.value.topRight.unit
-        }
-      } : null,
-      bottomLeft: this.value.bottomLeft ? {
-        aliasTo: undefined,
-        value: {
-          measure: this.value.bottomLeft.measure,
-          unit: this.value.bottomLeft.unit
-        }
-      } : null,
-      bottomRight: this.value.bottomRight ? {
-        aliasTo: undefined,
-        value: {
-          measure: this.value.bottomRight.measure,
-          unit: this.value.bottomRight.unit
-        }
-      } : null,
+      topLeft: this.value.topLeft
+        ? {
+            aliasTo: undefined,
+            value: {
+              measure: this.value.topLeft.measure,
+              unit: this.value.topLeft.unit
+            }
+          }
+        : null,
+      topRight: this.value.topRight
+        ? {
+            aliasTo: undefined,
+            value: {
+              measure: this.value.topRight.measure,
+              unit: this.value.topRight.unit
+            }
+          }
+        : null,
+      bottomLeft: this.value.bottomLeft
+        ? {
+            aliasTo: undefined,
+            value: {
+              measure: this.value.bottomLeft.measure,
+              unit: this.value.bottomLeft.unit
+            }
+          }
+        : null,
+      bottomRight: this.value.bottomRight
+        ? {
+            aliasTo: undefined,
+            value: {
+              measure: this.value.bottomRight.measure,
+              unit: this.value.bottomRight.unit
+            }
+          }
+        : null
     }
   }
 }
