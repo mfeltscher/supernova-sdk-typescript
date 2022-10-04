@@ -25,8 +25,6 @@ test('test_brand_tokens', async t => {
 
     // Fetch its active version
     let tokens = await brand.tokens()
-    console.log(tokens)
-    console.log(tokens[0].properties)
     t.true(tokens.length > 0)
 })
 

@@ -24,6 +24,8 @@ export class GradientToken extends Token {
   // MARK: - Public properties
 
   value: GradientTokenValue
+  gradientLayers: Array<GradientToken>
+  isVirtual: boolean
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -38,6 +40,9 @@ export class GradientToken extends Token {
   ) {
     super(baseToken, version, properties, propertyValues)
     this.value = value
+    this.gradientLayers = new Array<GradientToken>()
+    this.isVirtual = false
+    
     if (alias) {
       this.value.referencedToken = alias
     }

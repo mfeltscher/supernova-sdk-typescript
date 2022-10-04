@@ -136,7 +136,15 @@ export class TokenResolver {
     }
 
     // Retrieve all properly resolved tokens
-    return Array.from(this.resolvedTokens.values())
+    let tokens = Array.from(this.resolvedTokens.values())
+
+    // Temporary: Fix shadow, gradient and blur tokens
+    this.fixMultilayerShadowTokens(tokens.filter(t => t.tokenType === TokenType.shadow) as Array<ShadowToken>)
+    this.fixMultilayerGradientTokens(tokens.filter(t => t.tokenType === TokenType.gradient) as Array<GradientToken>)
+    this.fixMultilayerBlurTokens(tokens.filter(t => t.tokenType === TokenType.blur) as Array<BlurToken>)
+
+    // Retrieve all properly resolved tokens
+    return tokens
   }
 
   tokenTypeIsPure(tokenType: TokenType): boolean {
@@ -148,6 +156,57 @@ export class TokenResolver {
       tokenType === TokenType.generic
     )
   }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Temporary: Data structure manipulation
+
+  fixMultilayerShadowTokens(tokens: Array<ShadowToken>) {
+    for (let token of tokens) {
+      token.shadowLayers = this.findAssociatedTokens(token, tokens)
+    }
+  }
+
+  fixMultilayerGradientTokens(tokens: Array<GradientToken>) {
+    for (let token of tokens) {
+      token.gradientLayers = this.findAssociatedTokens(token, tokens)
+    }
+  }
+
+  fixMultilayerBlurTokens(tokens: Array<BlurToken>) {
+    for (let token of tokens) {
+      token.blurLayers = this.findAssociatedTokens(token, tokens)
+    }
+  }
+
+  findAssociatedTokens<T extends Token>(token: T, tokens: Array<T>): Array<T> {
+
+    if (!token.origin?.id || !token.parent) {
+      return [token]
+    }
+
+    // Find all tokens with same origin
+    let matchingTokens = tokens.filter(t => t.origin.sourceId === token.origin.sourceId)
+    
+    // Sort by the parent, and set virtual tokens
+    let sortedTokens = new Array<T>()
+    let index = 0
+    for (let id of token.parent.tokenIds) {
+      for (let matchingToken of matchingTokens) {
+        if (matchingToken.id === id) {
+          sortedTokens.push(matchingToken)
+          if (index === 0) {
+            (matchingToken as any).isVirtual = false
+          } else {
+            (matchingToken as any).isVirtual = true
+          }
+          index++;
+        }
+      }
+    }
+    
+    return sortedTokens
+  }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referencing

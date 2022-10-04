@@ -24,6 +24,8 @@ export class BlurToken extends Token {
   // MARK: - Public properties
 
   value: BlurTokenValue
+  blurLayers: Array<BlurToken>
+  isVirtual: boolean
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -38,6 +40,9 @@ export class BlurToken extends Token {
   ) {
     super(baseToken, version, properties, propertyValues)
     this.value = value
+    this.blurLayers = new Array<BlurToken>()
+    this.isVirtual = false
+
     if (alias) {
       this.value.referencedToken = alias
     }

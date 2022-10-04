@@ -28,6 +28,8 @@ export class ShadowToken extends Token {
   // MARK: - Public properties
 
   value: ShadowTokenValue
+  shadowLayers: Array<ShadowToken>
+  isVirtual: boolean
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -42,6 +44,9 @@ export class ShadowToken extends Token {
   ) {
     super(baseToken, version, properties, propertyValues)
     this.value = value
+    this.shadowLayers = new Array<ShadowToken>()
+    this.isVirtual = false
+
     if (alias) {
       this.value.referencedToken = alias
     }
