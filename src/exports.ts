@@ -93,7 +93,6 @@ export { AssetScale } from '../src/model/enums/SDKAssetScale'
 export { AssetScaleType } from '../src/model/enums/SDKAssetScaleType'
 export { BlurType } from '../src/model/enums/SDKBlurType'
 export { BorderPosition } from '../src/model/enums/SDKBorderPosition'
-export { CustomTokenPropertyType } from '../src/model/enums/SDKCustomTokenPropertyType'
 export { DocumentationCalloutType } from '../src/model/enums/SDKDocumentationCalloutType'
 export { DocumentationGroupBehavior } from '../src/model/enums/SDKDocumentationGroupBehavior'
 export { DocumentationHeadingType } from '../src/model/enums/SDKDocumentationHeadingType'
@@ -129,9 +128,6 @@ export { ShadowToken } from '../src/model/tokens/SDKShadowToken'
 export { TypographyToken } from '../src/model/tokens/SDKTypographyToken'
 export { TextToken } from '../src/model/tokens/SDKTextToken'
 export { Token } from '../src/model/tokens/SDKToken'
-export { TokenProperty } from '../src/model/tokens/SDKTokenProperty'
-
-export { CustomTokenProperty } from '../src/model/tokens/configuration/SDKCustomTokenProperty'
 
 // Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption } from './tools/json-builder/SDKToolsJSONBuilder'

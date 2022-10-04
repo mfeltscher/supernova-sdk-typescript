@@ -641,7 +641,9 @@ export class DataCore {
 
     // Download the raw token data and resolve them
     let rawData = await this.getRawTokenData(designSystemId, designSystemVersion)
-    let resolvedTokens = await this.resolveTokenData(rawData, tokenGroups, designSystemVersion)
+    let rawProperties = await this.getRawElementPropertyData(designSystemId, designSystemVersion)
+    let rawValues = await this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
+    let resolvedTokens = await this.resolveTokenData(rawData, rawProperties, rawValues, tokenGroups, designSystemVersion)
     return resolvedTokens
   }
 
@@ -659,11 +661,13 @@ export class DataCore {
 
   private async resolveTokenData(
     data: Array<TokenRemoteModel>,
+    properties: Array<ElementPropertyRemoteModel>,
+    values: Array<ElementPropertyValueRemoteModel>,
     tokenGroups: Array<TokenGroup>,
     version: DesignSystemVersion
   ): Promise<Array<Token>> {
     let resolver = new TokenResolver(version)
-    let result = resolver.resolveTokenData(data, tokenGroups)
+    let result = resolver.resolveTokenData(data, tokenGroups, properties, values)
     return result
   }
 

@@ -10,6 +10,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { ElementProperty, ElementPropertyRemoteModel } from "../../model/elements/SDKElementProperty"
+import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
 import { TokenType } from "../../model/enums/SDKTokenType"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
 import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
@@ -52,7 +54,11 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  resolveTokenData(data: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup>): Array<Token> {
+  resolveTokenData(data: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup>, properties: Array<ElementPropertyRemoteModel>, values: Array<ElementPropertyValueRemoteModel>): Array<Token> {
+
+    let resolvedProperties = properties.map(p => new ElementProperty(p))
+    let resolvedValues = values.map(v => new ElementPropertyValue(v))
+
     for (let rawToken of data) {
       this.hashedTokens.set(rawToken.persistentId, rawToken)
     }
@@ -67,7 +73,7 @@ export class TokenResolver {
       }
       // Construct raw colors, fonts, texts, radii and measures first
       if (this.tokenTypeIsPure(rawToken.type)) {
-        let token = this.constructValueToken(rawToken)
+        let token = this.constructValueToken(rawToken, resolvedProperties, resolvedValues)
         this.resolvedTokens.set(token.id, token)
       }
     }
@@ -81,7 +87,7 @@ export class TokenResolver {
       }
       // Construct references for pure tokens, if any
       if (this.tokenTypeIsPure(rawToken.type) && !this.resolvedTokens.get(rawToken.persistentId)) {
-        let token = this.constructReferencedToken(rawToken)
+        let token = this.constructReferencedToken(rawToken, resolvedProperties, resolvedValues)
         this.resolvedTokens.set(token.id, token)
       }
     }
@@ -96,7 +102,7 @@ export class TokenResolver {
       }
       // Construct raw typography, gradient, shadow and border colors
       if (!this.tokenTypeIsPure(rawToken.type)) {
-        let token = this.constructValueToken(rawToken)
+        let token = this.constructValueToken(rawToken, resolvedProperties, resolvedValues)
         this.resolvedTokens.set(token.id, token)
       }
     }
@@ -111,7 +117,7 @@ export class TokenResolver {
       }
       if (!this.resolvedTokens.get(rawToken.persistentId)) {
         // We create the token only when it wasn't created already. In some cases, this can happen when there are multiple reference levels
-        let token = this.constructReferencedToken(rawToken)
+        let token = this.constructReferencedToken(rawToken, resolvedProperties, resolvedValues)
         this.resolvedTokens.set(token.id, token)
       }
     }
@@ -146,7 +152,7 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referencing
 
-  constructReferencedToken(rawData: TokenRemoteModel): Token {
+  constructReferencedToken(rawData: TokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
     let referenceId = rawData.data.aliasTo
     let referencedToken: Token
     if (this.resolvedTokens.get(referenceId)) {
@@ -154,15 +160,15 @@ export class TokenResolver {
       referencedToken = this.resolvedTokens.get(referenceId)
     } else {
       // Otherwise, we request token with the model data of the other token
-      referencedToken = this.constructReferencedToken(this.hashedTokens.get(referenceId))
+      referencedToken = this.constructReferencedToken(this.hashedTokens.get(referenceId), properties, values)
     }
 
-    let token = this.constructResolvedToken(rawData, referencedToken)
+    let token = this.constructResolvedToken(rawData, referencedToken, properties, values)
     this.resolvedTokens.set(token.id, token)
     return token
   }
 
-  constructResolvedToken(rawData: TokenRemoteModel, referencedToken: Token): Token {
+  constructResolvedToken(rawData: TokenRemoteModel, referencedToken: Token, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
     if (!rawData.data.aliasTo) {
       throw Error('Incorrectly creating reference token from value token')
     }
@@ -172,47 +178,47 @@ export class TokenResolver {
     switch (type) {
       case TokenType.color: {
         let ref = referencedToken as ColorToken
-        return new ColorToken(this.version, rawData, { ...ref.value }, ref)
+        return new ColorToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.border: {
         let ref = referencedToken as BorderToken
-        return new BorderToken(this.version, rawData, { ...ref.value }, ref)
+        return new BorderToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.font: {
         let ref = referencedToken as FontToken
-        return new FontToken(this.version, rawData, { ...ref.value }, ref)
+        return new FontToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.gradient: {
         let ref = referencedToken as GradientToken
-        return new GradientToken(this.version, rawData, { ...ref.value }, ref)
+        return new GradientToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.measure: {
         let ref = referencedToken as MeasureToken
-        return new MeasureToken(this.version, rawData, { ...ref.value }, ref)
+        return new MeasureToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.radius: {
         let ref = referencedToken as RadiusToken
-        return new RadiusToken(this.version, rawData, { ...ref.value }, ref)
+        return new RadiusToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.shadow: {
         let ref = referencedToken as ShadowToken
-        return new ShadowToken(this.version, rawData, { ...ref.value }, ref)
+        return new ShadowToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.text: {
         let ref = referencedToken as TextToken
-        return new TextToken(this.version, rawData, { ...ref.value }, ref)
+        return new TextToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.typography: {
         let ref = referencedToken as TypographyToken
-        return new TypographyToken(this.version, rawData, { ...ref.value }, ref)
+        return new TypographyToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.blur: {
         let ref = referencedToken as BlurToken
-        return new BlurToken(this.version, rawData, { ...ref.value }, ref)
+        return new BlurToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
       case TokenType.generic: {
         let ref = referencedToken as GenericToken
-        return new GenericToken(this.version, rawData, { ...ref.value }, ref)
+        return new GenericToken(this.version, rawData, { ...ref.value }, ref, properties, values)
       }
     }
   }
@@ -220,7 +226,7 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Token construction
 
-  constructValueToken(rawData: TokenRemoteModel): Token {
+  constructValueToken(rawData: TokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
     if (rawData.data.aliasTo) {
       throw Error('Incorrectly creating value token from referenced token')
     }
@@ -228,33 +234,33 @@ export class TokenResolver {
     let type = rawData.type
     switch (type) {
       case TokenType.color:
-        return this.constructColorToken(rawData as ColorTokenRemoteModel)
+        return this.constructColorToken(rawData as ColorTokenRemoteModel, properties, values)
       case TokenType.border:
-        return this.constructBorderToken(rawData as BorderTokenRemoteModel)
+        return this.constructBorderToken(rawData as BorderTokenRemoteModel, properties, values)
       case TokenType.font:
-        return this.constructFontToken(rawData as FontTokenRemoteModel)
+        return this.constructFontToken(rawData as FontTokenRemoteModel, properties, values)
       case TokenType.gradient:
-        return this.constructGradientToken(rawData as GradientTokenRemoteModel)
+        return this.constructGradientToken(rawData as GradientTokenRemoteModel, properties, values)
       case TokenType.measure:
-        return this.constructMeasureToken(rawData as MeasureTokenRemoteModel)
+        return this.constructMeasureToken(rawData as MeasureTokenRemoteModel, properties, values)
       case TokenType.radius:
-        return this.constructRadiusToken(rawData as RadiusTokenRemoteModel)
+        return this.constructRadiusToken(rawData as RadiusTokenRemoteModel, properties, values)
       case TokenType.shadow:
-        return this.constructShadowToken(rawData as ShadowTokenRemoteModel)
+        return this.constructShadowToken(rawData as ShadowTokenRemoteModel, properties, values)
       case TokenType.text:
-        return this.constructTextToken(rawData as TextTokenRemoteModel)
+        return this.constructTextToken(rawData as TextTokenRemoteModel, properties, values)
       case TokenType.typography:
-        return this.constructTypographyToken(rawData as TypographyTokenRemoteModel)
+        return this.constructTypographyToken(rawData as TypographyTokenRemoteModel, properties, values)
       case TokenType.blur: 
-        return this.constructBlurToken(rawData as BlurTokenRemoteModel)
+        return this.constructBlurToken(rawData as BlurTokenRemoteModel, properties, values)
       case TokenType.generic:
-        return this.constructGenericToken(rawData as GenericTokenRemoteModel)
+        return this.constructGenericToken(rawData as GenericTokenRemoteModel, properties, values)
     }
   }
 
-  constructColorToken(rawData: ColorTokenRemoteModel): ColorToken {
+  constructColorToken(rawData: ColorTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): ColorToken {
     let value = this.constructColorValue(rawData.data.value)
-    return new ColorToken(this.version, rawData, value, null)
+    return new ColorToken(this.version, rawData, value, null, properties, values)
   }
 
   constructColorValue(rawValue: ColorTokenRemoteValue): ColorTokenValue {
@@ -273,25 +279,25 @@ export class TokenResolver {
     }
   }
 
-  constructTextToken(rawData: TextTokenRemoteModel): TextToken {
+  constructTextToken(rawData: TextTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
     let value: TextTokenValue = {
       text: rawData.data.value,
       referencedToken: null
     }
-    return new TextToken(this.version, rawData, value, null)
+    return new TextToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructGenericToken(rawData: GenericTokenRemoteModel): TextToken {
+  constructGenericToken(rawData: GenericTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
     let value: GenericTokenValue = {
       text: rawData.data.value,
       referencedToken: null
     }
-    return new GenericToken(this.version, rawData, value, null)
+    return new GenericToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructMeasureToken(rawData: MeasureTokenRemoteModel): MeasureToken {
+  constructMeasureToken(rawData: MeasureTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): MeasureToken {
     let value = this.constructMeasureValue(rawData.data.value)
-    return new MeasureToken(this.version, rawData, value, null)
+    return new MeasureToken(this.version, rawData, value, null, properties, values)
   }
 
   constructMeasureValue(rawData: MeasureTokenRemoteValue): MeasureTokenValue {
@@ -302,9 +308,9 @@ export class TokenResolver {
     }
   }
 
-  constructFontToken(rawData: FontTokenRemoteModel): FontToken {
+  constructFontToken(rawData: FontTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): FontToken {
     let value = this.constructFontValue(rawData.data.value)
-    return new FontToken(this.version, rawData, value, null)
+    return new FontToken(this.version, rawData, value, null, properties, values)
   }
 
   constructFontValue(rawData: FontTokenRemoteValue): FontTokenValue {
@@ -315,7 +321,7 @@ export class TokenResolver {
     }
   }
 
-  constructGradientToken(rawData: GradientTokenRemoteModel): GradientToken {
+  constructGradientToken(rawData: GradientTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): GradientToken {
     let value: GradientTokenValue = {
       to: rawData.data.value.to,
       from: rawData.data.value.from,
@@ -324,7 +330,7 @@ export class TokenResolver {
       stops: this.constructGradientStops(rawData.data.value.stops),
       referencedToken: null
     }
-    return new GradientToken(this.version, rawData, value, null)
+    return new GradientToken(this.version, rawData, value, null, properties, values)
   }
 
   constructGradientStops(rawData: Array<GradientStopRemoteValue>): Array<GradientStopValue> {
@@ -337,7 +343,7 @@ export class TokenResolver {
     })
   }
 
-  constructRadiusToken(rawData: RadiusTokenRemoteModel): RadiusToken {
+  constructRadiusToken(rawData: RadiusTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): RadiusToken {
     let value: RadiusTokenValue = {
       radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
       topLeft: rawData.data.value.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.data.value.topLeft) : null,
@@ -352,10 +358,10 @@ export class TokenResolver {
         : null,
       referencedToken: null
     }
-    return new RadiusToken(this.version, rawData, value, null)
+    return new RadiusToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructShadowToken(rawData: ShadowTokenRemoteModel): ShadowToken {
+  constructShadowToken(rawData: ShadowTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): ShadowToken {
     let value: ShadowTokenValue = {
       color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
       x: this.resolveReferencedMeasureTokenValue(rawData.data.value.x),
@@ -366,20 +372,20 @@ export class TokenResolver {
       type: rawData.data.value.type,
       referencedToken: null
     }
-    return new ShadowToken(this.version, rawData, value, null)
+    return new ShadowToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructBorderToken(rawData: BorderTokenRemoteModel): BorderToken {
+  constructBorderToken(rawData: BorderTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): BorderToken {
     let value: BorderTokenValue = {
       color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
       width: this.resolveReferencedMeasureTokenValue(rawData.data.value.width),
       position: rawData.data.value.position,
       referencedToken: null
     }
-    return new BorderToken(this.version, rawData, value, null)
+    return new BorderToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructTypographyToken(rawData: TypographyTokenRemoteModel): TypographyToken {
+  constructTypographyToken(rawData: TypographyTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TypographyToken {
     let value: TypographyTokenValue = {
       font: this.resolveReferencedFontTokenValue(rawData.data.value.font),
       fontSize: this.resolveReferencedMeasureTokenValue(rawData.data.value.fontSize),
@@ -393,16 +399,16 @@ export class TokenResolver {
       paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphSpacing),
       referencedToken: null
     }
-    return new TypographyToken(this.version, rawData, value, null)
+    return new TypographyToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructBlurToken(rawData: BlurTokenRemoteModel): BlurToken {
+  constructBlurToken(rawData: BlurTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): BlurToken {
     let value: BlurTokenValue = {
       type: rawData.data.value.type,
       radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
       referencedToken: null
     }
-    return new BlurToken(this.version, rawData, value, null)
+    return new BlurToken(this.version, rawData, value, null, properties, values)
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

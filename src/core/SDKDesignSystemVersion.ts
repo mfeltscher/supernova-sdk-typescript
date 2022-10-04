@@ -20,7 +20,6 @@ import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
 import { DesignComponentGroup } from "../model/groups/SDKDesignComponentGroup"
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
-import { CustomTokenProperty, CustomTokenPropertyModel } from "../model/tokens/configuration/SDKCustomTokenProperty"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { SupernovaError } from "./errors/SDKSupernovaError"
@@ -44,7 +43,6 @@ export interface DesignSystemVersionRemoteModel {
     }
     createdAt: string
     changeLog: string
-    customProperties: Array<CustomTokenPropertyModel>
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -76,9 +74,6 @@ export class DesignSystemVersion {
     /** If version is in read-only mode, it can't be modified - only documentation that can be improved */
     isReadOnly: boolean
 
-    /** Custom token properties configuration enabled globally for this design system version */
-    customTokenProperties: Array<CustomTokenProperty>
-
     /** Internal: Engine */
     engine: Supernova
 
@@ -101,7 +96,6 @@ export class DesignSystemVersion {
         this.version = model.version
         this.changeLog = model.changeLog?.length > 0 ? model.changeLog : null
         this.isReadOnly = model.isReadonly
-        this.customTokenProperties = model.customProperties.map(p => new CustomTokenProperty(p))
 
         this.dataCore = this.engine.newDataCore()
     }
