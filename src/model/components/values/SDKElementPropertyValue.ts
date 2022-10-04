@@ -1,5 +1,5 @@
 //
-//  ComponentPropertyValue.ts
+//  ElementPropertyValue.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -13,7 +13,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ComponentPropertyValueRemoteModel {
+export interface ElementPropertyValueRemoteModel {
  
     value: string | boolean | number
 
@@ -26,7 +26,7 @@ export interface ComponentPropertyValueRemoteModel {
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class ComponentPropertyValue {
+export class ElementPropertyValue {
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
@@ -41,7 +41,7 @@ export class ComponentPropertyValue {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentPropertyValueRemoteModel) {
+  constructor(model: ElementPropertyValueRemoteModel) {
 
     this.id = model.id
     this.designSystemVersionId = model.designSystemVersionId

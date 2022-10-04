@@ -42,8 +42,8 @@ import { DesignSystem } from '../SDKDesignSystem'
 import { ExporterCustomBlockVariant } from '../../model/exporters/custom_blocks/SDKExporterCustomBlockVariant'
 import { Component, ComponentRemoteModel } from '../../model/components/SDKComponent'
 import { ComponentResolver } from '../resolvers/SDKComponentResolver'
-import { ComponentPropertyRemoteModel } from '../../model/components/SDKComponentProperty'
-import { ComponentPropertyValueRemoteModel } from '../../model/components/values/SDKComponentPropertyValue'
+import { ElementPropertyRemoteModel } from '../../model/components/SDKElementProperty'
+import { ElementPropertyValueRemoteModel } from '../../model/components/values/SDKElementPropertyValue'
 import { Workspace, WorkspaceRemoteModel } from '../SDKWorkspace'
 import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from '../../model/support/SDKWorkspaceNPMRegistry'
 
@@ -726,8 +726,8 @@ export class DataCore {
   ): Promise<Array<Component>> {
     // Download the raw component data, including their properties, and resolve them
     let rawComponents = await this.getRawComponentData(designSystemId, designSystemVersion)
-    let rawProperties = await this.getRawComponentPropertyData(designSystemId, designSystemVersion)
-    let rawValues = await this.getRawComponentPropertyValuesData(designSystemId, designSystemVersion)
+    let rawProperties = await this.getRawElementPropertyData(designSystemId, designSystemVersion)
+    let rawValues = await this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
     let resolvedComponents = await this.resolveComponentData(
       rawComponents,
       rawProperties,
@@ -749,25 +749,25 @@ export class DataCore {
     return result
   }
 
-  private async getRawComponentPropertyData(
+  private async getRawElementPropertyData(
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
-  ): Promise<Array<ComponentPropertyRemoteModel>> {
+  ): Promise<Array<ElementPropertyRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/definitions'
-    let result: Array<ComponentPropertyRemoteModel> = (
+    let result: Array<ElementPropertyRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
     ).definitions
     return result
   }
 
-  private async getRawComponentPropertyValuesData(
+  private async getRawElementPropertyValuesData(
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
-  ): Promise<Array<ComponentPropertyValueRemoteModel>> {
+  ): Promise<Array<ElementPropertyValueRemoteModel>> {
     // Download component data from the design system endpoint. This downloads components of all types
     const endpoint = 'element-properties/values'
-    let result: Array<ComponentPropertyValueRemoteModel> = (
+    let result: Array<ElementPropertyValueRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
     ).values
     return result
@@ -775,8 +775,8 @@ export class DataCore {
 
   private async resolveComponentData(
     components: Array<ComponentRemoteModel>,
-    properties: Array<ComponentPropertyRemoteModel>,
-    values: Array<ComponentPropertyValueRemoteModel>,
+    properties: Array<ElementPropertyRemoteModel>,
+    values: Array<ElementPropertyValueRemoteModel>,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<Component>> {
     let resolver = new ComponentResolver()

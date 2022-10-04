@@ -11,8 +11,8 @@
 // MARK: - Imports
 
 import { Component, ComponentRemoteModel } from "../../model/components/SDKComponent"
-import { ComponentProperty, ComponentPropertyRemoteModel } from "../../model/components/SDKComponentProperty"
-import { ComponentPropertyValue, ComponentPropertyValueRemoteModel } from "../../model/components/values/SDKComponentPropertyValue"
+import { ElementProperty, ElementPropertyRemoteModel } from "../../model/components/SDKElementProperty"
+import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/components/values/SDKElementPropertyValue"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -30,10 +30,10 @@ export class ComponentResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  async resolveComponentData(components: Array<ComponentRemoteModel>, properties: Array<ComponentPropertyRemoteModel>, values: Array<ComponentPropertyValueRemoteModel>): Promise<Array<Component>> {
+  async resolveComponentData(components: Array<ComponentRemoteModel>, properties: Array<ElementPropertyRemoteModel>, values: Array<ElementPropertyValueRemoteModel>): Promise<Array<Component>> {
     
-    let resolvedProperties = properties.map(p => new ComponentProperty(p))
-    let resolvedValues = values.map(v => new ComponentPropertyValue(v))
+    let resolvedProperties = properties.map(p => new ElementProperty(p))
+    let resolvedValues = values.map(v => new ElementPropertyValue(v))
     let resolvedComponents = components.map(c => new Component(c, resolvedProperties, resolvedValues))
 
     return resolvedComponents

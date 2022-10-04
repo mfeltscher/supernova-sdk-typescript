@@ -1,5 +1,5 @@
 //
-//  ComponentPropertyOption.ts
+//  ElementPropertyOption.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
@@ -12,7 +12,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export interface ComponentPropertyOptionRemoteModel {
+export interface ElementPropertyOptionRemoteModel {
   id: string
   name: string
   backgroundColor: {
@@ -23,7 +23,7 @@ export interface ComponentPropertyOptionRemoteModel {
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class ComponentPropertyOption {
+export class ElementPropertyOption {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
@@ -34,7 +34,7 @@ export class ComponentPropertyOption {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentPropertyOptionRemoteModel) {
+  constructor(model: ElementPropertyOptionRemoteModel) {
 
     this.id = model.id
     this.name = model.name

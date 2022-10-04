@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import test from 'ava'
-import { ComponentPropertyType } from '../../exports'
+import { ElementPropertyType } from '../../exports'
 import { AssetFormat } from '../../model/enums/SDKAssetFormat'
 import { AssetScale } from '../../model/enums/SDKAssetScale'
 import { testInstance } from '../helpers'

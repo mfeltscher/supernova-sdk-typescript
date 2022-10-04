@@ -9,8 +9,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ComponentProperty } from './SDKComponentProperty'
-import { ComponentPropertyValue } from './values/SDKComponentPropertyValue'
+import { ElementProperty } from './SDKElementProperty'
+import { ElementPropertyValue } from './values/SDKElementPropertyValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -43,7 +43,7 @@ export class Component {
   name: string
   description: string
 
-  properties: Array<ComponentProperty> 
+  properties: Array<ElementProperty> 
   propertyValues: object
   createdAt: Date | null
   updatedAt: Date | null
@@ -53,8 +53,8 @@ export class Component {
 
   constructor(
     model: ComponentRemoteModel,
-    properties: Array<ComponentProperty>,
-    propertyValues: Array<ComponentPropertyValue>
+    properties: Array<ElementProperty>,
+    propertyValues: Array<ElementPropertyValue>
   ) {
     this.id = model.id
     this.persistentId = model.persistentId

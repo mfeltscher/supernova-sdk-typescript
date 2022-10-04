@@ -1,13 +1,13 @@
 //
-//  ComponentProperty.ts
+//  ElementProperty.ts
 //  Supernova SDK
 //
 //  Created by Jiri Trecak.
 //  Copyright © 2022 Supernova. All rights reserved.
 //
 
-import { ComponentPropertyOption, ComponentPropertyOptionRemoteModel } from './SDKComponentPropertyOption'
-import { ComponentPropertyValue } from './values/SDKComponentPropertyValue'
+import { ElementPropertyOption, ElementPropertyOptionRemoteModel } from './SDKElementPropertyOption'
+import { ElementPropertyValue } from './values/SDKElementPropertyValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -15,7 +15,7 @@ import { ComponentPropertyValue } from './values/SDKComponentPropertyValue'
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
-export enum ComponentPropertyType {
+export enum ElementPropertyType {
     text = 'Text',
     number = 'Number',
     boolean = 'Boolean',
@@ -25,18 +25,18 @@ export enum ComponentPropertyType {
     url = 'URL'
 }
 
-export enum ComponentPropertyTargetElementType {
+export enum ElementPropertyTargetElementType {
     token = 'Token',
     component = 'Component',
     documentationPage = 'DocumentationPage'
 }
 
-export enum ComponentPropertyLinkElementType {
+export enum ElementPropertyLinkElementType {
     documentationItem = 'DocumentationItem',
     figmaComponent = 'FigmaComponent'
 }
 
-export interface ComponentPropertyRemoteModel {
+export interface ElementPropertyRemoteModel {
   id: string
   persistentId: string
   designSystemVersionId: string
@@ -45,16 +45,16 @@ export interface ComponentPropertyRemoteModel {
     description: string
   }
   codeName: string
-  type: ComponentPropertyType
-  targetElementType: ComponentPropertyTargetElementType
-  linkElementType?: ComponentPropertyLinkElementType
-  options?: Array<ComponentPropertyOptionRemoteModel>
+  type: ElementPropertyType
+  targetElementType: ElementPropertyTargetElementType
+  linkElementType?: ElementPropertyLinkElementType
+  options?: Array<ElementPropertyOptionRemoteModel>
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
 
-export class ComponentProperty {
+export class ElementProperty {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
@@ -77,22 +77,22 @@ export class ComponentProperty {
   description: string | null
   
   /** Base type */
-  propertyType: ComponentPropertyType
+  propertyType: ElementPropertyType
 
   /** Type of design system object this property is contained in - for example, if this property was configured for DS components, this will be of type `component` */
-  targetElementType: ComponentPropertyTargetElementType
+  targetElementType: ElementPropertyTargetElementType
 
   /** Type of design system object this property can be configured with */
-  linkElementType: ComponentPropertyLinkElementType | null 
+  linkElementType: ElementPropertyLinkElementType | null 
 
   /** Property options, only available for `select` type */
-  options: Array<ComponentPropertyOption> | null
+  options: Array<ElementPropertyOption> | null
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: ComponentPropertyRemoteModel) {
+  constructor(model: ElementPropertyRemoteModel) {
 
     this.id = model.id
     this.persistentId = model.persistentId
@@ -105,6 +105,6 @@ export class ComponentProperty {
     this.propertyType = model.type
     this.targetElementType = model.targetElementType
     this.linkElementType = model.linkElementType ?? null
-    this.options = model.options ? model.options.map(o => new ComponentPropertyOption(o)) : null
+    this.options = model.options ? model.options.map(o => new ElementPropertyOption(o)) : null
   }
 }
