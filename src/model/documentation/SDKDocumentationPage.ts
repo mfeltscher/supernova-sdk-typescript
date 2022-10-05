@@ -39,13 +39,13 @@ export class DocumentationPage extends DocumentationItem {
   parent: DocumentationGroup
 
   /** Internal */
-  private fullDeployedUrl: string | null
+  deployedUrl: string | null
 
   /** Internal */
-  private relativeUrl: string | null
+  relativeUrl: string | null
 
   /** Internal */
-  private editorUrl: string | null
+  editorUrl: string | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -55,7 +55,7 @@ export class DocumentationPage extends DocumentationItem {
     if (model.blocks) {
       this.blocks = model.blocks.map(b => DocumentationBlockBuilder.fromGenericModel(b, customBlocks, configuration))
     }
-    this.fullDeployedUrl = null
+    this.deployedUrl = null
     this.relativeUrl = null
     this.editorUrl = null
   }
@@ -66,7 +66,7 @@ export class DocumentationPage extends DocumentationItem {
   /** Internal: Modifies object with new paths. Don't use outside SDK environment as it doesn't propagate the data back to source */
   internalOverridePaths(deployed: string | null, editor: string | null, relative: string | null) {
     this.editorUrl = editor
-    this.fullDeployedUrl = deployed
+    this.deployedUrl = deployed
     this.relativeUrl = relative
   }
 
@@ -81,12 +81,12 @@ export class DocumentationPage extends DocumentationItem {
   }
 
   /** Retrieve documentation page URL, if the documentation was already deployed (either default or custom domain) */
-  deployedDocsPageUrl(): string | null {
-    return this.fullDeployedUrl
+  deployedPageUrl(): string | null {
+    return this.deployedUrl
   }
 
   /** Retrieve relative page path without the associated domain. Will work even when documentation was not yet deployed */
-  relativeDocsPageUrl(): string | null {
+  relativePageUrl(): string | null {
     return this.relativeUrl
   }
 }

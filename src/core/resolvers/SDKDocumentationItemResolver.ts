@@ -94,8 +94,13 @@ export class DocumentationItemResolver {
         const relative: string | null = this.pageUrl(item)
         item.internalOverridePaths(deployed, editor, relative)
       } else if (item instanceof DocumentationGroup) {
-        const relativeFirstPath = this.pageUrl(item)
-        item.internalOverridePaths(relativeFirstPath)
+        const relative: string | null = this.pageUrl(item)
+        let deployed: string | null = null
+        const page = this.firstPageFromTop(item)
+        if (page) {
+          deployed = this.deployedUrl(page)
+        }
+        item.internalOverridePaths(relative, deployed)
       }
     }
 

@@ -57,7 +57,10 @@ export class DocumentationGroup extends DocumentationItem {
   }
 
   /** Internal */
-  private relativeFirstPageUrl: string | null
+  relativeFirstPageUrl: string | null
+
+  /** Internal */
+  deployedFirstPageUrl: string | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -69,6 +72,7 @@ export class DocumentationGroup extends DocumentationItem {
     this.children = new Array<DocumentationItem>()
     this.groupBehavior = model.groupBehavior
     this.relativeFirstPageUrl = null
+    this.deployedFirstPageUrl = null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -86,12 +90,18 @@ export class DocumentationGroup extends DocumentationItem {
     this.parent = parent ?? null
   }
   /** Internal: Modifies object with new paths. Don't use outside SDK environment as it doesn't propagate the data back to source */
-  internalOverridePaths(relativeFirstPage: string | null) {
-    this.relativeFirstPageUrl = relativeFirstPage
+  internalOverridePaths(relative: string | null, deployed: string | null) {
+    this.relativeFirstPageUrl = relative
+    this.deployedFirstPageUrl = deployed
   }
 
   /** Retrieve relative page path without the associated domain for the first page in the group. Will work even when documentation was not yet deployed */
   relativeDocsPageUrl(): string | null {
     return this.relativeFirstPageUrl
+  }
+
+  /** Retrieve page url for the first page in the group, if the documentation was already deployed (either default or custom domain) */
+  deployedDocsPageUrl(): string | null {
+    return this.deployedFirstPageUrl
   }
 }
