@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.0] - 2022-05-10
+### Added element and pathing system to all objects, added support for multi-layered shadows,
+
+We have extended pathing system so all paths you might need (relative, deployed etc.). We have additionally added `ElementProperty` to components and tokens so you can access all custom properties from all object in the same manner. Finally, we have added support for multilayer shadows, gradients and blurs - you can access those using `.shadowLayers`, `.gradientLayers` and `.blurLayers` on each respective object.
+
 ## [1.7.32] - 2022-31-08
 ### Timestamps for all objects
 

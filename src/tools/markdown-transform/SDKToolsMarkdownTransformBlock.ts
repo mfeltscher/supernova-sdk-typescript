@@ -417,7 +417,7 @@ export class MarkdownTransformBlock {
 
     // Compute path
     let prefix = depth === 1 ? "./" : "../".repeat(depth - 1)
-    let pageUrl = page.relativeDocsPageUrl()
+    let pageUrl = page.relativePageUrl()
     if (pageUrl.endsWith("html")) {
       pageUrl = pageUrl.substring(0, pageUrl.length - 4) + "md"
     }
