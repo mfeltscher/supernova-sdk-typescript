@@ -185,7 +185,8 @@ export class TokenResolver {
     }
 
     // Find all tokens with same origin
-    let matchingTokens = tokens.filter(t => t.origin.sourceId === token.origin.sourceId)
+    let tokenId = this.actualOriginTokenId(token.origin.id)
+    let matchingTokens = tokens.filter(t => this.actualOriginTokenId(t.origin?.id) === tokenId)
     
     // Sort by the parent, and set virtual tokens
     let sortedTokens = new Array<T>()
@@ -205,6 +206,13 @@ export class TokenResolver {
     }
     
     return sortedTokens
+  }
+
+  actualOriginTokenId(id: string | null): string {
+    if (id && id.length > 0) {
+      return id.split(",")[0]
+    }
+    return null
   }
 
 

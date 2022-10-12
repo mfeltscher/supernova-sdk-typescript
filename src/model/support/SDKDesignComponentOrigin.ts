@@ -60,8 +60,7 @@ export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Conveniences
 
-  remoteDesignComponentUrl(): string | undefined {
-
+  get remoteDesignComponentUrl(): string | undefined {
     if (this.sourceType === "Figma" && this.fileId && this.nodeId) {
       return `https://www.figma.com/file/${this.fileId}/${this.fileName ?? "unknown"}?node-id=${this.nodeId}`
     } else {
