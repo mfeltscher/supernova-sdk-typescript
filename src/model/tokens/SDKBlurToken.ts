@@ -12,7 +12,8 @@
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { ElementProperty } from '../elements/SDKElementProperty'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
-import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { BlurTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { BlurTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
 import { BlurTokenValue } from './SDKTokenValue'
 
@@ -45,6 +46,34 @@ export class BlurToken extends Token {
 
     if (alias) {
       this.value.referencedToken = alias
+    }
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Writing
+
+  toWriteObject(): BlurTokenRemoteModel {
+    let baseData = this.toBaseWriteObject()
+    let specificData = baseData as BlurTokenRemoteModel
+    specificData.data = BlurToken.valueToWriteObject(this.value)
+    return specificData
+  }
+
+  static valueToWriteObject(value: BlurTokenValue): { aliasTo: string | undefined; value: BlurTokenRemoteValue } {
+    let valueObject = !value.referencedToken ? {
+      radius: {
+        aliasTo: undefined,
+        value: {
+          measure: value.radius.measure,
+          unit: value.radius.unit
+        }
+      },
+      type: value.type
+    } : undefined
+
+    return {
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

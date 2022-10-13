@@ -159,60 +159,62 @@ export class RadiusToken extends Token {
   toWriteObject(): RadiusTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as RadiusTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = RadiusToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): RadiusTokenRemoteValue {
-    return {
-      radius: {
-        aliasTo: undefined,
-        value: {
-          measure: this.value.radius.measure,
-          unit: this.value.radius.unit
+  static valueToWriteObject(value: RadiusTokenValue): { aliasTo: string | undefined; value: RadiusTokenRemoteValue } {
+    let valueObject = !value.referencedToken
+      ? {
+          radius: {
+            aliasTo: undefined,
+            value: {
+              measure: value.radius.measure,
+              unit: value.radius.unit
+            }
+          },
+          topLeft: value.topLeft
+            ? {
+                aliasTo: undefined,
+                value: {
+                  measure: value.topLeft.measure,
+                  unit: value.topLeft.unit
+                }
+              }
+            : null,
+          topRight: value.topRight
+            ? {
+                aliasTo: undefined,
+                value: {
+                  measure: value.topRight.measure,
+                  unit: value.topRight.unit
+                }
+              }
+            : null,
+          bottomLeft: value.bottomLeft
+            ? {
+                aliasTo: undefined,
+                value: {
+                  measure: value.bottomLeft.measure,
+                  unit: value.bottomLeft.unit
+                }
+              }
+            : null,
+          bottomRight: value.bottomRight
+            ? {
+                aliasTo: undefined,
+                value: {
+                  measure: value.bottomRight.measure,
+                  unit: value.bottomRight.unit
+                }
+              }
+            : null
         }
-      },
-      topLeft: this.value.topLeft
-        ? {
-            aliasTo: undefined,
-            value: {
-              measure: this.value.topLeft.measure,
-              unit: this.value.topLeft.unit
-            }
-          }
-        : null,
-      topRight: this.value.topRight
-        ? {
-            aliasTo: undefined,
-            value: {
-              measure: this.value.topRight.measure,
-              unit: this.value.topRight.unit
-            }
-          }
-        : null,
-      bottomLeft: this.value.bottomLeft
-        ? {
-            aliasTo: undefined,
-            value: {
-              measure: this.value.bottomLeft.measure,
-              unit: this.value.bottomLeft.unit
-            }
-          }
-        : null,
-      bottomRight: this.value.bottomRight
-        ? {
-            aliasTo: undefined,
-            value: {
-              measure: this.value.bottomRight.measure,
-              unit: this.value.bottomRight.unit
-            }
-          }
-        : null
+      : undefined
+
+    return {
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

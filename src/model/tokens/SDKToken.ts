@@ -9,13 +9,13 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ElementProperty, TokenGroup } from '../..'
+import { BlurToken, ElementProperty, TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenType } from '../enums/SDKTokenType'
 import { TokenOrigin } from '../support/SDKTokenOrigin'
 import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
-import { TokenValue } from './SDKTokenValue'
+import { AnyTokenValue, TokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -35,7 +35,7 @@ export class Token implements TokenValue {
   parent: TokenGroup | null
   sortOrder: number
 
-  properties: Array<ElementProperty> 
+  properties: Array<ElementProperty>
   propertyValues: object
   createdAt: Date | null
   updatedAt: Date | null

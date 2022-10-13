@@ -8,7 +8,6 @@
 //  This file defines all token value containers for the actual  model - this model will be exactly available to users
 //
 
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
@@ -139,3 +138,16 @@ export type BlurTokenValue = {
   radius: MeasureTokenValue
   referencedToken: BlurToken | null
 }
+
+export type AnyTokenValue =
+  | ColorTokenValue
+  | TextTokenValue
+  | GenericTokenValue
+  | TypographyTokenValue
+  | RadiusTokenValue
+  | ShadowTokenValue
+  | MeasureTokenValue
+  | FontTokenValue
+  | BorderTokenValue
+  | GradientTokenValue
+  | BlurTokenValue

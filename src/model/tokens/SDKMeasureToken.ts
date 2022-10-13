@@ -160,19 +160,21 @@ export class MeasureToken extends Token {
   toWriteObject(): MeasureTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as MeasureTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = MeasureToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): MeasureTokenRemoteValue {
+  static valueToWriteObject(value: MeasureTokenValue): { aliasTo: string | undefined; value: MeasureTokenRemoteValue } {
+    let valueObject = !value.referencedToken
+      ? {
+          measure: value.measure,
+          unit: value.unit
+        }
+      : undefined
+
     return {
-      measure: this.value.measure,
-      unit: this.value.unit
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

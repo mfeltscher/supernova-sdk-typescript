@@ -99,16 +99,16 @@ export class GenericToken extends Token {
   toWriteObject(): GenericTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as GenericTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = GenericToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): TextTokenRemoteValue {
-    return this.value.text
+  static valueToWriteObject(value: GenericTokenValue): { aliasTo: string | undefined; value: TextTokenRemoteValue } {
+    let valueObject = !value.referencedToken ? value.text : undefined
+
+    return {
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
+    }
   }
 }
