@@ -9,13 +9,14 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { BlurToken, ElementProperty, TokenGroup } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { ElementProperty } from '../elements/SDKElementProperty'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenType } from '../enums/SDKTokenType'
+import { TokenGroup } from '../groups/SDKTokenGroup'
 import { TokenOrigin } from '../support/SDKTokenOrigin'
 import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
-import { AnyTokenValue, TokenValue } from './SDKTokenValue'
+import { TokenValue } from './SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -27,6 +28,7 @@ export class Token implements TokenValue {
   id: string
   versionedId: string
   brandId: string
+  themeId: string | null
   designSystemVersionId: string
   name: string
   description: string
@@ -47,14 +49,23 @@ export class Token implements TokenValue {
     model: TokenRemoteModel,
     dsVersion: DesignSystemVersion,
     properties: Array<ElementProperty>,
-    propertyValues: Array<ElementPropertyValue>
+    propertyValues: Array<ElementPropertyValue>,
+    empty: boolean = false
   ) {
+    if (empty) {
+      // For creation of empty token to be filled from the outside
+      return
+    }
+
     this.id = model.persistentId
     this.versionedId = model.id
     this.brandId = model.brandId
+    this.themeId = null // Can only be set outside
     this.designSystemVersionId = dsVersion.id
-    this.name = model.meta.name
-    this.description = model.meta.description
+    if (model.meta) {
+      this.name = model.meta.name
+      this.description = model.meta.description
+    }
     this.tokenType = model.type
     this.origin = model.originStyle ? new TokenOrigin(model.originStyle) : null
     this.parent = null

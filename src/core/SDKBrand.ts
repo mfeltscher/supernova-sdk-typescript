@@ -26,6 +26,7 @@ import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { Component } from "../model/components/SDKComponent"
 import { BrandWriter } from "./SDKBrandWriter"
 import { Supernova } from "./SDKSupernova"
+import { TokenTheme } from "../model/themes/SDKTokenTheme"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -109,6 +110,14 @@ export class Brand {
       let tokens = await this.dataCore.currentDesignSystemTokens(this.designSystemVersion.designSystem.id, this.designSystemVersion)
       let brandedTokens = tokens.filter(t => t.brandId === this.persistentId)
       return brandedTokens
+    }
+
+    /** Fetches all brands available in this design system version belonging to this specific brand */
+    async themes(): Promise<Array<TokenTheme>> {
+
+      let themes = await this.dataCore.currentDesignSystemThemes(this.designSystemVersion.designSystem.id, this.designSystemVersion)
+      let brandedThemes = themes.filter(t => t.brandId === this.persistentId)
+      return brandedThemes
     }
 
     /** Fetches all token groups available in this design system version belonging to this specific brand */

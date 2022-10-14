@@ -6,7 +6,7 @@
 //  Copyright © 2022 Supernova. All rights reserved.
 //
 
-import { DesignSystemVersion } from '../..'
+import { DesignSystemVersion, Token } from '../..'
 import { TokenThemeOverride, TokenThemeOverrideRemoteModel } from './SDKTokenThemeOverride'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -47,7 +47,7 @@ export class TokenTheme {
   createdAt: Date | null
   updatedAt: Date | null
 
-  overrides: Array<TokenThemeOverride>
+  overriddenTokens: Array<Token>
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -67,18 +67,18 @@ export class TokenTheme {
     this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null
 
     // Note overrides are provided from the resolver when they are computed
-    this.overrides = []
+    this.overriddenTokens = []
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Convenience
 
-  addOverride(group: TokenThemeOverride) {
-    this.overrides.push(group)
+  addOverride(override: Token) {
+    this.overriddenTokens.push(override)
   }
 
-  addOverrides(override: Array<TokenThemeOverride>) {
-    this.overrides = this.overrides.concat(override)
+  addOverrides(overrides: Array<Token>) {
+    this.overriddenTokens = this.overriddenTokens.concat(overrides)
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -97,7 +97,13 @@ export class TokenTheme {
       createdAt: this.createdAt ? this.createdAt.toISOString() : undefined,
       updatedAt: this.updatedAt ? this.updatedAt.toISOString() : undefined,
       codeName: this.codeName,
-      overrides: this.overrides.map(o => o.toWriteObject())
+      overrides: this.tokensToOverrides()
     }
+  }
+
+  private tokensToOverrides(): Array<TokenThemeOverrideRemoteModel> {
+
+    // TODO: Writer
+    return []
   }
 }

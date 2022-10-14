@@ -20,6 +20,7 @@ import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
 import { DesignComponentGroup } from "../model/groups/SDKDesignComponentGroup"
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
+import { TokenTheme } from "../model/themes/SDKTokenTheme"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { SupernovaError } from "./errors/SDKSupernovaError"
@@ -127,6 +128,12 @@ export class DesignSystemVersion {
     async tokens(): Promise<Array<Token>> {
 
         return this.dataCore.currentDesignSystemTokens(this.designSystem.id, this)
+    }
+
+    /** Fetches all themes in this design system version. This method retrieves all groups defined across all brands */
+    async themes(): Promise<Array<TokenTheme>> {
+
+        return this.dataCore.currentDesignSystemThemes(this.designSystem.id, this)
     }
 
     /** Fetches all token groups in this design system version. This method retrieves all groups defined across all brands */

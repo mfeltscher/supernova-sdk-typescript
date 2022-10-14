@@ -10,13 +10,17 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { TokenOrigin } from "../.."
 import { ElementProperty, ElementPropertyRemoteModel, ElementPropertyTargetElementType } from "../../model/elements/SDKElementProperty"
 import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
 import { TokenType } from "../../model/enums/SDKTokenType"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
-import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
+import { ThemeUtilities } from "../../model/themes/SDKThemeUtilities"
+import { TokenTheme, TokenThemeRemoteModel } from "../../model/themes/SDKTokenTheme"
+import { TokenThemeOverrideRemoteModel } from "../../model/themes/SDKTokenThemeOverride"
+import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData, TextTokenRemoteData, GenericTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
 import { TokenRemoteModel, ColorTokenRemoteModel, BorderTokenRemoteModel, FontTokenRemoteModel, GradientTokenRemoteModel, MeasureTokenRemoteModel, RadiusTokenRemoteModel, ShadowTokenRemoteModel, TextTokenRemoteModel, TypographyTokenRemoteModel, BlurTokenRemoteModel, GenericTokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
-import { ColorTokenRemoteValue, FontTokenRemoteValue, GradientStopRemoteValue, MeasureTokenRemoteValue } from "../../model/tokens/remote/SDKRemoteTokenValue"
+import { ColorTokenRemoteValue, FontTokenRemoteValue, GradientStopRemoteValue, MeasureTokenRemoteValue, TextTokenRemoteValue } from "../../model/tokens/remote/SDKRemoteTokenValue"
 import { BlurToken } from "../../model/tokens/SDKBlurToken"
 import { BorderToken } from "../../model/tokens/SDKBorderToken"
 import { ColorToken } from "../../model/tokens/SDKColorToken"
@@ -28,7 +32,7 @@ import { RadiusToken } from "../../model/tokens/SDKRadiusToken"
 import { ShadowToken } from "../../model/tokens/SDKShadowToken"
 import { TextToken } from "../../model/tokens/SDKTextToken"
 import { Token } from "../../model/tokens/SDKToken"
-import { BlurTokenValue, BorderTokenValue, ColorTokenValue, FontTokenValue, GenericTokenValue, GradientStopValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TypographyTokenValue } from "../../model/tokens/SDKTokenValue"
+import { BlurTokenValue, BorderTokenValue, ColorTokenValue, FontTokenValue, GenericTokenValue, GradientStopValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TokenValue, TypographyTokenValue } from "../../model/tokens/SDKTokenValue"
 import { TypographyToken } from "../../model/tokens/SDKTypographyToken"
 import { DesignSystemVersion } from "../SDKDesignSystemVersion"
 
@@ -42,6 +46,11 @@ export class TokenResolver {
 
   hashedTokens = new Map<string, TokenRemoteModel>()
   resolvedTokens = new Map<string, Token>()
+
+  hashedOverrides = new Map<string, TokenThemeOverrideRemoteModel>()
+  hashedReconstructedOverrides = new Map<string, Token>()
+  resolvedOverrides = new Map<string, Token>()
+
   version: DesignSystemVersion
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -156,6 +165,100 @@ export class TokenResolver {
       tokenType === TokenType.generic
     )
   }
+
+  resolveThemeData(
+    data: TokenThemeRemoteModel,
+    tokens: Array<Token>,
+    tokenGroups: Array<TokenGroup>
+  ): TokenTheme {
+
+    let themeId = data.id
+
+    // Build cache for performance
+    for (let token of tokens) {
+      this.resolvedTokens.set(token.id, token)
+    }
+
+    for (let override of data.overrides) {
+      this.hashedOverrides.set(override.tokenPersistentId, override)
+    }
+
+    /*
+     * Step 1: Construct containers for tokens that have overrides - but don't assign value to them just yet
+     */
+    let overrideData = data.overrides
+    for (let override of overrideData) {
+      let token = this.resolvedTokens.get(override.tokenPersistentId)
+      let origin = override.origin
+      if (!token) {
+        throw new Error(`Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as based token was not found`)
+      }
+      let replica = this.makeThemedValuelessTokenReplica(token, themeId, origin)
+      this.hashedReconstructedOverrides.set(replica.id, replica)
+    }
+
+    /*
+     * Step 2: Create map with all tokens, using core tokens and the theme itself so we have all tokens prepared
+     */
+    for (let override of overrideData) {
+        // Skip creation of all tokens that can have reference
+        if (override.data.aliasTo) {
+          continue
+        }
+        // Construct raw colors, fonts, texts, radii and measures first
+        if (this.tokenTypeIsPure(override.type)) {
+          if (!override.data.value) {
+            throw new Error(`Override must always have alias or value, but ${override.tokenPersistentId} provided neither`)
+          }
+          // There is no reference to be solved, so we just assume we can create referenced without issues
+          let replica = this.hashedReconstructedOverrides.get(override.tokenPersistentId)
+          switch (override.type) {
+            case TokenType.color: (replica as ColorToken).value = this.constructColorValue((override.data as ColorTokenRemoteData).value); break;
+            case TokenType.font: (replica as FontToken).value = this.constructFontValue((override.data as FontTokenRemoteData).value); break;
+            case TokenType.measure: (replica as MeasureToken).value = this.constructMeasureValue((override.data as MeasureTokenRemoteData).value); break;
+            case TokenType.text: (replica as TextToken).value = this.constructTextLikeTokenValue((override.data as TextTokenRemoteData).value); break;
+            case TokenType.generic: (replica as GenericToken).value = this.constructTextLikeTokenValue((override.data as GenericTokenRemoteData).value); break;
+          }
+
+          this.resolvedOverrides.set(replica.id, replica)
+        }
+    }
+
+    /*
+     * Step 3: Create values for theme overrides that are raw and pure tokens
+     */
+
+
+    /*
+     * Step 4: Create pure tokens that are references. End of this step will provide us with all possible tokens resolved for mixins later
+     */
+  
+
+    /*
+     * Step 5: Create mixin tokens that can potentially reference pure resolved tokens
+     */
+
+
+    /*
+     * Step 6: Create all remaining tokens, as all pure tokens that can be references and all value tokens with possible mixins were all resolved.
+     */
+
+    let theme = new TokenTheme(data, this.version)
+    theme.overriddenTokens = Array.from(this.resolvedOverrides.values())
+    return theme
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Token replication
+
+  makeThemedValuelessTokenReplica(token: Token, themeId: string, origin: TokenOrigin | null): Token {
+
+    let replica = ThemeUtilities.replicateTokenAsThemePrefabWithoutValue(token, themeId, origin, this.version)
+    replica.themeId = themeId
+
+    return replica
+  }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Temporary: Data structure manipulation
@@ -347,19 +450,21 @@ export class TokenResolver {
   }
 
   constructTextToken(rawData: TextTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
-    let value: TextTokenValue = {
-      text: rawData.data.value,
-      referencedToken: null
-    }
+    let value = this.constructTextLikeTokenValue(rawData.data.value)
     return new TextToken(this.version, rawData, value, null, properties, values)
   }
 
   constructGenericToken(rawData: GenericTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
-    let value: GenericTokenValue = {
-      text: rawData.data.value,
+    let value = this.constructTextLikeTokenValue(rawData.data.value)
+    return new GenericToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructTextLikeTokenValue(rawData: TextTokenRemoteValue): TextTokenValue | GenericTokenValue {
+    let value = {
+      text: rawData,
       referencedToken: null
     }
-    return new GenericToken(this.version, rawData, value, null, properties, values)
+    return value
   }
 
   constructMeasureToken(rawData: MeasureTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): MeasureToken {
