@@ -11,6 +11,7 @@
 
 import { Token, DesignSystemVersion, TokenType, BorderToken, ColorToken, FontToken, GenericToken, GradientToken, MeasureToken, RadiusToken, ShadowToken, TextToken, TokenOrigin } from '../..'
 import { BlurToken } from '../tokens/SDKBlurToken'
+import { AnyToken } from '../tokens/SDKTokenValue'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -25,9 +26,9 @@ export class ThemeUtilities {
   // MARK: - Helpers
 
   /** Creates duplicate of the token */
-  static replicateTokenAsThemePrefabWithoutValue(token: Token, themeId: string, origin: TokenOrigin | null, version: DesignSystemVersion): Token {
+  static replicateTokenAsThemePrefabWithoutValue(token: Token, themeId: string, origin: TokenOrigin | null, version: DesignSystemVersion): AnyToken {
     
-    let replica: Token
+    let replica: AnyToken
     switch (token.tokenType) {
       case TokenType.blur: replica = new BlurToken(version, {} as any, null, null, [], []); break;
       case TokenType.border: replica = new BorderToken(version, {} as any, null, null, [], []); break;
