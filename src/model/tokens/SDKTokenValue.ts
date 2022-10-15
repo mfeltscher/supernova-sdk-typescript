@@ -151,3 +151,17 @@ export type AnyTokenValue =
   | BorderTokenValue
   | GradientTokenValue
   | BlurTokenValue
+
+
+  export type AnyToken =
+  | ColorToken
+  | TextToken
+  | GenericToken
+  | TypographyToken
+  | RadiusToken
+  | ShadowToken
+  | MeasureToken
+  | FontToken
+  | BorderToken
+  | GradientToken
+  | BlurToken

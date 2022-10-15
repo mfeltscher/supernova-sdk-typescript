@@ -89,6 +89,16 @@ export class Token implements TokenValue {
         }
       }
     }
+
+    /*
+    if (this.name === "Test") {
+      console.log(this)
+    }
+
+    if (this.name === "Referenced Color") {
+      console.log(this)
+    }
+    */
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

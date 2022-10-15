@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import test from 'ava'
+import { AnyToken } from '../../model/tokens/SDKTokenValue'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -32,9 +33,11 @@ test('test_theme_override', async t => {
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let theme = (await version.themes())[0]
     let override = theme.overriddenTokens[0]
-    console.log(override)
+    let secondOverride = theme.overriddenTokens[1]
+    console.log((override as AnyToken).value)
+    console.log((secondOverride as AnyToken).value)
 
-    t.true(theme.overriddenTokens.length > 0)
+    t.true(theme.overriddenTokens.length > 1)
 })
 
 
