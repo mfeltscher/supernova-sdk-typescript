@@ -52,11 +52,17 @@ import {
   GenericTokenRemoteModel
 } from '../../model/tokens/remote/SDKRemoteTokenModel'
 import {
+  BlurTokenRemoteValue,
+  BorderTokenRemoteValue,
   ColorTokenRemoteValue,
   FontTokenRemoteValue,
   GradientStopRemoteValue,
+  GradientTokenRemoteValue,
   MeasureTokenRemoteValue,
-  TextTokenRemoteValue
+  RadiusTokenRemoteValue,
+  ShadowTokenRemoteValue,
+  TextTokenRemoteValue,
+  TypographyTokenRemoteValue
 } from '../../model/tokens/remote/SDKRemoteTokenValue'
 import { BlurToken } from '../../model/tokens/SDKBlurToken'
 import { BorderToken } from '../../model/tokens/SDKBorderToken'
@@ -330,7 +336,7 @@ export class TokenResolver {
       }
       // Construct raw typography, gradient, shadow and border colors
       if (!this.tokenTypeIsPure(override.type)) {
-        let token = this.constructValueToken(rawToken, resolvedProperties, resolvedValues)
+        let token = this.constructThemedValueToken(override, themeId)
         this.resolvedTokens.set(token.id, token)
       }
     }
@@ -647,6 +653,8 @@ export class TokenResolver {
         )
         break
     }
+
+    return replica
   }
 
   constructColorToken(
@@ -739,15 +747,22 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): GradientToken {
+    let value = this.constructGradientTokenValue(rawData.data.value)
+    return new GradientToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructGradientTokenValue(rawData: GradientTokenRemoteValue) {
+
     let value: GradientTokenValue = {
-      to: rawData.data.value.to,
-      from: rawData.data.value.from,
-      type: rawData.data.value.type,
-      aspectRatio: rawData.data.value.aspectRatio,
-      stops: this.constructGradientStops(rawData.data.value.stops),
+      to: rawData.to,
+      from: rawData.from,
+      type: rawData.type,
+      aspectRatio: rawData.aspectRatio,
+      stops: this.constructGradientStops(rawData.stops),
       referencedToken: null
     }
-    return new GradientToken(this.version, rawData, value, null, properties, values)
+
+    return value
   }
 
   constructGradientStops(rawData: Array<GradientStopRemoteValue>): Array<GradientStopValue> {
@@ -765,21 +780,27 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): RadiusToken {
+    let value = this.constructRadiusTokenValue(rawData.data.value)
+    return new RadiusToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructRadiusTokenValue(rawData: RadiusTokenRemoteValue): RadiusTokenValue {
     let value: RadiusTokenValue = {
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
-      topLeft: rawData.data.value.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.data.value.topLeft) : null,
-      topRight: rawData.data.value.topRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.topRight)
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
+      topLeft: rawData.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.topLeft) : null,
+      topRight: rawData.topRight
+        ? this.resolveReferencedMeasureTokenValue(rawData.topRight)
         : null,
-      bottomLeft: rawData.data.value.bottomLeft
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.bottomLeft)
+      bottomLeft: rawData.bottomLeft
+        ? this.resolveReferencedMeasureTokenValue(rawData.bottomLeft)
         : null,
-      bottomRight: rawData.data.value.bottomRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.bottomRight)
+      bottomRight: rawData.bottomRight
+        ? this.resolveReferencedMeasureTokenValue(rawData.bottomRight)
         : null,
       referencedToken: null
     }
-    return new RadiusToken(this.version, rawData, value, null, properties, values)
+
+    return value
   }
 
   constructShadowToken(
@@ -787,17 +808,24 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): ShadowToken {
+    let value = this.constructShadowTokenValue(rawData.data.value)
+    return new ShadowToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructShadowTokenValue(rawData: ShadowTokenRemoteValue): ShadowTokenValue {
+
     let value: ShadowTokenValue = {
-      color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
-      x: this.resolveReferencedMeasureTokenValue(rawData.data.value.x),
-      y: this.resolveReferencedMeasureTokenValue(rawData.data.value.y),
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
-      spread: this.resolveReferencedMeasureTokenValue(rawData.data.value.spread),
-      opacity: rawData.data.value.opacity,
-      type: rawData.data.value.type,
+      color: this.resolveReferencedColorTokenValue(rawData.color),
+      x: this.resolveReferencedMeasureTokenValue(rawData.x),
+      y: this.resolveReferencedMeasureTokenValue(rawData.y),
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
+      spread: this.resolveReferencedMeasureTokenValue(rawData.spread),
+      opacity: rawData.opacity,
+      type: rawData.type,
       referencedToken: null
     }
-    return new ShadowToken(this.version, rawData, value, null, properties, values)
+
+    return value
   }
 
   constructBorderToken(
@@ -805,13 +833,18 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): BorderToken {
+    let value = this.constructBorderTokenValue(rawData.data.value)
+    return new BorderToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructBorderTokenValue(rawData: BorderTokenRemoteValue): BorderTokenValue {
     let value: BorderTokenValue = {
-      color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
-      width: this.resolveReferencedMeasureTokenValue(rawData.data.value.width),
-      position: rawData.data.value.position,
+      color: this.resolveReferencedColorTokenValue(rawData.color),
+      width: this.resolveReferencedMeasureTokenValue(rawData.width),
+      position: rawData.position,
       referencedToken: null
     }
-    return new BorderToken(this.version, rawData, value, null, properties, values)
+    return value
   }
 
   constructTypographyToken(
@@ -819,20 +852,25 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): TypographyToken {
+    let value = this.constructTypographyTokenValue(rawData.data.value)
+    return new TypographyToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructTypographyTokenValue(rawData: TypographyTokenRemoteValue): TypographyTokenValue {
     let value: TypographyTokenValue = {
-      font: this.resolveReferencedFontTokenValue(rawData.data.value.font),
-      fontSize: this.resolveReferencedMeasureTokenValue(rawData.data.value.fontSize),
-      textDecoration: rawData.data.value.textDecoration,
-      textCase: rawData.data.value.textCase,
-      letterSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.letterSpacing),
-      lineHeight: rawData.data.value.lineHeight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.lineHeight)
+      font: this.resolveReferencedFontTokenValue(rawData.font),
+      fontSize: this.resolveReferencedMeasureTokenValue(rawData.fontSize),
+      textDecoration: rawData.textDecoration,
+      textCase: rawData.textCase,
+      letterSpacing: this.resolveReferencedMeasureTokenValue(rawData.letterSpacing),
+      lineHeight: rawData.lineHeight
+        ? this.resolveReferencedMeasureTokenValue(rawData.lineHeight)
         : null,
-      paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphIndent),
-      paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphSpacing),
+      paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.paragraphIndent),
+      paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.paragraphSpacing),
       referencedToken: null
     }
-    return new TypographyToken(this.version, rawData, value, null, properties, values)
+    return value
   }
 
   constructBlurToken(
@@ -840,12 +878,17 @@ export class TokenResolver {
     properties: Array<ElementProperty>,
     values: Array<ElementPropertyValue>
   ): BlurToken {
+    let value = this.constructBlurTokenValue(rawData.data.value)
+    return new BlurToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructBlurTokenValue(rawData: BlurTokenRemoteValue): BlurTokenValue {
     let value: BlurTokenValue = {
-      type: rawData.data.value.type,
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
+      type: rawData.type,
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
       referencedToken: null
     }
-    return new BlurToken(this.version, rawData, value, null, properties, values)
+    return value
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
