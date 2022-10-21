@@ -266,13 +266,10 @@ export class TokenResolver {
       if (override.data.aliasTo) {
         continue
       }
-      console.log(override)
+
       // Construct raw colors, fonts, texts, radii and measures first
       if (this.tokenTypeIsPure(override.type)) {
-        console.log(override.data)
         if (!override.data.value) {
-          console.log('failure')
-          console.log(override.data.value)
           throw new Error(
             `Override must always have alias or value, but ${override.tokenPersistentId} provided neither (1: raw)`
           )

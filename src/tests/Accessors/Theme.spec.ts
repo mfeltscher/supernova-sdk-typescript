@@ -21,7 +21,6 @@ test('test_theme', async t => {
     // Fetch specific design system version
     let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
     let themes = (await version.themes())
-    console.log(themes[0])
 
     t.true(themes.length > 0)
 })

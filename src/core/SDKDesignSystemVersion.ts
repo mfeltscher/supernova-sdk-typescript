@@ -161,7 +161,6 @@ export class DesignSystemVersion {
         for (let override of theme.overriddenTokens) {
           overrides.set(override.id, override)
         }
-        console.log(overrides.size)
         index[id] = overrides
       }
   
