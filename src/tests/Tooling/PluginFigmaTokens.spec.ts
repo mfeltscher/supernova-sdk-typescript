@@ -32,13 +32,13 @@ test('test_tooling_design_tokens_load_and_merge', async t => {
     let brand = brands[0]
     
     // Load token definition
-    let tokens = path.join(process.cwd(), 'files', 'tokens_all_variants.json')
+    let tokens = path.join(process.cwd(), 'files', 'tokens_real-case-1.json')
     let definition = fs.readFileSync(tokens, "utf8")
 
     // Create DT tool, load tokens from definition, merge them with upstream source 
     let tool = new SupernovaToolsDesignTokensPlugin(testInstance, version, brand)
     let incomingTokenPack = tool.loadTokensFromDefinition(definition)
-    
+    console.log(incomingTokenPack)
 
     await t.notThrowsAsync(tool.mergeWithRemoteSource(incomingTokenPack.processedNodes, true))
 })

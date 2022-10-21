@@ -166,7 +166,7 @@ export class DataCore {
     const release = await this.tokenMutex.acquire()
 
     // Acquire data
-    if (!this.tokensSynced) {
+    if (!this.themesSynced) {
       await this.updateThemesData(designSystemId, designSystemVersion)
     }
 
