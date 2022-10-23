@@ -10,6 +10,8 @@
 // MARK: - Imports
 
 import test from 'ava'
+import { ShadowToken, TokenType } from '../..'
+import { AnyToken } from '../../model/tokens/SDKTokenValue'
 import { testInstance } from '../helpers'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -33,6 +35,18 @@ test('test_designSystemVersion_tokens', async t => {
     // Fetch its active version
     let tokens = await version.tokens()
     t.true(tokens.length > 0)
+})
+
+test('test_designSystemVersion_tokens_resolution', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    
+    // Validate that all tokens have values and nothing was left unresolved
+    let tokens = await version.tokens()
+    for (let token of tokens) {
+        t.true((token as AnyToken).value !== null && ((token as AnyToken).value !== undefined))
+    }
 })
 
 

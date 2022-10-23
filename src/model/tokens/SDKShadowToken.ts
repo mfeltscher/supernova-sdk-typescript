@@ -43,7 +43,7 @@ export class ShadowToken extends Token {
     propertyValues: Array<ElementPropertyValue>
   ) {
     super(baseToken, version, properties, propertyValues)
-    value = value
+    this.value = value
     this.shadowLayers = new Array<ShadowToken>()
     this.isVirtual = false
 
