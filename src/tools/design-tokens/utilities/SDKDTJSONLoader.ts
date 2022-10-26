@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
+import { DTProcessedTokenSet } from './SDKDTTokenSetResolver'
 // import fs from "fs"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -24,6 +25,30 @@ export type DTParsedNode = {
   description: string | null
 }
 
+export type DTParsedTokenSet = {
+  name: string,
+  id: string,
+  contains: Array<DTParsedNode>
+}
+
+export type DTParsedTheme = {
+  name: string,
+  id: string,
+  selectedTokenSets: Array<DTParsedThemeSetPriorityPair>
+}
+
+export type DTParsedThemeSetPriorityPair = {
+  set: DTParsedTokenSet,
+  priority: DTParsedThemeSetPriority
+}
+
+export enum DTParsedThemeSetPriority {
+  source = "Source",
+  enabled = "Enabled",
+  disabled = "Disabled"
+}
+
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
@@ -32,22 +57,35 @@ export class DTJSONLoader {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
+  themeBuffer: Array<DTParsedTheme>
+
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor() {}
+  constructor() {
+
+    this.themeBuffer = new Array<DTParsedTheme>()
+  }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Loader
 
   /** Load token definitions from string */
-  loadDSObjectsFromDefinition(definition: string): Array<DTParsedNode> {
+  loadDSObjectsFromDefinition(definition: string): {
+    nodes: Array<DTParsedNode>
+    themes: Array<DTParsedTheme>
+    sets: Array<DTParsedTokenSet>  
+  } {
     let data = this.parseDefinition(definition)
     return this.processDefinitionTree(data)
   }
 
   /** Load token definitions from object */
-  loadDSObjectsFromObject(object: object): Array<DTParsedNode> {
+  loadDSObjectsFromObject(object: object): {
+    nodes: Array<DTParsedNode>
+    themes: Array<DTParsedTheme>
+    sets: Array<DTParsedTokenSet>  
+  } {
     return this.processDefinitionTree(object)
   }
 
@@ -84,19 +122,113 @@ export class DTJSONLoader {
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Node Parser
+  // MARK: - Theme Parser
 
-  private processDefinitionTree(definition: object): Array<DTParsedNode> {
-    let nodes = this.parseNode([], definition)
-    return nodes
+  private processThemes(definition: object, tokenSets: Map<string, DTParsedTokenSet>): Array<DTParsedTheme> {
+
+    let themes: Array<DTParsedTheme> = new Array<DTParsedTheme>()
+
+    // Seek theme definition object
+    for (let [highLevelKey, value] of Object.entries(definition)) {
+      if (highLevelKey === "$themes") {
+        // Parse each theme separately
+        for (let [iterator, themeObject] of Object.entries(value)) {
+          let name = themeObject["name"]?.value
+          let id = themeObject["id"]?.value
+          let sets = themeObject["selectedTokenSets"]
+          console.log(themeObject)
+          if (!name || !id || !sets) {
+            // Skip execution of this theme as it doesn't have correct information provided
+            throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
+          }
+
+          // Process token sets
+          let pairedSets = new Array<DTParsedThemeSetPriorityPair>()
+          for (let [tokenSetName, tokenValuePair] of Object.entries(sets)) {
+            let tokenSetPriority = tokenValuePair["value"]
+            if (!tokenSetPriority) {
+              throw new Error("Incorrect theme data structure, token set priority required to be provided")
+            }
+
+            // Get token set from existing ones. Not finding one is critical error
+            let tokenSet = tokenSets.get(tokenSetName)
+            if (!tokenSet) {
+              /*
+              console.log("Currently available sets: ")
+              console.log(Array.from(tokenSets.keys()))
+              console.log(`Current key: ${tokenSetName}`)
+              */
+              throw new Error("Can't find token set referenced by the theme engine")
+            }
+
+            pairedSets.push({
+              set: tokenSet,
+              priority: tokenSetPriority
+            })
+          }
+
+          let theme: DTParsedTheme = {
+            selectedTokenSets: pairedSets,
+            name: name,
+            id: id
+          }
+          themes.push(theme)
+        }
+
+        // Found it, skip the rest
+        break
+      }
+    }
+
+    return themes
   }
 
-  private parseNode(path: Array<string>, objects: object): Array<DTParsedNode> {
+
+  private processSets(definition: object): Map<string, DTParsedTokenSet> {
+
+    let sets = new Map<string, DTParsedTokenSet>()
+
+    // Parse top level objects as sets, unless they contain $
+    // Value is ignored, as that is parsed separately
+    for (let [setName, value] of Object.entries(definition)) {
+      if (!setName.startsWith("$")) {
+        let set: DTParsedTokenSet = {
+          contains: [],
+          name: setName,
+          id: setName 
+        }
+        sets.set(setName, set)
+      }
+    }
+
+    return sets
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Node Parser
+
+  private processDefinitionTree(definition: object): {
+    nodes: Array<DTParsedNode>
+    themes: Array<DTParsedTheme>
+    sets: Array<DTParsedTokenSet>  
+  } {
+    let sets = this.processSets(definition)
+    let nodes = this.parseNode([], definition, sets)
+    let themes = this.processThemes(definition, sets)
+    return {
+      nodes: nodes,
+      sets: Array.from(sets.values()),
+      themes: themes
+    }
+  }
+
+  private parseNode(path: Array<string>, objects: object, sets: Map<string, DTParsedTokenSet>): Array<DTParsedNode> {
     let result: Array<DTParsedNode> = []
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {
         if (name.startsWith("$")) {
-          // Skipping keys internal to desing token plugin for now
+          // Skipping keys internal to design token plugin because we are currently not using them
         } else if (value.hasOwnProperty('value') && value.hasOwnProperty('type')) {
           // Treat as value
           let entity = {
@@ -107,13 +239,18 @@ export class DTJSONLoader {
             value: value['value'],
             description: value['description'] ?? null
           }
+          let set = sets.get(entity.rootKey)
+          if (!set) {
+            throw new Error('Node references unknown set')
+          }
+          set.contains.push(entity)
           result.push(entity)
         } else {
           // Treat as leaf
-          result = result.concat(this.parseNode(path.concat(name), value))
+          result = result.concat(this.parseNode(path.concat(name), value, sets))
         }
       } else {
-        throw new Error('Unable to parse, unsupported structure in color node leaf')
+        throw new Error('Unable to parse, unsupported structure in token node leaf')
       }
     }
     

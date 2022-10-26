@@ -87,8 +87,8 @@ export class SupernovaToolsDesignTokensPlugin {
     groups: Array<TokenGroup>
   } {
     let loader = new DTJSONLoader()
-    let nodes = loader.loadDSObjectsFromDefinition(definition)
-    return this.processTokenNodes(nodes)
+    let parseResult = loader.loadDSObjectsFromDefinition(definition)
+    return this.processTokenNodes(parseResult.nodes)
   }
 
   /** Load token definitions from a definition object */
@@ -98,8 +98,8 @@ export class SupernovaToolsDesignTokensPlugin {
     groups: Array<TokenGroup>
   } {
     let loader = new DTJSONLoader()
-    let nodes = loader.loadDSObjectsFromObject(definition)
-    return this.processTokenNodes(nodes)
+    let parseResult = loader.loadDSObjectsFromObject(definition)
+    return this.processTokenNodes(parseResult.nodes)
   }
 
   private processTokenNodes(nodes: Array<DTParsedNode>): {
