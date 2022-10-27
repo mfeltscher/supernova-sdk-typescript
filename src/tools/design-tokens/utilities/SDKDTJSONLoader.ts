@@ -43,9 +43,24 @@ export type DTParsedThemeSetPriorityPair = {
 }
 
 export enum DTParsedThemeSetPriority {
-  source = "Source",
-  enabled = "Enabled",
-  disabled = "Disabled"
+  source = "source",
+  enabled = "enabled",
+  disabled = "disabled"
+}
+
+export type DTPluginToSupernovaMap = {
+  type: DTPluginToSupernovaMapType,
+  pluginSets: string | null,
+  pluginTheme: string | null,
+  bindToBrand: string,
+  bindToTheme: string | null // If not provided, will be default
+}
+
+export type DTPluginToSupernovaMapPack = Array<DTPluginToSupernovaMap>
+
+export enum DTPluginToSupernovaMapType {
+  theme = "theme",
+  set = "set"
 }
 
 
@@ -136,7 +151,6 @@ export class DTJSONLoader {
           let name = themeObject["name"]?.value
           let id = themeObject["id"]?.value
           let sets = themeObject["selectedTokenSets"]
-          console.log(themeObject)
           if (!name || !id || !sets) {
             // Skip execution of this theme as it doesn't have correct information provided
             throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
@@ -153,11 +167,6 @@ export class DTJSONLoader {
             // Get token set from existing ones. Not finding one is critical error
             let tokenSet = tokenSets.get(tokenSetName)
             if (!tokenSet) {
-              /*
-              console.log("Currently available sets: ")
-              console.log(Array.from(tokenSets.keys()))
-              console.log(`Current key: ${tokenSetName}`)
-              */
               throw new Error("Can't find token set referenced by the theme engine")
             }
 
@@ -216,6 +225,17 @@ export class DTJSONLoader {
     let sets = this.processSets(definition)
     let nodes = this.parseNode([], definition, sets)
     let themes = this.processThemes(definition, sets)
+    for (let value of themes) {
+      console.log(value)
+    }
+    console.log(`PARSING COMPLETE WITH RESULT:`)
+    console.log(`-----------`)
+    console.log(`Nodes: ${nodes.length}`)
+    console.log(`-----------`)
+    console.log(`Sets: ${sets.size}, ${(Array.from(sets.values()).map(s => `\n   ${s.name}: ${s.contains.length} nodes`))}`)
+    console.log(`-----------`)
+    console.log(`Themes: ${themes.length}, ${themes.map(t => `\n   ${t.name}: ${t.selectedTokenSets.filter(s => s.priority !== DTParsedThemeSetPriority.disabled).length} sets`)}`)
+    console.log(`-----------`)
     return {
       nodes: nodes,
       sets: Array.from(sets.values()),

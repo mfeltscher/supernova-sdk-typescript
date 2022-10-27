@@ -10,8 +10,9 @@
 // MARK: - Imports
 
 import { v4 as uuidv4 } from 'uuid'
-import { Brand, DesignSystemVersion, Token, TokenGroup, TokenType } from '../../..'
+import { Brand, DesignSystemVersion, TokenGroup, TokenType } from '../../..'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
+import { DTPluginToSupernovaMapPack } from './SDKDTJSONLoader'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -34,13 +35,15 @@ export class DTJSONGroupBuilder {
 
   version: DesignSystemVersion
   brand: Brand
+  mapping: DTPluginToSupernovaMapPack
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand) {
+  constructor(version: DesignSystemVersion, brand: Brand, mapping: DTPluginToSupernovaMapPack) {
     this.version = version
     this.brand = brand
+    this.mapping = mapping
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

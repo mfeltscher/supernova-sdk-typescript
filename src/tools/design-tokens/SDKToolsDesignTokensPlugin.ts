@@ -15,7 +15,7 @@ import { Supernova } from "../../core/SDKSupernova"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
 import { Token } from "../../model/tokens/SDKToken"
 import _ from "lodash"
-import { DTJSONLoader, DTParsedNode } from "./utilities/SDKDTJSONLoader"
+import { DTJSONLoader, DTParsedNode, DTPluginToSupernovaMapPack } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
 import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
@@ -81,34 +81,34 @@ export class SupernovaToolsDesignTokensPlugin {
   }*/
 
   /** Load token definitions from a JSON file */
-  loadTokensFromDefinition(definition: string): {
+  loadTokensFromDefinition(definition: string, mapping: DTPluginToSupernovaMapPack): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
   } {
     let loader = new DTJSONLoader()
     let parseResult = loader.loadDSObjectsFromDefinition(definition)
-    return this.processTokenNodes(parseResult.nodes)
+    return this.processTokenNodes(parseResult.nodes, mapping)
   }
 
   /** Load token definitions from a definition object */
-  loadTokensFromObject(definition: object): {
+  loadTokensFromObject(definition: object, mapping: DTPluginToSupernovaMapPack): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
   } {
     let loader = new DTJSONLoader()
     let parseResult = loader.loadDSObjectsFromObject(definition)
-    return this.processTokenNodes(parseResult.nodes)
+    return this.processTokenNodes(parseResult.nodes, mapping)
   }
 
-  private processTokenNodes(nodes: Array<DTParsedNode>): {
+  private processTokenNodes(nodes: Array<DTParsedNode>, mapping: DTPluginToSupernovaMapPack): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
   } {
-    let converter = new DTJSONConverter(this.version, this.brand)
-    let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand)
+    let converter = new DTJSONConverter(this.version, this.brand, mapping)
+    let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand, mapping)
     let processedNodes = converter.convertNodesToTokens(nodes)
     let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
     return {

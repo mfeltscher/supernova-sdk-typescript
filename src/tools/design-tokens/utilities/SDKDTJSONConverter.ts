@@ -19,7 +19,7 @@ import { RadiusToken } from "../../../model/tokens/SDKRadiusToken"
 import { ShadowToken } from "../../../model/tokens/SDKShadowToken"
 import { Token } from "../../../model/tokens/SDKToken"
 import { TypographyToken } from "../../../model/tokens/SDKTypographyToken"
-import { DTParsedNode } from "./SDKDTJSONLoader"
+import { DTParsedNode, DTPluginToSupernovaMapPack } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
 import { DTTokenReferenceResolver } from "./SDKDTTokenReferenceResolver"
 
@@ -51,14 +51,16 @@ export class DTJSONConverter {
 
   version: DesignSystemVersion
   brand: Brand
+  mapping: DTPluginToSupernovaMapPack
   referenceResolver: DTTokenReferenceResolver
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand) {
+  constructor(version: DesignSystemVersion, brand: Brand, mapping: DTPluginToSupernovaMapPack) {
     this.version = version
     this.brand = brand
+    this.mapping = mapping
     this.referenceResolver = new DTTokenReferenceResolver()
   }
 
