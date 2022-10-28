@@ -34,15 +34,13 @@ export class DTJSONGroupBuilder {
   // MARK: - Properties
 
   version: DesignSystemVersion
-  brand: Brand
   mapping: DTPluginToSupernovaMapPack
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand, mapping: DTPluginToSupernovaMapPack) {
+  constructor(version: DesignSystemVersion, mapping: DTPluginToSupernovaMapPack) {
     this.version = version
-    this.brand = brand
     this.mapping = mapping
   }
 
@@ -50,7 +48,7 @@ export class DTJSONGroupBuilder {
   // MARK: - Tree builder
 
   /** Create mapping between DT <> SN and assign all tokens into their respective newly created groups */
-  constructAllDefinableGroupsTrees(processedNodes: Array<DTProcessedTokenNode>): Array<TokenGroup> {
+  constructAllDefinableGroupsTrees(processedNodes: Array<DTProcessedTokenNode>, brand: Brand): Array<TokenGroup> {
     
     // Base mapping function
     let mapping: Array<DTRootGroupMapping> = [
@@ -59,18 +57,18 @@ export class DTJSONGroupBuilder {
 
     let groups: Array<TokenGroup> = []
     for (let map of mapping) {
-        groups = groups.concat(this.constructGroupTree(processedNodes, map))
+        groups = groups.concat(this.constructGroupTree(processedNodes, map, brand))
     }
 
     return groups
   }
 
   /** Create group tree needed to contain entire token tree for particular mapping combination */
-  constructGroupTree(processedNodes: Array<DTProcessedTokenNode>, mapping: DTRootGroupMapping): Array<TokenGroup> {
+  constructGroupTree(processedNodes: Array<DTProcessedTokenNode>, mapping: DTRootGroupMapping, brand: Brand): Array<TokenGroup> {
 
     // Select only nodes with types corresponding to the group
     let nodes = processedNodes.filter(n => n.token.tokenType === mapping.snType)
-    let rootGroup = this.createGroup(this.brand.persistentId, this.version.id, mapping.snRootName, mapping.snType, true)
+    let rootGroup = this.createGroup(brand.persistentId, this.version.id, mapping.snRootName, mapping.snType, true)
 
     // Set main root group
     let mappedGroups: Map<string, TokenGroup> = new Map<string, TokenGroup>()
@@ -78,7 +76,7 @@ export class DTJSONGroupBuilder {
 
     for (let node of nodes) {
       let key = node.path.join('.')
-      this.constructGroupChain(this.version, this.brand, mappedGroups, node.path)
+      this.constructGroupChain(this.version, brand, mappedGroups, node.path)
       let group = mappedGroups.get(key)
       group = group.toMutatedObject(group.childrenIds.concat(node.token.id))
       mappedGroups.set(key, group)

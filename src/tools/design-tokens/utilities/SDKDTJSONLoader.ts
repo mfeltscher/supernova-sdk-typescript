@@ -9,7 +9,9 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { TokenGroup } from '../../..'
 import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
+import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 import { DTProcessedTokenSet } from './SDKDTTokenSetResolver'
 // import fs from "fs"
 
@@ -54,7 +56,10 @@ export type DTPluginToSupernovaMap = {
   pluginTheme: string | null,
   bindToBrand: string,
   bindToTheme: string | null // If not provided, will be default
+
   nodes: Array<DTParsedNode> | null // This will be added when map is resolved
+  processedNodes: Array<DTProcessedTokenNode> | null // This will be added when nodes are processed
+  processedGroups: Array<TokenGroup> | null // This will be added when groups are created
 }
 
 export type DTPluginToSupernovaMapPack = Array<DTPluginToSupernovaMap>
@@ -226,17 +231,6 @@ export class DTJSONLoader {
     let sets = this.processSets(definition)
     let nodes = this.parseNode([], definition, sets)
     let themes = this.processThemes(definition, sets)
-    for (let value of themes) {
-      console.log(value)
-    }
-    console.log(`PARSING COMPLETE WITH RESULT:`)
-    console.log(`-----------`)
-    console.log(`Nodes: ${nodes.length}`)
-    console.log(`-----------`)
-    console.log(`Sets: ${sets.size}, ${(Array.from(sets.values()).map(s => `\n   ${s.name}: ${s.contains.length} nodes`))}`)
-    console.log(`-----------`)
-    console.log(`Themes: ${themes.length}, ${themes.map(t => `\n   ${t.name}: ${t.selectedTokenSets.filter(s => s.priority !== DTParsedThemeSetPriority.disabled).length} sets`)}`)
-    console.log(`-----------`)
     return {
       nodes: nodes,
       sets: Array.from(sets.values()),

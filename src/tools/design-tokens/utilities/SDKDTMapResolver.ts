@@ -29,14 +29,12 @@ export class DTMapResolver {
   // MARK: - Properties
 
   private version: DesignSystemVersion
-  private brand: Brand
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand) {
+  constructor(version: DesignSystemVersion) {
     this.version = version
-    this.brand = brand
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
