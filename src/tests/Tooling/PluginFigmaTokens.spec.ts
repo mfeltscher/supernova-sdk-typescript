@@ -109,13 +109,7 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let definition = fs.readFileSync(tokens, 'utf8')
   let processedMaps = tool.loadTokensFromDefinition(definition, mapping, brands)
 
-  let counter = 0
   for (let map of processedMaps) {
-    
-    if (counter === 0) {
-      counter++
-      continue // Skip first group for now
-    }
     
     // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
     if (map.bindToTheme) {
@@ -127,7 +121,7 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
       throw new Error(`Unknown brand provided in binding`)
     }
     await t.notThrowsAsync(tool.mergeWithRemoteSource(map.processedNodes, brand, true))
-    console.log(`Synchronized base tokens for brand ${brand.name}`)
+    console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
   }
 })
 
