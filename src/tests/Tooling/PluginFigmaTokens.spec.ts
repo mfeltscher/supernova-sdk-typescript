@@ -77,6 +77,22 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453',
       bindToBrand: 'id',
       bindToTheme: null // If not provided, will be default
+    },
+    {
+      nodes: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '5c4398306818a6f47794e6d3ac02ae3709a649b1',
+      bindToBrand: 'id',
+      bindToTheme: null // If not provided, will be default
+    },
+    {
+      nodes: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '58cc12aa9a1c28268e7478aa8236425156ba5bd8',
+      bindToBrand: 'id',
+      bindToTheme: null // If not provided, will be default
     }
   ]
 
@@ -111,6 +127,22 @@ test('test_tooling_design_tokens_reverse_load', async t => {
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453',
+      bindToBrand: 'id',
+      bindToTheme: null // If not provided, will be default
+    },
+    {
+      nodes: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '5c4398306818a6f47794e6d3ac02ae3709a649b1',
+      bindToBrand: 'id',
+      bindToTheme: null // If not provided, will be default
+    },
+    {
+      nodes: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '58cc12aa9a1c28268e7478aa8236425156ba5bd8',
       bindToBrand: 'id',
       bindToTheme: null // If not provided, will be default
     }
