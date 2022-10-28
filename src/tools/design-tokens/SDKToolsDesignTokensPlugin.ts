@@ -15,12 +15,13 @@ import { Supernova } from "../../core/SDKSupernova"
 import { TokenGroup } from "../../model/groups/SDKTokenGroup"
 import { Token } from "../../model/tokens/SDKToken"
 import _ from "lodash"
-import { DTJSONLoader, DTParsedNode, DTPluginToSupernovaMapPack } from "./utilities/SDKDTJSONLoader"
+import { DTJSONLoader, DTParsedNode, DTParsedTheme, DTParsedTokenSet, DTPluginToSupernovaMapPack } from "./utilities/SDKDTJSONLoader"
 import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
 import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
 import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
 import { DTTokenMerger } from "./utilities/SDKDTTokenMerger"
 import { Brand } from "../../core/SDKBrand"
+import { DTMapResolver } from "./utilities/SDKDTMapResolver"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -88,7 +89,7 @@ export class SupernovaToolsDesignTokensPlugin {
   } {
     let loader = new DTJSONLoader()
     let parseResult = loader.loadDSObjectsFromDefinition(definition)
-    return this.processTokenNodes(parseResult.nodes, mapping)
+    return this.processTokenNodes(parseResult, mapping)
   }
 
   /** Load token definitions from a definition object */
@@ -99,17 +100,31 @@ export class SupernovaToolsDesignTokensPlugin {
   } {
     let loader = new DTJSONLoader()
     let parseResult = loader.loadDSObjectsFromObject(definition)
-    return this.processTokenNodes(parseResult.nodes, mapping)
+    return this.processTokenNodes(parseResult, mapping)
   }
 
-  private processTokenNodes(nodes: Array<DTParsedNode>, mapping: DTPluginToSupernovaMapPack): {
+  private processTokenNodes(parseResult: { nodes: Array<DTParsedNode>, themes: Array<DTParsedTheme>, sets: Array<DTParsedTokenSet> }, mapping: DTPluginToSupernovaMapPack): {
     processedNodes: Array<DTProcessedTokenNode>,
     tokens: Array<Token>,
     groups: Array<TokenGroup>
   } {
+    // Create base objects
     let converter = new DTJSONConverter(this.version, this.brand, mapping)
     let groupBuilder = new DTJSONGroupBuilder(this.version, this.brand, mapping)
-    let processedNodes = converter.convertNodesToTokens(nodes)
+    let mapResolver = new DTMapResolver(this.version, this.brand)
+    
+    // Resolve each theme or set separately
+    for (let map of mapping) {
+      console.log(`Resolving mapping:`)
+      console.log(map)
+      let resolvedMap = mapResolver.mappedNodePools(map, parseResult.themes, parseResult.sets)
+      if (!resolvedMap.nodes) {
+        throw new Error("Resolved map doesn't contain resulting nodes")
+      }
+      console.log(`Resolved map includes: ${map.nodes.length} nodes`)
+    }
+
+    let processedNodes = converter.convertNodesToTokens(parseResult.nodes) // TODO SEPARATE RESOLUTION FOR EACH
     let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes)
     return {
         processedNodes,

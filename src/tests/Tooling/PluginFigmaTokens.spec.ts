@@ -37,8 +37,9 @@ test('test_tooling_design_tokens_load_and_merge', async t => {
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
+      nodes: null,
       type: DTPluginToSupernovaMapType.theme,
-      pluginSets: null,
+      pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453',
       bindToBrand: 'id',
       bindToTheme: null // If not provided, will be default
@@ -70,8 +71,9 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
+      nodes: null,
       type: DTPluginToSupernovaMapType.theme,
-      pluginSets: null,
+      pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453',
       bindToBrand: 'id',
       bindToTheme: null // If not provided, will be default
@@ -105,8 +107,9 @@ test('test_tooling_design_tokens_reverse_load', async t => {
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
+      nodes: null,
       type: DTPluginToSupernovaMapType.theme,
-      pluginSets: null,
+      pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453',
       bindToBrand: 'id',
       bindToTheme: null // If not provided, will be default

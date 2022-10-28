@@ -50,10 +50,11 @@ export enum DTParsedThemeSetPriority {
 
 export type DTPluginToSupernovaMap = {
   type: DTPluginToSupernovaMapType,
-  pluginSets: string | null,
+  pluginSet: string | null,
   pluginTheme: string | null,
   bindToBrand: string,
   bindToTheme: string | null // If not provided, will be default
+  nodes: Array<DTParsedNode> | null // This will be added when map is resolved
 }
 
 export type DTPluginToSupernovaMapPack = Array<DTPluginToSupernovaMap>
