@@ -83,7 +83,6 @@ export class SupernovaToolsDesignTokensPlugin {
   loadTokensFromDefinition(definition: string, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): DTPluginToSupernovaMapPack {
     let loader = new DTJSONLoader()
     let parseResult = loader.loadDSObjectsFromDefinition(definition)
-
     console.log(`:: INITIAL DATA PARSING COMPLETE WITH RESULT:`)
     console.log(`-----------`)
     console.log(`Nodes: ${parseResult.nodes.length}`)

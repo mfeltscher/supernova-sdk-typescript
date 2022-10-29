@@ -74,10 +74,15 @@ export class DTTokenReferenceResolver {
       return false
     }
     
+    if ((value.match(/{/g)||[]).length > 1) {
+      console.log("Skipping because reference is unsupported garbage")
+      return false
+    }
+
     value = value.trim()
     return value.length > 3 && 
            value.startsWith("{") &&
-           value.endsWith("}")
+           value.endsWith("}")   
   }
 
   tokenReferenceKey(path: Array<String>, name: string): string {

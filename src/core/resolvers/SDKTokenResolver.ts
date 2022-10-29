@@ -251,7 +251,7 @@ export class TokenResolver {
       let origin = override.origin
       if (!token) {
         throw new Error(
-          `Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as based token was not found`
+          `Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as base token was not found`
         )
       }
       let replica = this.makeThemedValuelessTokenReplica(token, themeId, origin)

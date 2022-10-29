@@ -68,6 +68,7 @@ export class DataBridge {
     const config: AxiosRequestConfig = {
       url,
       method,
+      timeout: 120000,
       headers: {}
     }
     if (data) {
