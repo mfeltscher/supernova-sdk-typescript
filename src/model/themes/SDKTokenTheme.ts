@@ -62,6 +62,7 @@ export class TokenTheme {
     this.designSystemVersionId = dsVersion.id
     this.name = model.meta.name
     this.description = model.meta.description
+    this.codeName = model.codeName
 
     this.createdAt = model.createdAt ? new Date(model.createdAt) : null
     this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null

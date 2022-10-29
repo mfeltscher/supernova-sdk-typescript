@@ -12,6 +12,7 @@
 // MARK: - Imports
 
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
+import { TokenTheme } from "../model/themes/SDKTokenTheme"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { Brand } from "./SDKBrand"
@@ -26,6 +27,12 @@ export type TokenWriteResponse = {
     errors: Array<string>,
     tokens: Array<Token>
     tokenGroups: Array<TokenGroup>
+}
+
+export type TokenThemeWriteResponse = {
+    result: "success" | "error",
+    errors: Array<string>,
+    theme: TokenTheme
 }
 
 
@@ -71,8 +78,23 @@ export class BrandWriter {
         return {
             result: "success",
             errors: [],
-            tokens: [],
-            tokenGroups: []
+            tokens: tokens,
+            tokenGroups: groups
+        }
+    }    
+    
+    async writeTheme(theme: TokenTheme): Promise<TokenThemeWriteResponse> {
+
+        // Convert tokens and groups to their remote counterparts
+        let remoteTheme = theme.toWriteObject()
+        await this.dataCore.writeTokenThemeData(this.brand.designSystemVersion.designSystem.id, this.brand.designSystemVersion, remoteTheme)
+        
+        return {
+            result: "success",
+            errors: [],
+            theme: theme
         }
     }
   }
+
+  

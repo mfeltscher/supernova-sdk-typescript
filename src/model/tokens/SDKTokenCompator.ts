@@ -23,13 +23,7 @@ import {
   Token,
   TypographyToken
 } from '../..'
-import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
-import { ElementProperty } from '../elements/SDKElementProperty'
-import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { TokenType } from '../enums/SDKTokenType'
-import { TokenGroup } from '../groups/SDKTokenGroup'
-import { TokenOrigin } from '../support/SDKTokenOrigin'
-import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import {
   AnyTokenValue,
   BlurTokenValue,

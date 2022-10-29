@@ -1122,4 +1122,18 @@ export class DataCore {
     } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
     return result
   }
+
+  async writeTokenThemeData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    theme: TokenThemeRemoteModel
+  ): Promise<TokenThemeRemoteModel> {
+    const endpoint = `themes/${theme.id}`
+    const payload = theme
+
+    let result: {
+      theme: TokenThemeRemoteModel
+    } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload, true)
+    return result.theme
+  }
 }

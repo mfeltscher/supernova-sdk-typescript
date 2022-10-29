@@ -22,6 +22,8 @@ import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
 import { DTTokenMerger } from "./utilities/SDKDTTokenMerger"
 import { Brand } from "../../core/SDKBrand"
 import { DTMapResolver } from "./utilities/SDKDTMapResolver"
+import { TokenTheme } from "../../model/themes/SDKTokenTheme"
+import { DTThemeMerger } from "./utilities/SDKDTThemeMerger"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -203,6 +205,32 @@ export class SupernovaToolsDesignTokensPlugin {
     return {
       tokens: tokensToWrite,
       groups: tokenGroupsToWrite
+    }
+  }
+
+    /** Loads remote source connected to this tool, then creates the diff from the base tree and updates the associated theme. Can optionally write to the source as well */
+    async mergeThemeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, brand: Brand, theme: TokenTheme, write: boolean): Promise<{
+      theme: TokenTheme
+  }> {
+    // Get remote token data
+    let upstreamTokens = await brand.tokens()
+    let upstreamTheme = theme
+
+    let themeMerger = new DTThemeMerger(this.version)
+    let themeMergerResult = themeMerger.makeTheme(upstreamTokens, upstreamTheme, processedNodes)
+
+    if (write) {
+      let writer = brand.writer()
+      await writer.writeTheme(themeMergerResult)
+    }
+
+    console.log(`:: COMPLETED REMOTE SYNC:`)
+    console.log(`-----------`)
+    console.log(`Merge result (theme overrides): ${themeMergerResult.overriddenTokens.length}`)
+    console.log(`-----------`)
+
+    return {
+      theme: theme
     }
   }
 

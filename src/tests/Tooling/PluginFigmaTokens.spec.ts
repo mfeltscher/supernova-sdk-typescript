@@ -18,7 +18,10 @@ import test from 'ava'
 import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
-import { DTPluginToSupernovaMapPack, DTPluginToSupernovaMapType } from '../../tools/design-tokens/utilities/SDKDTJSONLoader'
+import {
+  DTPluginToSupernovaMapPack,
+  DTPluginToSupernovaMapType
+} from '../../tools/design-tokens/utilities/SDKDTJSONLoader'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -30,14 +33,15 @@ test('test_tooling_design_tokens_load_and_merge', async t => {
     process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
   )
 
-  // Fetch specific brand
+  // Fetch brands and themes
   let brands = await version.brands()
+  let themes = await version.themes()
 
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
       nodes: null,
-      processedNodes: null, 
+      processedNodes: null,
       processedGroups: null,
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
@@ -76,32 +80,56 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
     process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
   )
 
-  // Fetch specific brand
+  // Fetch brand and themes
   let brands = await version.brands()
+  let themes = await version.themes()
+  console.log(
+    themes.map(t => {
+      return {
+        name: t.name,
+        id: t.id,
+        brand: t.brandId
+      }
+    })
+  )
 
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
       nodes: null,
-      processedNodes: null, 
+      processedNodes: null,
       processedGroups: null,
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453', // Headless base plugin theme
       bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand A
-      bindToTheme: null // Default token values,
+      bindToTheme: null // No theme - binding to default token values,
     },
     {
       nodes: null,
-      processedNodes: null, 
+      processedNodes: null,
       processedGroups: null,
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453', // Headless base plugin theme
       bindToBrand: '50826250-56a8-11ed-854c-8516ec9e182f', // Brand B
-      bindToTheme: null // Default token values
+      bindToTheme: null // No theme - binding to default token values
+    },
+    {
+      nodes: null,
+      processedNodes: null,
+      processedGroups: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '5c4398306818a6f47794e6d3ac02ae3709a649b1', // "Brand A - Light Mode" plugin theme
+      bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand B
+      bindToTheme: 'fa9e7700-5776-11ed-b077-993e4d6a5bda' // Light Mode
     }
   ]
+
+  /*
+  
+  */
 
   // Create DT tool, load tokens from definition, merge them with upstream source
   let tool = new SupernovaToolsDesignTokensPlugin(version)
@@ -110,7 +138,6 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let processedMaps = tool.loadTokensFromDefinition(definition, mapping, brands)
 
   for (let map of processedMaps) {
-    
     // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
     if (map.bindToTheme) {
       continue
@@ -122,6 +149,25 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
     }
     await t.notThrowsAsync(tool.mergeWithRemoteSource(map.processedNodes, brand, true))
     console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
+  }
+
+  for (let map of processedMaps) {
+    // Merge all remaining themes
+    if (!map.bindToTheme) {
+      continue
+    }
+    // Find the destination brand
+    let brand = brands.find(b => b.persistentId === map.bindToBrand)
+    if (!brand) {
+      throw new Error(`Unknown brand provided in binding`)
+    }
+    // Find the destination theme
+    let theme = themes.find(t => t.id === map.bindToTheme)
+    if (!theme) {
+      throw new Error(`Unknown theme provided in binding`)
+    }
+    await t.notThrowsAsync(tool.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, true))
+    console.log(`Finished map synchronization: Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`)
   }
 })
 
