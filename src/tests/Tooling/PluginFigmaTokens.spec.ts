@@ -37,6 +37,9 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let brands = await version.brands()
   let themes = await version.themes()
 
+  console.log("Themes")
+  console.log(themes)
+
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {
@@ -45,21 +48,20 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
       processedGroups: null,
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
-      pluginTheme: '079b44a8b28ed46aff5be1542d750aaa108d08e1', // "Brand A - Light Mode" plugin theme
-      bindToBrand: '42d93b8e-ef03-4c0d-bf77-cbbb12a3953a', // Brand A
+      pluginTheme: '079b44a8b28ed46aff5be1542d750aaa108d08e1', // Light theme as default values
+      bindToBrand: '42d93b8e-ef03-4c0d-bf77-cbbb12a3953a', // Default brand
       bindToTheme: null // No theme - binding to default token values,
     },
-    /*
     {
       nodes: null,
       processedNodes: null,
       processedGroups: null,
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
-      pluginTheme: 'd7f7ed73c544a76604e81ff7a6be59bc9ab43fad', // "Brand A - Dark Mode" plugin theme
-      bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand A
-      bindToTheme: '7e477820-1068-45df-a220-35bdc0ea1b16' // Dark Mode
-    }*/
+      pluginTheme: 'd7f7ed73c544a76604e81ff7a6be59bc9ab43fad', // Dark theme as default value
+      bindToBrand: '42d93b8e-ef03-4c0d-bf77-cbbb12a3953a', // Default brand
+      bindToTheme: 'a47eef50-fb6d-4c01-b9be-76b7a094d510' // Dark Mode
+    }
   ]
 
 
