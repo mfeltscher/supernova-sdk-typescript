@@ -136,7 +136,6 @@ export class TokenTheme {
     if (!model.data.aliasTo && !model.data.value) {
       throw new Error("Token doesn't have value or alias to")
     }
-    console.log(model)
     return model
   }
 

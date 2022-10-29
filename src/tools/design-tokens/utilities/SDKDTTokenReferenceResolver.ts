@@ -73,16 +73,25 @@ export class DTTokenReferenceResolver {
     if (typeof value !== "string") {
       return false
     }
-    
-    if ((value.match(/{/g)||[]).length > 1) {
-      console.log("Skipping because reference is unsupported garbage")
-      return false
-    }
 
     value = value.trim()
     return value.length > 3 && 
            value.startsWith("{") &&
            value.endsWith("}")   
+  }
+
+  valueNeedsComputing(value: string | object): boolean {
+
+    if (typeof value !== "string") {
+      return false
+    }
+
+    if ((value.match(/{/g)||[]).length > 1 || value.includes("*") || value.includes("/") || value.includes("%")) {
+      console.log("Value needs computing")
+      return true
+    }
+
+    return false
   }
 
   tokenReferenceKey(path: Array<String>, name: string): string {

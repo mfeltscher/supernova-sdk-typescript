@@ -165,8 +165,12 @@ export class DTJSONConverter {
 
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
-      if (!this.referenceResolver.valueIsReference(node.value)) {
-        let token = this.convertAtomicNode(node, brand)
+      if (this.referenceResolver.valueNeedsComputing(node.value)) {
+        console.log("value definitely needs computing")
+        let token = this.convertAtomicNode(node, true, brand)
+        this.referenceResolver.addAtomicToken(token)
+      } else if (!this.referenceResolver.valueIsReference(node.value)) {
+        let token = this.convertAtomicNode(node, false, brand)
         this.referenceResolver.addAtomicToken(token)
       } else {
         unprocessedTokens.push(node)
@@ -197,12 +201,12 @@ export class DTJSONConverter {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Atomic nodes
 
-  private convertAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
+  private convertAtomicNode(node: DTParsedNode, computable: boolean, brand: Brand): DTProcessedTokenNode {
 
     let snType = this.convertDTTypeToSupernovaType(node.type)
     switch (snType) {
       case TokenType.color: return this.convertColorAtomicNode(node, brand)
-      case TokenType.measure: return this.convertMeasureAtomicNode(node, brand)
+      case TokenType.measure: return this.convertMeasureAtomicNode(node, computable, brand)
       case TokenType.radius: return this.convertRadiusAtomicNode(node, brand)
       case TokenType.shadow: return this.convertShadowAtomicNode(node, brand)
       case TokenType.typography: return this.convertTypographyAtomicNode(node, brand)
@@ -222,9 +226,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertMeasureAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
+  private convertMeasureAtomicNode(node: DTParsedNode, computable: boolean, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = MeasureToken.create(this.version, brand, node.name, node.description, node.value, undefined, [], [])
+    let constructedToken = MeasureToken.create(this.version, brand, node.name, node.description, computable ? "1px" : node.value, undefined, [], [])
     return {
       token: constructedToken,
       originalType: node.type,

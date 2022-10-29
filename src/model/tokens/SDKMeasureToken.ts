@@ -76,6 +76,8 @@ export class MeasureToken extends Token {
 
     if (value) {
       // Raw value
+
+      // TODO
       let tokenValue = this.measureValueFromDefinition(value)
       return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
@@ -137,7 +139,17 @@ export class MeasureToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): MeasureTokenValue {
-    if (referenceResolver.valueIsReference(definition)) {
+    console.log("checking measure value")
+    if (referenceResolver.valueNeedsComputing(definition)) {
+      console.log(`Computing value from definition ${definition}`)
+      // TODO: Do measure computing
+      let measure = MeasureToken.parseMeasure("0")
+      return {
+        referencedToken: null,
+        measure: measure.measure,
+        unit: measure.unit,
+      }
+    } else if (referenceResolver.valueIsReference(definition)) {
       let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
       return {
         referencedToken: reference,
