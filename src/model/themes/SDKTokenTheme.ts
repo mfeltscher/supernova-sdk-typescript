@@ -6,8 +6,9 @@
 //  Copyright © 2022 Supernova. All rights reserved.
 //
 
-import { DesignSystemVersion, Token } from '../..'
-import { TokenThemeOverride, TokenThemeOverrideRemoteModel } from './SDKTokenThemeOverride'
+import { BlurToken, BorderToken, ColorToken, DesignSystemVersion, FontToken, GenericToken, GradientToken, MeasureToken, RadiusToken, ShadowToken, TextToken, Token, TokenType, TypographyToken } from '../..'
+import { AnyToken, AnyTokenValue, BlurTokenValue, BorderTokenValue, ColorTokenValue, FontTokenValue, GenericTokenValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TypographyTokenValue } from '../tokens/SDKTokenValue'
+import { TokenThemeOverrideRemoteModel } from './SDKTokenThemeOverride'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -103,8 +104,57 @@ export class TokenTheme {
   }
 
   private tokensToOverrides(): Array<TokenThemeOverrideRemoteModel> {
+    // return this.overriddenTokens.map(o => this.toWriteOverrideObject(o))
+    let counter = 0
+    let result = new Array<TokenThemeOverrideRemoteModel>()
+    for (let override of this.overriddenTokens) {
+      if (override.tokenType === TokenType.color) {
+        result.push(this.toWriteOverrideObject(override))
+      }
+      counter++
+    }
+    return result
+  }
 
-    // TODO: Writer
-    return []
+
+  toWriteOverrideObject(token: Token): TokenThemeOverrideRemoteModel {
+    let model = {
+      data: this.valueToWriteObject(((token as unknown) as AnyToken).value, token.tokenType),
+      tokenPersistentId: token.id,
+      type: token.tokenType,
+      origin: token.origin
+        ? {
+            id: token.origin.id ?? undefined,
+            name: token.origin.name ?? undefined,
+            sourceId: token.origin.sourceId ?? undefined
+          }
+        : undefined,
+      createdAt: token.createdAt ? token.createdAt.toISOString() : undefined,
+      updatedAt: token.updatedAt ? token.updatedAt.toISOString() : undefined,
+    }
+
+    if (!model.data.aliasTo && !model.data.value) {
+      throw new Error("Token doesn't have value or alias to")
+    }
+    console.log(model)
+    return model
+  }
+
+
+  valueToWriteObject(value: AnyTokenValue, type: TokenType) {
+
+    switch (type) {
+      case TokenType.blur: return BlurToken.valueToWriteObject(value as BlurTokenValue)
+      case TokenType.border: return BorderToken.valueToWriteObject(value as BorderTokenValue)
+      case TokenType.color: return ColorToken.valueToWriteObject(value as ColorTokenValue)
+      case TokenType.font: return FontToken.valueToWriteObject(value as FontTokenValue)
+      case TokenType.generic: return GenericToken.valueToWriteObject(value as GenericTokenValue)
+      case TokenType.gradient: return GradientToken.valueToWriteObject(value as GradientTokenValue)
+      case TokenType.measure: return MeasureToken.valueToWriteObject(value as MeasureTokenValue)
+      case TokenType.radius: return RadiusToken.valueToWriteObject(value as RadiusTokenValue)
+      case TokenType.shadow: return ShadowToken.valueToWriteObject(value as ShadowTokenValue)
+      case TokenType.text: return TextToken.valueToWriteObject(value as TextTokenValue)
+      case TokenType.typography: return TypographyToken.valueToWriteObject(value as TypographyTokenValue)
+    }
   }
 }

@@ -9,9 +9,10 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DesignSystemVersion, Token } from '../../..'
+import { ColorToken, DesignSystemVersion, Token } from '../../..'
 import { ThemeUtilities } from '../../../model/themes/SDKThemeUtilities'
 import { TokenTheme } from '../../../model/themes/SDKTokenTheme'
+import { TokenComparator } from '../../../model/tokens/SDKTokenCompator'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 import { DTTokenMerger } from './SDKDTTokenMerger'
 
@@ -83,19 +84,57 @@ export class DTThemeMerger {
 
         let incomingThemeOverride = newTokenSet.get(key)
         if (incomingThemeOverride) {
-            // For any defined override, use the new token, and align its id with the original token
-            incomingThemeOverride.token.id = token.id 
-            themeReplica.overriddenTokens.push(incomingThemeOverride.token)
+            this.replaceIdAcrossAllPossibleReferences(incomingThemeOverride, token.id, processedNodes)
+            // console.log(`overriding token from FT for key ${key}`)
+            // For any defined override, use the new token, and align its id with the original token, if the token has different value
+            if (!TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)) {
+                // console.log(`value is not the same for token ${key}, using override`)
+                incomingThemeOverride.token.id = token.id
+                themeReplica.overriddenTokens.push(incomingThemeOverride.token)
+            } else {
+                // console.log(`skipping override`)
+                // Otherwise use override that already exists without modifications
+                let currentThemeOverride = existingOverrides.get(key)
+                if (currentThemeOverride) {
+                    // console.log(`overriding token from existing overrides ${key}`)
+                    themeReplica.overriddenTokens.push(currentThemeOverride)
+                } else {
+                    // console.log(`using default value for token ${key}, no override found`)
+                }
+            }
         } else {
             // Otherwise use override that already exists without modifications
             let currentThemeOverride = existingOverrides.get(key)
             if (currentThemeOverride) {
+                // console.log(`overriding token from existing overrides ${key}`)
                 themeReplica.overriddenTokens.push(currentThemeOverride)
+            } else {
+                // console.log(`using default value for token ${key}, no override found`)
             }
         }
     }
 
+    console.log(`Base tokens: ${upstreamTokens.length}`)
+    console.log(`Overrides in selected theme: ${upstreamTheme.overriddenTokens.length}`)
+    console.log(`Possible overrides: ${processedNodes.length}`)
+    console.log(`New theme overrides: ${themeReplica.overriddenTokens.length}`)
+
     return themeReplica
+  }
+
+  replaceIdAcrossAllPossibleReferences(override: DTProcessedTokenNode, newId: string, allTokens: Array<DTProcessedTokenNode>) {
+
+    let currentId = override.token.id
+    // console.log(`current id: ${currentId}, new id: ${newId}`)
+    override.token.id = newId
+    for (let token of allTokens) {
+        if (token.token instanceof ColorToken) {
+            if (token.token.value.referencedToken && token.token.value.referencedToken.id === currentId) {
+                token.token.value.referencedToken.id = newId
+                console.log(`REPLACING ${currentId} ${newId}`)
+            }
+        }
+    }
   }
 
   buildKey(path: Array<string>, name: string): string {

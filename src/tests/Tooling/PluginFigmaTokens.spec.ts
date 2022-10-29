@@ -95,6 +95,7 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
 
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
+    /*
     {
       nodes: null,
       processedNodes: null,
@@ -114,7 +115,8 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
       pluginTheme: 'ca88ec5b9ef77216df07f6e6ab8edb84daf75453', // Headless base plugin theme
       bindToBrand: '50826250-56a8-11ed-854c-8516ec9e182f', // Brand B
       bindToTheme: null // No theme - binding to default token values
-    },
+    }*/
+  
     {
       nodes: null,
       processedNodes: null,
@@ -122,8 +124,38 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
       type: DTPluginToSupernovaMapType.theme,
       pluginSet: null,
       pluginTheme: '5c4398306818a6f47794e6d3ac02ae3709a649b1', // "Brand A - Light Mode" plugin theme
-      bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand B
+      bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand A
       bindToTheme: 'fa9e7700-5776-11ed-b077-993e4d6a5bda' // Light Mode
+    },
+    {
+      nodes: null,
+      processedNodes: null,
+      processedGroups: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '58cc12aa9a1c28268e7478aa8236425156ba5bd8', // "Brand A - Dark Mode" plugin theme
+      bindToBrand: '9140da27-4478-4856-921a-696d6a3bd3d5', // Brand A
+      bindToTheme: '7e477820-1068-45df-a220-35bdc0ea1b16' // Dark Mode
+    },
+    {
+      nodes: null,
+      processedNodes: null,
+      processedGroups: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: '12a614e62a2c8bcc0781820b59f7df6f2a4e30d6', // "Brand B - Light Mode" plugin theme
+      bindToBrand: '50826250-56a8-11ed-854c-8516ec9e182f', // Brand B
+      bindToTheme: '4f2e9110-5777-11ed-b077-993e4d6a5bda' // Light Mode
+    },
+    {
+      nodes: null,
+      processedNodes: null,
+      processedGroups: null,
+      type: DTPluginToSupernovaMapType.theme,
+      pluginSet: null,
+      pluginTheme: 'f061c7e5f70b83702d62cf09978fb074c06f40d4', // "Brand B - Dark Mode" plugin theme
+      bindToBrand: '50826250-56a8-11ed-854c-8516ec9e182f', // Brand B
+      bindToTheme: '3e784eb0-5777-11ed-b077-993e4d6a5bda' // Dark Mode
     }
   ]
 

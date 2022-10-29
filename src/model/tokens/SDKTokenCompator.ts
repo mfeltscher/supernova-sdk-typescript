@@ -85,6 +85,13 @@ export class TokenComparator {
     return a.referencedToken && b.referencedToken && a.referencedToken.id === b.referencedToken.id
   }
 
+  static anyIsReference(a: AnyTokenValue, b: AnyTokenValue): boolean {
+    return (
+      (a.referencedToken !== undefined && a.referencedToken !== null) ||
+      (b.referencedToken !== undefined && b.referencedToken !== null)
+    )
+  }
+
   static isUndefinedValue(a: AnyTokenValue, b: AnyTokenValue): boolean {
     return !a && !b
   }
@@ -108,8 +115,8 @@ export class TokenComparator {
   }
 
   static isEqualColorTokenValue(a: ColorTokenValue, b: ColorTokenValue): boolean {
-    if (this.isUndefinedValue(a, b) || this.referencesSameToken(a, b)) {
-      return true
+    if (this.anyIsReference(a, b)) {
+        return this.referencesSameToken(a,b)
     }
     return a.hex === b.hex
   }
