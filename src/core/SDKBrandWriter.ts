@@ -87,6 +87,7 @@ export class BrandWriter {
 
         // Convert tokens and groups to their remote counterparts
         let remoteTheme = theme.toWriteObject()
+        console.log(JSON.stringify(remoteTheme))
         await this.dataCore.writeTokenThemeData(this.brand.designSystemVersion.designSystem.id, this.brand.designSystemVersion, remoteTheme)
         
         return {

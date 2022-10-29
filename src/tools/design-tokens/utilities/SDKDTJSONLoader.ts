@@ -148,52 +148,49 @@ export class DTJSONLoader {
   private processThemes(definition: object, tokenSets: Map<string, DTParsedTokenSet>): Array<DTParsedTheme> {
 
     let themes: Array<DTParsedTheme> = new Array<DTParsedTheme>()
+    let order: Array<string> = []
 
-    // Seek theme definition object
-    for (let [highLevelKey, value] of Object.entries(definition)) {
-      if (highLevelKey === "$themes") {
-        // Parse each theme separately
-        for (let [iterator, themeObject] of Object.entries(value)) {
-          let name = themeObject["name"]?.value
-          let id = themeObject["id"]?.value
-          let sets = themeObject["selectedTokenSets"]
-          if (!name || !id || !sets) {
-            // Skip execution of this theme as it doesn't have correct information provided
-            throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
-          }
-
-          // Process token sets
-          let pairedSets = new Array<DTParsedThemeSetPriorityPair>()
-          for (let [tokenSetName, tokenValuePair] of Object.entries(sets)) {
-            let tokenSetPriority = tokenValuePair["value"]
-            if (!tokenSetPriority) {
-              throw new Error("Incorrect theme data structure, token set priority required to be provided")
-            }
-
-            // Get token set from existing ones. Not finding one is critical error
-            let tokenSet = tokenSets.get(tokenSetName)
-            if (!tokenSet) {
-              throw new Error("Can't find token set referenced by the theme engine")
-            }
-
-            pairedSets.push({
-              set: tokenSet,
-              priority: tokenSetPriority
-            })
-          }
-
-          let theme: DTParsedTheme = {
-            selectedTokenSets: pairedSets,
-            name: name,
-            id: id
-          }
-          themes.push(theme)
-        }
-
-        // Found it, skip the rest
-        break
+    // Find metadata
+    let metadata = definition["$metadata"]
+    if (metadata) {
+      let setOrder = metadata["tokenSetOrder"]
+      if (setOrder) {
+        order = setOrder
       }
     }
+
+    let themeDefinitions = definition["$themes"]// Parse each theme separately
+    for (let themeObject of themeDefinitions) {
+      let name = themeObject["name"]
+      let id = themeObject["id"]
+      let selectedTokenSets = themeObject["selectedTokenSets"]
+      if (!name || !id || !selectedTokenSets) {
+        // Skip execution of this theme as it doesn't have correct information provided
+        throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
+      }
+
+      // Process token sets
+      let pairedSets = new Array<any>()
+      for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
+        let setName = tokenSetName
+        let setPriority = unknownPriority
+        let fetchedSet = tokenSets.get(setName)
+        let pair: DTParsedThemeSetPriorityPair = {
+          priority: setPriority as DTParsedThemeSetPriority,
+          set: fetchedSet
+        }
+        pairedSets.push(pair)
+      }
+
+      let theme: DTParsedTheme = {
+        selectedTokenSets: pairedSets,
+        name: name,
+        id: id
+      }
+      themes.push(theme)
+    }
+
+    console.log(themes)
 
     return themes
   }

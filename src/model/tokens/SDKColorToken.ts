@@ -142,8 +142,7 @@ export class ColorToken extends Token {
   }
 
   static valueToWriteObject(value: ColorTokenValue): { aliasTo: string | undefined; value: ColorTokenRemoteValue } {
-    let valueObject = !value.referencedToken ? value.hex : undefined
-
+    let valueObject = !value.referencedToken ? (value.hex.startsWith("#") ? value.hex : `#${value.hex}`) : undefined
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject

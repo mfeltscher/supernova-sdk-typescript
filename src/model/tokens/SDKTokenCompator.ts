@@ -115,10 +115,10 @@ export class TokenComparator {
   }
 
   static isEqualColorTokenValue(a: ColorTokenValue, b: ColorTokenValue): boolean {
-    if (this.anyIsReference(a, b)) {
-        return this.referencesSameToken(a,b)
-    }
-    return a.hex === b.hex
+    // if (this.anyIsReference(a, b)) {
+    //     return this.referencesSameToken(a,b)
+    // }
+    return a.a === b.a && a.r === b.r && a.g === b.g && a.b === b.b
   }
 
   static isEqualFontTokenValue(a: FontTokenValue, b: FontTokenValue): boolean {
