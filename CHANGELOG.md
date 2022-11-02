@@ -2,6 +2,12 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.6] - 2022-02-11
+### Exposed TokenTheme and TokenThemeOverride objects
+
+You can now properly access `TokenTheme` and `TokenThemeOverride` objects from exposed interfaces.
+
+
 ## [1.8.5] - 2022-02-11
 ### Themes!
 
