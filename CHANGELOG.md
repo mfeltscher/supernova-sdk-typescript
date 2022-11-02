@@ -2,6 +2,40 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.5] - 2022-02-11
+### Themes!
+
+We have added support for theming into Supernova base engine. Themes allow to create overrides for tokens that can then be consumed alongside the token pools, or separately. Token themes can be combined and applied to each other so they form resolved token pools. You can use new object `TokenTheme` to access all data about the theme. To fetch the themes, either use version or brand object conveniences:
+
+```typescript
+// Fetch specific design system version
+let version = await supernova.designSystemVersion(DS_ID, DS_VERSION_ID)
+
+// Download all themes belonging to version, from all brands
+let themes = await version.themes()
+
+// Or download only themes belonging to a specific brand
+let brand = await version.brands()[0]
+let brandSpecificThemes = await brand.themes()
+```
+
+Each theme consists of tokens that were overriden in the specific theme. All other tokens are not present, but you can get all the information together via combination of different accessors:
+
+```typescript
+let baseTokens = await brand.tokens() // Contains all tokens
+let themes = await brand.themes() // Contains all brands
+let overridenTokens = theme[0].overridenTokens // To access the tokens overriden in one particular theme, use `overridenTokens`
+```
+
+Finally, it is possible to compute resulting pool of tokens from the base tokens + any number of themes applied to it. The result will be array of tokens that are either base tokens if there is no override for the token in any of the applied themes, or themed override selected from the theme that was applied the last:
+
+```typescript
+let themes = await version.themes()
+let themedTokens = await version.tokensByApplyingThemes(tokens.map(t => t.id), themes.map(t => t.id))
+```
+
+We hope this release will greatly improve the capabilities of your systems, enjoy!
+
 ## [1.8.0] - 2022-05-10
 ### Added element and pathing system to all objects, added support for multi-layered shadows,
 
