@@ -243,13 +243,24 @@ export class TokenResolver {
     }
 
     /*
+     * Step 0: Clean overrides that don't have any token associated with it
+     */
+    let overrideData: Array<TokenThemeOverrideRemoteModel> = []
+    for (let override of data.overrides) {
+      let token = this.resolvedTokens.get(override.tokenPersistentId)
+      if (token) {
+        overrideData.push(override)
+      }
+    }
+
+    /*
      * Step 1: Construct containers for tokens that have overrides - but don't assign value to them just yet
      */
-    let overrideData = data.overrides
     for (let override of overrideData) {
       let token = this.resolvedTokens.get(override.tokenPersistentId)
       let origin = override.origin
       if (!token) {
+        console.log(overrideData)
         throw new Error(
           `Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as base token was not found`
         )
