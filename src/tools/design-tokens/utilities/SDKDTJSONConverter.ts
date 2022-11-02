@@ -166,7 +166,6 @@ export class DTJSONConverter {
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
       if (this.referenceResolver.valueNeedsComputing(node.value)) {
-        console.log("value definitely needs computing")
         let token = this.convertAtomicNode(node, true, brand)
         this.referenceResolver.addAtomicToken(token)
       } else if (!this.referenceResolver.valueIsReference(node.value)) {

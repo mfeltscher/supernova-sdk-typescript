@@ -139,9 +139,7 @@ export class MeasureToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): MeasureTokenValue {
-    console.log("checking measure value")
     if (referenceResolver.valueNeedsComputing(definition)) {
-      console.log(`Computing value from definition ${definition}`)
       // TODO: Do measure computing
       let measure = MeasureToken.parseMeasure("0")
       return {

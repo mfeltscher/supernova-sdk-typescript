@@ -41,9 +41,6 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let brands = await version.brands()
   let themes = await version.themes()
 
-  console.log('Themes')
-  console.log(themes)
-
   // Mapping
   let mapping: DTPluginToSupernovaMapPack = [
     {

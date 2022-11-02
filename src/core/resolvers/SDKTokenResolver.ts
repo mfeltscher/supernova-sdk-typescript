@@ -238,10 +238,6 @@ export class TokenResolver {
       this.resolvedTokens.set(token.id, token)
     }
 
-    for (let override of data.overrides) {
-      this.hashedOverrides.set(override.tokenPersistentId, override)
-    }
-
     /*
      * Step 0: Clean overrides that don't have any token associated with it
      */
@@ -253,6 +249,10 @@ export class TokenResolver {
       }
     }
 
+    for (let override of overrideData) {
+      this.hashedOverrides.set(override.tokenPersistentId, override)
+    }
+
     /*
      * Step 1: Construct containers for tokens that have overrides - but don't assign value to them just yet
      */
@@ -260,7 +260,6 @@ export class TokenResolver {
       let token = this.resolvedTokens.get(override.tokenPersistentId)
       let origin = override.origin
       if (!token) {
-        console.log(overrideData)
         throw new Error(
           `Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as base token was not found`
         )
@@ -345,13 +344,37 @@ export class TokenResolver {
       // Construct raw typography, gradient, shadow and border colors
       if (!this.tokenTypeIsPure(override.type)) {
         let token = this.constructThemedValueToken(override, themeId)
-        this.resolvedTokens.set(token.id, token)
+        this.resolvedOverrides.set(token.id, token)
       }
     }
 
     /*
-     * Step 5: Create mixin tokens that can potentially reference pure resolved tokens
+     * Step 5:Create all remaining tokens, as all pure tokens that can be references and all value tokens with possible mixins were all resolved.
      */
+    for (let override of overrideData) {
+      // Skip creation of all tokens that are not references
+      if (!override.data.aliasTo) {
+        continue
+      }
+      if (!this.resolvedOverrides.get(override.tokenPersistentId)) {
+        // We create the token only when it wasn't created already. In some cases, this can happen when there are multiple reference levels
+        let token = this.constructReferencedThemedToken(override, themeId)
+        this.resolvedOverrides.set(token.id, token)
+      }
+    }
+
+    /*
+     * Step 5: Assign parents to the tree
+     */
+    for (let tokenGroup of tokenGroups) {
+      for (let childId of tokenGroup.childrenIds) {
+        let possibleToken = this.resolvedOverrides.get(childId)
+        if (possibleToken) {
+          // If object exists, assign parent to it. Not existing means it is a group
+          possibleToken.parent = tokenGroup
+        }
+      }
+    }
 
     /*
      * Step 6: Create all remaining tokens, as all pure tokens that can be references and all value tokens with possible mixins were all resolved.
@@ -760,7 +783,6 @@ export class TokenResolver {
   }
 
   constructGradientTokenValue(rawData: GradientTokenRemoteValue) {
-
     let value: GradientTokenValue = {
       to: rawData.to,
       from: rawData.from,
@@ -796,15 +818,9 @@ export class TokenResolver {
     let value: RadiusTokenValue = {
       radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
       topLeft: rawData.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.topLeft) : null,
-      topRight: rawData.topRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.topRight)
-        : null,
-      bottomLeft: rawData.bottomLeft
-        ? this.resolveReferencedMeasureTokenValue(rawData.bottomLeft)
-        : null,
-      bottomRight: rawData.bottomRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.bottomRight)
-        : null,
+      topRight: rawData.topRight ? this.resolveReferencedMeasureTokenValue(rawData.topRight) : null,
+      bottomLeft: rawData.bottomLeft ? this.resolveReferencedMeasureTokenValue(rawData.bottomLeft) : null,
+      bottomRight: rawData.bottomRight ? this.resolveReferencedMeasureTokenValue(rawData.bottomRight) : null,
       referencedToken: null
     }
 
@@ -821,7 +837,6 @@ export class TokenResolver {
   }
 
   constructShadowTokenValue(rawData: ShadowTokenRemoteValue): ShadowTokenValue {
-
     let value: ShadowTokenValue = {
       color: this.resolveReferencedColorTokenValue(rawData.color),
       x: this.resolveReferencedMeasureTokenValue(rawData.x),
@@ -871,9 +886,7 @@ export class TokenResolver {
       textDecoration: rawData.textDecoration,
       textCase: rawData.textCase,
       letterSpacing: this.resolveReferencedMeasureTokenValue(rawData.letterSpacing),
-      lineHeight: rawData.lineHeight
-        ? this.resolveReferencedMeasureTokenValue(rawData.lineHeight)
-        : null,
+      lineHeight: rawData.lineHeight ? this.resolveReferencedMeasureTokenValue(rawData.lineHeight) : null,
       paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.paragraphIndent),
       paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.paragraphSpacing),
       referencedToken: null

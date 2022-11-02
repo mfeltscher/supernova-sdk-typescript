@@ -199,8 +199,6 @@ export class DTJSONLoader {
       themes.push(theme)
     }
 
-    console.log(themes)
-
     return themes
   }
 
@@ -234,15 +232,9 @@ export class DTJSONLoader {
     themes: Array<DTParsedTheme>
     sets: Array<DTParsedTokenSet>  
   } {
-    console.log("PROCESSING SETS")
     let sets = this.processSets(definition)
-    console.log(sets)
-    console.log("PROCESSING NODES")
     let nodes = this.parseNode([], definition, sets)
-    console.log(nodes)
-    console.log("PROCESSING THEMES")
     let themes = this.processThemes(definition, sets)
-    console.log(themes)
     return {
       nodes: nodes,
       sets: Array.from(sets.values()),
