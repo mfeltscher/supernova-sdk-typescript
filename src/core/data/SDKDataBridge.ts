@@ -68,6 +68,7 @@ export class DataBridge {
     const config: AxiosRequestConfig = {
       url,
       method,
+      timeout: 120000,
       headers: {}
     }
     if (data) {
@@ -120,14 +121,15 @@ export class DataBridge {
     designSystemId: string,
     designSystemVersionId: string,
     endpoint: string,
-    data: any
+    data: any,
+    put: boolean = false
   ): Promise<any> {
     let url = `${this.dsDataRequestURL(designSystemId, designSystemVersionId)}/${endpoint}`
-    return this.postDataForAuthenticatedEndpoint(url, data)
+    return this.postDataForAuthenticatedEndpoint(url, data, put)
   }
 
-  private async postDataForAuthenticatedEndpoint(requestURL: string, data: any): Promise<any> {
-    const config = await this.buildRequestConfig(requestURL, 'POST', data)
+  private async postDataForAuthenticatedEndpoint(requestURL: string, data: any, put: boolean = false): Promise<any> {
+    const config = await this.buildRequestConfig(requestURL, put ? 'PUT' : 'POST', data)
 
     // Make authorized ds request
     return new Promise((resolve, reject) => {

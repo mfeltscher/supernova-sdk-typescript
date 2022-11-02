@@ -6,32 +6,94 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ElementProperty, ElementPropertyRemoteModel, ElementPropertyTargetElementType } from "../../model/elements/SDKElementProperty"
-import { ElementPropertyValue, ElementPropertyValueRemoteModel } from "../../model/elements/values/SDKElementPropertyValue"
-import { TokenType } from "../../model/enums/SDKTokenType"
-import { TokenGroup } from "../../model/groups/SDKTokenGroup"
-import { ColorTokenRemoteData, MeasureTokenRemoteData, FontTokenRemoteData } from "../../model/tokens/remote/SDKRemoteTokenData"
-import { TokenRemoteModel, ColorTokenRemoteModel, BorderTokenRemoteModel, FontTokenRemoteModel, GradientTokenRemoteModel, MeasureTokenRemoteModel, RadiusTokenRemoteModel, ShadowTokenRemoteModel, TextTokenRemoteModel, TypographyTokenRemoteModel, BlurTokenRemoteModel, GenericTokenRemoteModel } from "../../model/tokens/remote/SDKRemoteTokenModel"
-import { ColorTokenRemoteValue, FontTokenRemoteValue, GradientStopRemoteValue, MeasureTokenRemoteValue } from "../../model/tokens/remote/SDKRemoteTokenValue"
-import { BlurToken } from "../../model/tokens/SDKBlurToken"
-import { BorderToken } from "../../model/tokens/SDKBorderToken"
-import { ColorToken } from "../../model/tokens/SDKColorToken"
-import { FontToken } from "../../model/tokens/SDKFontToken"
-import { GenericToken } from "../../model/tokens/SDKGenericToken"
-import { GradientToken } from "../../model/tokens/SDKGradientToken"
-import { MeasureToken } from "../../model/tokens/SDKMeasureToken"
-import { RadiusToken } from "../../model/tokens/SDKRadiusToken"
-import { ShadowToken } from "../../model/tokens/SDKShadowToken"
-import { TextToken } from "../../model/tokens/SDKTextToken"
-import { Token } from "../../model/tokens/SDKToken"
-import { BlurTokenValue, BorderTokenValue, ColorTokenValue, FontTokenValue, GenericTokenValue, GradientStopValue, GradientTokenValue, MeasureTokenValue, RadiusTokenValue, ShadowTokenValue, TextTokenValue, TypographyTokenValue } from "../../model/tokens/SDKTokenValue"
-import { TypographyToken } from "../../model/tokens/SDKTypographyToken"
-import { DesignSystemVersion } from "../SDKDesignSystemVersion"
-
+import { TokenOrigin } from '../..'
+import {
+  ElementProperty,
+  ElementPropertyRemoteModel,
+  ElementPropertyTargetElementType
+} from '../../model/elements/SDKElementProperty'
+import {
+  ElementPropertyValue,
+  ElementPropertyValueRemoteModel
+} from '../../model/elements/values/SDKElementPropertyValue'
+import { TokenType } from '../../model/enums/SDKTokenType'
+import { TokenGroup } from '../../model/groups/SDKTokenGroup'
+import { ThemeUtilities } from '../../model/themes/SDKThemeUtilities'
+import { TokenTheme, TokenThemeRemoteModel } from '../../model/themes/SDKTokenTheme'
+import { TokenThemeOverrideRemoteModel } from '../../model/themes/SDKTokenThemeOverride'
+import {
+  ColorTokenRemoteData,
+  MeasureTokenRemoteData,
+  FontTokenRemoteData,
+  TextTokenRemoteData,
+  GenericTokenRemoteData,
+  BlurTokenRemoteData,
+  BorderTokenRemoteData,
+  GradientTokenRemoteData,
+  RadiusTokenRemoteData,
+  ShadowTokenRemoteData,
+  TypographyTokenRemoteData
+} from '../../model/tokens/remote/SDKRemoteTokenData'
+import {
+  TokenRemoteModel,
+  ColorTokenRemoteModel,
+  BorderTokenRemoteModel,
+  FontTokenRemoteModel,
+  GradientTokenRemoteModel,
+  MeasureTokenRemoteModel,
+  RadiusTokenRemoteModel,
+  ShadowTokenRemoteModel,
+  TextTokenRemoteModel,
+  TypographyTokenRemoteModel,
+  BlurTokenRemoteModel,
+  GenericTokenRemoteModel
+} from '../../model/tokens/remote/SDKRemoteTokenModel'
+import {
+  BlurTokenRemoteValue,
+  BorderTokenRemoteValue,
+  ColorTokenRemoteValue,
+  FontTokenRemoteValue,
+  GradientStopRemoteValue,
+  GradientTokenRemoteValue,
+  MeasureTokenRemoteValue,
+  RadiusTokenRemoteValue,
+  ShadowTokenRemoteValue,
+  TextTokenRemoteValue,
+  TypographyTokenRemoteValue
+} from '../../model/tokens/remote/SDKRemoteTokenValue'
+import { BlurToken } from '../../model/tokens/SDKBlurToken'
+import { BorderToken } from '../../model/tokens/SDKBorderToken'
+import { ColorToken } from '../../model/tokens/SDKColorToken'
+import { FontToken } from '../../model/tokens/SDKFontToken'
+import { GenericToken } from '../../model/tokens/SDKGenericToken'
+import { GradientToken } from '../../model/tokens/SDKGradientToken'
+import { MeasureToken } from '../../model/tokens/SDKMeasureToken'
+import { RadiusToken } from '../../model/tokens/SDKRadiusToken'
+import { ShadowToken } from '../../model/tokens/SDKShadowToken'
+import { TextToken } from '../../model/tokens/SDKTextToken'
+import { Token } from '../../model/tokens/SDKToken'
+import {
+  AnyToken,
+  AnyTokenValue,
+  BlurTokenValue,
+  BorderTokenValue,
+  ColorTokenValue,
+  FontTokenValue,
+  GenericTokenValue,
+  GradientStopValue,
+  GradientTokenValue,
+  MeasureTokenValue,
+  RadiusTokenValue,
+  ShadowTokenValue,
+  TextTokenValue,
+  TokenValue,
+  TypographyTokenValue
+} from '../../model/tokens/SDKTokenValue'
+import { TypographyToken } from '../../model/tokens/SDKTypographyToken'
+import { DesignSystemVersion } from '../SDKDesignSystemVersion'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
@@ -42,6 +104,11 @@ export class TokenResolver {
 
   hashedTokens = new Map<string, TokenRemoteModel>()
   resolvedTokens = new Map<string, Token>()
+
+  hashedOverrides = new Map<string, TokenThemeOverrideRemoteModel>()
+  hashedReconstructedOverrides = new Map<string, Token>()
+  resolvedOverrides = new Map<string, Token>()
+
   version: DesignSystemVersion
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -54,9 +121,15 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Resolution
 
-  resolveTokenData(data: Array<TokenRemoteModel>, tokenGroups: Array<TokenGroup>, properties: Array<ElementPropertyRemoteModel>, values: Array<ElementPropertyValueRemoteModel>): Array<Token> {
-
-    let resolvedProperties = properties.map(p => new ElementProperty(p)).filter(p => p.targetElementType === ElementPropertyTargetElementType.token)
+  resolveTokenData(
+    data: Array<TokenRemoteModel>,
+    tokenGroups: Array<TokenGroup>,
+    properties: Array<ElementPropertyRemoteModel>,
+    values: Array<ElementPropertyValueRemoteModel>
+  ): Array<Token> {
+    let resolvedProperties = properties
+      .map(p => new ElementProperty(p))
+      .filter(p => p.targetElementType === ElementPropertyTargetElementType.token)
     let resolvedValues = values.map(v => new ElementPropertyValue(v))
 
     for (let rawToken of data) {
@@ -157,6 +230,171 @@ export class TokenResolver {
     )
   }
 
+  resolveThemeData(data: TokenThemeRemoteModel, tokens: Array<Token>, tokenGroups: Array<TokenGroup>): TokenTheme {
+    let themeId = data.id
+
+    // Build cache for performance
+    for (let token of tokens) {
+      this.resolvedTokens.set(token.id, token)
+    }
+
+    /*
+     * Step 0: Clean overrides that don't have any token associated with it
+     */
+    let overrideData: Array<TokenThemeOverrideRemoteModel> = []
+    for (let override of data.overrides) {
+      let token = this.resolvedTokens.get(override.tokenPersistentId)
+      if (token) {
+        overrideData.push(override)
+      }
+    }
+
+    for (let override of overrideData) {
+      this.hashedOverrides.set(override.tokenPersistentId, override)
+    }
+
+    /*
+     * Step 1: Construct containers for tokens that have overrides - but don't assign value to them just yet
+     */
+    for (let override of overrideData) {
+      let token = this.resolvedTokens.get(override.tokenPersistentId)
+      let origin = override.origin
+      if (!token) {
+        throw new Error(
+          `Unable to resolve token ${override.tokenPersistentId} for theme ${data.id} as base token was not found`
+        )
+      }
+      let replica = this.makeThemedValuelessTokenReplica(token, themeId, origin)
+      this.hashedReconstructedOverrides.set(replica.id, replica)
+    }
+
+    /*
+     * Step 2: Create map with all tokens, using core tokens and the theme itself so we have all tokens prepared
+     */
+    for (let override of overrideData) {
+      // Skip creation of all tokens that can have reference
+      if (override.data.aliasTo) {
+        continue
+      }
+
+      // Construct raw colors, fonts, texts, radii and measures first
+      if (this.tokenTypeIsPure(override.type)) {
+        if (!override.data.value) {
+          throw new Error(
+            `Override must always have alias or value, but ${override.tokenPersistentId} provided neither (1: raw)`
+          )
+        }
+        // There is no reference to be solved, so we just assume we can create referenced without issues
+        let replica = this.hashedReconstructedOverrides.get(override.tokenPersistentId)
+        switch (override.type) {
+          case TokenType.color:
+            ;(replica as ColorToken).value = this.constructColorValue((override.data as ColorTokenRemoteData).value)
+            break
+          case TokenType.font:
+            ;(replica as FontToken).value = this.constructFontValue((override.data as FontTokenRemoteData).value)
+            break
+          case TokenType.measure:
+            ;(replica as MeasureToken).value = this.constructMeasureValue(
+              (override.data as MeasureTokenRemoteData).value
+            )
+            break
+          case TokenType.text:
+            ;(replica as TextToken).value = this.constructTextLikeTokenValue(
+              (override.data as TextTokenRemoteData).value
+            )
+            break
+          case TokenType.generic:
+            ;(replica as GenericToken).value = this.constructTextLikeTokenValue(
+              (override.data as GenericTokenRemoteData).value
+            )
+            break
+        }
+
+        this.resolvedOverrides.set(replica.id, replica)
+      }
+    }
+
+    /*
+     * Step 3: Create values for theme overrides that are raw and pure tokens
+     */
+    for (let override of overrideData) {
+      // This time, skip creation of all raw tokens because we already have them
+      if (!override.data.aliasTo) {
+        continue
+      }
+      // Construct references for pure tokens, if any
+      if (this.tokenTypeIsPure(override.type) && !this.resolvedOverrides.get(override.tokenPersistentId)) {
+        let resolvedOverride = this.resolvedOverrides.get(override.tokenPersistentId)
+        if (!resolvedOverride) {
+          // Only construct reference if it wasn't constructed already
+          let replica = this.constructReferencedThemedToken(override, themeId)
+          this.resolvedOverrides.set(replica.id, replica)
+        }
+      }
+    }
+
+    /*
+     * Step 4: Create pure tokens that are references. End of this step will provide us with all possible tokens resolved for mixins later
+     */
+    for (let override of overrideData) {
+      // Skip creation of all tokens that can have reference in this step
+      if (override.data.aliasTo) {
+        continue
+      }
+      // Construct raw typography, gradient, shadow and border colors
+      if (!this.tokenTypeIsPure(override.type)) {
+        let token = this.constructThemedValueToken(override, themeId)
+        this.resolvedOverrides.set(token.id, token)
+      }
+    }
+
+    /*
+     * Step 5:Create all remaining tokens, as all pure tokens that can be references and all value tokens with possible mixins were all resolved.
+     */
+    for (let override of overrideData) {
+      // Skip creation of all tokens that are not references
+      if (!override.data.aliasTo) {
+        continue
+      }
+      if (!this.resolvedOverrides.get(override.tokenPersistentId)) {
+        // We create the token only when it wasn't created already. In some cases, this can happen when there are multiple reference levels
+        let token = this.constructReferencedThemedToken(override, themeId)
+        this.resolvedOverrides.set(token.id, token)
+      }
+    }
+
+    /*
+     * Step 5: Assign parents to the tree
+     */
+    for (let tokenGroup of tokenGroups) {
+      for (let childId of tokenGroup.childrenIds) {
+        let possibleToken = this.resolvedOverrides.get(childId)
+        if (possibleToken) {
+          // If object exists, assign parent to it. Not existing means it is a group
+          possibleToken.parent = tokenGroup
+        }
+      }
+    }
+
+    /*
+     * Step 6: Create all remaining tokens, as all pure tokens that can be references and all value tokens with possible mixins were all resolved.
+     */
+
+    let theme = new TokenTheme(data, this.version)
+    theme.overriddenTokens = Array.from(this.resolvedOverrides.values())
+    return theme
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Token replication
+
+  makeThemedValuelessTokenReplica(token: Token, themeId: string, origin: TokenOrigin | null): Token {
+    let replica = ThemeUtilities.replicateTokenAsThemePrefabWithoutValue(token, themeId, origin, this.version)
+    replica.themeId = themeId
+
+    return replica
+  }
+
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Temporary: Data structure manipulation
 
@@ -179,7 +417,6 @@ export class TokenResolver {
   }
 
   findAssociatedTokens<T extends Token>(token: T, tokens: Array<T>): Array<T> {
-
     if (!token.origin?.id || !token.parent) {
       return [token]
     }
@@ -187,7 +424,7 @@ export class TokenResolver {
     // Find all tokens with same origin
     let tokenId = this.actualOriginTokenId(token.origin.id)
     let matchingTokens = tokens.filter(t => this.actualOriginTokenId(t.origin?.id) === tokenId)
-    
+
     // Sort by the parent, and set virtual tokens
     let sortedTokens = new Array<T>()
     let index = 0
@@ -196,38 +433,47 @@ export class TokenResolver {
         if (matchingToken.id === id) {
           sortedTokens.push(matchingToken)
           if (index === 0) {
-            (matchingToken as any).isVirtual = false
+            ;(matchingToken as any).isVirtual = false
           } else {
-            (matchingToken as any).isVirtual = true
+            ;(matchingToken as any).isVirtual = true
           }
-          index++;
+          index++
         }
       }
     }
-    
+
     return sortedTokens
   }
 
   actualOriginTokenId(id: string | null): string {
     if (id && id.length > 0) {
-      return id.split(",")[0]
+      return id.split(',')[0]
     }
     return null
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referencing
 
-  constructReferencedToken(rawData: TokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
+  constructReferencedToken(
+    rawData: TokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): Token {
     let referenceId = rawData.data.aliasTo
     let referencedToken: Token
     if (this.resolvedTokens.get(referenceId)) {
       // If the referenced token already exists, we use it to create this token
       referencedToken = this.resolvedTokens.get(referenceId)
-    } else {
-      // Otherwise, we request token with the model data of the other token
+    } else if (this.hashedTokens.get(referenceId)) {
+      // Otherwise, we request token with the model data of the other token coming from the base set of tokens
       referencedToken = this.constructReferencedToken(this.hashedTokens.get(referenceId), properties, values)
+    } else {
+      // This situation can't happen because we are either resolving base tokens and using constructed references,
+      // or resolving theme and this function should not be used at all
+      throw new Error(
+        "Data integrity problem detected, can't start creating reference for themed tokens when resolving base values"
+      )
     }
 
     let token = this.constructResolvedToken(rawData, referencedToken, properties, values)
@@ -235,7 +481,59 @@ export class TokenResolver {
     return token
   }
 
-  constructResolvedToken(rawData: TokenRemoteModel, referencedToken: Token, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
+  constructReferencedThemedToken(rawData: TokenThemeOverrideRemoteModel, themeId: string): Token {
+    let referenceId = rawData.data.aliasTo
+    let referencedToken: Token
+    if (this.resolvedOverrides.get(referenceId)) {
+      // If the reference token exists from the current theme that is being resolved (note, that might not be always), prioritize reference first
+      referencedToken = this.resolvedOverrides.get(referenceId)
+    } else if (this.hashedOverrides.get(referenceId)) {
+      // If the reference doesn't exists, there are two possible options:
+      // The first one is that we are creating reference token within current theme, if provided. In this case, we construct
+      // token from the override that we also construct
+      referencedToken = this.constructReferencedThemedToken(this.hashedOverrides.get(referenceId), themeId)
+    } else if (this.resolvedTokens.get(referenceId)) {
+      // If the referenced token already exists, we use it to create this token
+      referencedToken = this.resolvedTokens.get(referenceId)
+    } else {
+      // This situation can't happen because we are either resolving theme and using constructed references,
+      // or resolving base tokens and this function should not be used at all
+      throw new Error(
+        "Data integrity problem detected, can't start creating reference for base tokens when resolving themes"
+      )
+    }
+
+    let token = this.constructResolvedThemedToken(rawData, referencedToken, themeId)
+    this.resolvedOverrides.set(token.id, token)
+    return token
+  }
+
+  constructResolvedThemedToken(rawData: TokenThemeOverrideRemoteModel, referencedToken: Token, themeId: string): Token {
+    if (!rawData.data.aliasTo) {
+      throw Error(`Incorrectly creating reference themed token ${rawData.tokenPersistentId} from pure value token`)
+    }
+
+    let baseToken = this.resolvedTokens.get(rawData.tokenPersistentId)
+    let replica = ThemeUtilities.replicateTokenAsThemePrefabWithoutValue(
+      baseToken,
+      themeId,
+      rawData.origin,
+      this.version
+    )
+
+    // Each token has some value, let's use it
+    let value = (referencedToken as AnyToken).value
+    ;(replica as AnyToken).value = value
+
+    return replica
+  }
+
+  constructResolvedToken(
+    rawData: TokenRemoteModel,
+    referencedToken: Token,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): Token {
     if (!rawData.data.aliasTo) {
       throw Error('Incorrectly creating reference token from value token')
     }
@@ -293,7 +591,11 @@ export class TokenResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Token construction
 
-  constructValueToken(rawData: TokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): Token {
+  constructValueToken(
+    rawData: TokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): Token {
     if (rawData.data.aliasTo) {
       throw Error('Incorrectly creating value token from referenced token')
     }
@@ -318,14 +620,79 @@ export class TokenResolver {
         return this.constructTextToken(rawData as TextTokenRemoteModel, properties, values)
       case TokenType.typography:
         return this.constructTypographyToken(rawData as TypographyTokenRemoteModel, properties, values)
-      case TokenType.blur: 
+      case TokenType.blur:
         return this.constructBlurToken(rawData as BlurTokenRemoteModel, properties, values)
       case TokenType.generic:
         return this.constructGenericToken(rawData as GenericTokenRemoteModel, properties, values)
     }
   }
 
-  constructColorToken(rawData: ColorTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): ColorToken {
+  constructThemedValueToken(override: TokenThemeOverrideRemoteModel, themeId: string): Token {
+    if (override.data.aliasTo) {
+      throw Error('Incorrectly creating themed value token from referenced token')
+    }
+
+    let baseToken = this.resolvedTokens.get(override.tokenPersistentId)
+    let replica = ThemeUtilities.replicateTokenAsThemePrefabWithoutValue(
+      baseToken,
+      themeId,
+      override.origin,
+      this.version
+    )
+
+    let type = override.type
+    let value: AnyTokenValue
+
+    switch (type) {
+      case TokenType.color:
+        ;(replica as ColorToken).value = this.constructColorValue((override.data as ColorTokenRemoteData).value)
+        break
+      case TokenType.font:
+        ;(replica as FontToken).value = this.constructFontValue((override.data as FontTokenRemoteData).value)
+        break
+      case TokenType.measure:
+        ;(replica as MeasureToken).value = this.constructMeasureValue((override.data as MeasureTokenRemoteData).value)
+        break
+      case TokenType.text:
+        ;(replica as TextToken).value = this.constructTextLikeTokenValue((override.data as TextTokenRemoteData).value)
+        break
+      case TokenType.generic:
+        ;(replica as GenericToken).value = this.constructTextLikeTokenValue(
+          (override.data as GenericTokenRemoteData).value
+        )
+        break
+      case TokenType.blur:
+        ;(replica as BlurToken).value = this.constructBlurTokenValue((override.data as BlurTokenRemoteData).value)
+        break
+      case TokenType.border:
+        ;(replica as BorderToken).value = this.constructBorderTokenValue((override.data as BorderTokenRemoteData).value)
+        break
+      case TokenType.gradient:
+        ;(replica as GradientToken).value = this.constructGradientTokenValue(
+          (override.data as GradientTokenRemoteData).value
+        )
+        break
+      case TokenType.radius:
+        ;(replica as RadiusToken).value = this.constructRadiusTokenValue((override.data as RadiusTokenRemoteData).value)
+        break
+      case TokenType.shadow:
+        ;(replica as ShadowToken).value = this.constructShadowTokenValue((override.data as ShadowTokenRemoteData).value)
+        break
+      case TokenType.typography:
+        ;(replica as TypographyToken).value = this.constructTypographyTokenValue(
+          (override.data as TypographyTokenRemoteData).value
+        )
+        break
+    }
+
+    return replica
+  }
+
+  constructColorToken(
+    rawData: ColorTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): ColorToken {
     let value = this.constructColorValue(rawData.data.value)
     return new ColorToken(this.version, rawData, value, null, properties, values)
   }
@@ -346,23 +713,37 @@ export class TokenResolver {
     }
   }
 
-  constructTextToken(rawData: TextTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
-    let value: TextTokenValue = {
-      text: rawData.data.value,
-      referencedToken: null
-    }
+  constructTextToken(
+    rawData: TextTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): TextToken {
+    let value = this.constructTextLikeTokenValue(rawData.data.value)
     return new TextToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructGenericToken(rawData: GenericTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TextToken {
-    let value: GenericTokenValue = {
-      text: rawData.data.value,
-      referencedToken: null
-    }
+  constructGenericToken(
+    rawData: GenericTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): TextToken {
+    let value = this.constructTextLikeTokenValue(rawData.data.value)
     return new GenericToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructMeasureToken(rawData: MeasureTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): MeasureToken {
+  constructTextLikeTokenValue(rawData: TextTokenRemoteValue): TextTokenValue | GenericTokenValue {
+    let value = {
+      text: rawData,
+      referencedToken: null
+    }
+    return value
+  }
+
+  constructMeasureToken(
+    rawData: MeasureTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): MeasureToken {
     let value = this.constructMeasureValue(rawData.data.value)
     return new MeasureToken(this.version, rawData, value, null, properties, values)
   }
@@ -375,7 +756,11 @@ export class TokenResolver {
     }
   }
 
-  constructFontToken(rawData: FontTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): FontToken {
+  constructFontToken(
+    rawData: FontTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): FontToken {
     let value = this.constructFontValue(rawData.data.value)
     return new FontToken(this.version, rawData, value, null, properties, values)
   }
@@ -388,16 +773,26 @@ export class TokenResolver {
     }
   }
 
-  constructGradientToken(rawData: GradientTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): GradientToken {
+  constructGradientToken(
+    rawData: GradientTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): GradientToken {
+    let value = this.constructGradientTokenValue(rawData.data.value)
+    return new GradientToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructGradientTokenValue(rawData: GradientTokenRemoteValue) {
     let value: GradientTokenValue = {
-      to: rawData.data.value.to,
-      from: rawData.data.value.from,
-      type: rawData.data.value.type,
-      aspectRatio: rawData.data.value.aspectRatio,
-      stops: this.constructGradientStops(rawData.data.value.stops),
+      to: rawData.to,
+      from: rawData.from,
+      type: rawData.type,
+      aspectRatio: rawData.aspectRatio,
+      stops: this.constructGradientStops(rawData.stops),
       referencedToken: null
     }
-    return new GradientToken(this.version, rawData, value, null, properties, values)
+
+    return value
   }
 
   constructGradientStops(rawData: Array<GradientStopRemoteValue>): Array<GradientStopValue> {
@@ -410,72 +805,111 @@ export class TokenResolver {
     })
   }
 
-  constructRadiusToken(rawData: RadiusTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): RadiusToken {
-    let value: RadiusTokenValue = {
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
-      topLeft: rawData.data.value.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.data.value.topLeft) : null,
-      topRight: rawData.data.value.topRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.topRight)
-        : null,
-      bottomLeft: rawData.data.value.bottomLeft
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.bottomLeft)
-        : null,
-      bottomRight: rawData.data.value.bottomRight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.bottomRight)
-        : null,
-      referencedToken: null
-    }
+  constructRadiusToken(
+    rawData: RadiusTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): RadiusToken {
+    let value = this.constructRadiusTokenValue(rawData.data.value)
     return new RadiusToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructShadowToken(rawData: ShadowTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): ShadowToken {
-    let value: ShadowTokenValue = {
-      color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
-      x: this.resolveReferencedMeasureTokenValue(rawData.data.value.x),
-      y: this.resolveReferencedMeasureTokenValue(rawData.data.value.y),
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
-      spread: this.resolveReferencedMeasureTokenValue(rawData.data.value.spread),
-      opacity: rawData.data.value.opacity,
-      type: rawData.data.value.type,
+  constructRadiusTokenValue(rawData: RadiusTokenRemoteValue): RadiusTokenValue {
+    let value: RadiusTokenValue = {
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
+      topLeft: rawData.topLeft ? this.resolveReferencedMeasureTokenValue(rawData.topLeft) : null,
+      topRight: rawData.topRight ? this.resolveReferencedMeasureTokenValue(rawData.topRight) : null,
+      bottomLeft: rawData.bottomLeft ? this.resolveReferencedMeasureTokenValue(rawData.bottomLeft) : null,
+      bottomRight: rawData.bottomRight ? this.resolveReferencedMeasureTokenValue(rawData.bottomRight) : null,
       referencedToken: null
     }
+
+    return value
+  }
+
+  constructShadowToken(
+    rawData: ShadowTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): ShadowToken {
+    let value = this.constructShadowTokenValue(rawData.data.value)
     return new ShadowToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructBorderToken(rawData: BorderTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): BorderToken {
-    let value: BorderTokenValue = {
-      color: this.resolveReferencedColorTokenValue(rawData.data.value.color),
-      width: this.resolveReferencedMeasureTokenValue(rawData.data.value.width),
-      position: rawData.data.value.position,
+  constructShadowTokenValue(rawData: ShadowTokenRemoteValue): ShadowTokenValue {
+    let value: ShadowTokenValue = {
+      color: this.resolveReferencedColorTokenValue(rawData.color),
+      x: this.resolveReferencedMeasureTokenValue(rawData.x),
+      y: this.resolveReferencedMeasureTokenValue(rawData.y),
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
+      spread: this.resolveReferencedMeasureTokenValue(rawData.spread),
+      opacity: rawData.opacity,
+      type: rawData.type,
       referencedToken: null
     }
+
+    return value
+  }
+
+  constructBorderToken(
+    rawData: BorderTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): BorderToken {
+    let value = this.constructBorderTokenValue(rawData.data.value)
     return new BorderToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructTypographyToken(rawData: TypographyTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): TypographyToken {
-    let value: TypographyTokenValue = {
-      font: this.resolveReferencedFontTokenValue(rawData.data.value.font),
-      fontSize: this.resolveReferencedMeasureTokenValue(rawData.data.value.fontSize),
-      textDecoration: rawData.data.value.textDecoration,
-      textCase: rawData.data.value.textCase,
-      letterSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.letterSpacing),
-      lineHeight: rawData.data.value.lineHeight
-        ? this.resolveReferencedMeasureTokenValue(rawData.data.value.lineHeight)
-        : null,
-      paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphIndent),
-      paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.data.value.paragraphSpacing),
+  constructBorderTokenValue(rawData: BorderTokenRemoteValue): BorderTokenValue {
+    let value: BorderTokenValue = {
+      color: this.resolveReferencedColorTokenValue(rawData.color),
+      width: this.resolveReferencedMeasureTokenValue(rawData.width),
+      position: rawData.position,
       referencedToken: null
     }
+    return value
+  }
+
+  constructTypographyToken(
+    rawData: TypographyTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): TypographyToken {
+    let value = this.constructTypographyTokenValue(rawData.data.value)
     return new TypographyToken(this.version, rawData, value, null, properties, values)
   }
 
-  constructBlurToken(rawData: BlurTokenRemoteModel, properties: Array<ElementProperty>, values: Array<ElementPropertyValue>): BlurToken {
-    let value: BlurTokenValue = {
-      type: rawData.data.value.type,
-      radius: this.resolveReferencedMeasureTokenValue(rawData.data.value.radius),
+  constructTypographyTokenValue(rawData: TypographyTokenRemoteValue): TypographyTokenValue {
+    let value: TypographyTokenValue = {
+      font: this.resolveReferencedFontTokenValue(rawData.font),
+      fontSize: this.resolveReferencedMeasureTokenValue(rawData.fontSize),
+      textDecoration: rawData.textDecoration,
+      textCase: rawData.textCase,
+      letterSpacing: this.resolveReferencedMeasureTokenValue(rawData.letterSpacing),
+      lineHeight: rawData.lineHeight ? this.resolveReferencedMeasureTokenValue(rawData.lineHeight) : null,
+      paragraphIndent: this.resolveReferencedMeasureTokenValue(rawData.paragraphIndent),
+      paragraphSpacing: this.resolveReferencedMeasureTokenValue(rawData.paragraphSpacing),
       referencedToken: null
     }
+    return value
+  }
+
+  constructBlurToken(
+    rawData: BlurTokenRemoteModel,
+    properties: Array<ElementProperty>,
+    values: Array<ElementPropertyValue>
+  ): BlurToken {
+    let value = this.constructBlurTokenValue(rawData.data.value)
     return new BlurToken(this.version, rawData, value, null, properties, values)
+  }
+
+  constructBlurTokenValue(rawData: BlurTokenRemoteValue): BlurTokenValue {
+    let value: BlurTokenValue = {
+      type: rawData.type,
+      radius: this.resolveReferencedMeasureTokenValue(rawData.radius),
+      referencedToken: null
+    }
+    return value
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

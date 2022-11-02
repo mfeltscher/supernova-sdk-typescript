@@ -72,8 +72,8 @@ export class DTTokenGroupTreeMerger {
         typeRoots = new Map<TokenType, GroupTree>()
         desiredStructures.set(node.token.brandId, typeRoots)
       }
+      
       let typeRoot = typeRoots.get(node.token.tokenType)
-
       if (!typeRoot) {
         const rootElem = exitingRoots.get(node.token.brandId).get(node.token.tokenType).element
         typeRoot = new GroupTree(rootElem)

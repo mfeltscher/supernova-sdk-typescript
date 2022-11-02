@@ -31,6 +31,6 @@ test('test_tooling_doc_search', async t => {
     searchEngine.updateSearchIndex(pages)
 
     // Search for keyword
-    await t.true(searchEngine.search("component").length > 0)
-    await t.true(searchEngine.search("know").length > 0)
+    await t.true(searchEngine.search("introduction").length > 0)
+    await t.true(searchEngine.search("ordered").length > 0)
 })

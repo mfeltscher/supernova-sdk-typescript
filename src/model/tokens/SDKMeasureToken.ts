@@ -76,6 +76,8 @@ export class MeasureToken extends Token {
 
     if (value) {
       // Raw value
+
+      // TODO
       let tokenValue = this.measureValueFromDefinition(value)
       return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
@@ -137,7 +139,15 @@ export class MeasureToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): MeasureTokenValue {
-    if (referenceResolver.valueIsReference(definition)) {
+    if (referenceResolver.valueNeedsComputing(definition)) {
+      // TODO: Do measure computing
+      let measure = MeasureToken.parseMeasure("0")
+      return {
+        referencedToken: null,
+        measure: measure.measure,
+        unit: measure.unit,
+      }
+    } else if (referenceResolver.valueIsReference(definition)) {
       let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
       return {
         referencedToken: reference,
@@ -160,19 +170,21 @@ export class MeasureToken extends Token {
   toWriteObject(): MeasureTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as MeasureTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = MeasureToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): MeasureTokenRemoteValue {
+  static valueToWriteObject(value: MeasureTokenValue): { aliasTo: string | undefined; value: MeasureTokenRemoteValue } {
+    let valueObject = !value.referencedToken
+      ? {
+          measure: value.measure,
+          unit: value.unit
+        }
+      : undefined
+
     return {
-      measure: this.value.measure,
-      unit: this.value.unit
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

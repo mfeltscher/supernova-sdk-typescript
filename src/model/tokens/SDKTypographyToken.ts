@@ -165,70 +165,72 @@ export class TypographyToken extends Token {
   toWriteObject(): TypographyTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as TypographyTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = TypographyToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): TypographyTokenRemoteValue {
+  static valueToWriteObject(
+    value: TypographyTokenValue
+  ): { aliasTo: string | undefined; value: TypographyTokenRemoteValue } {
+    let valueObject = !value.referencedToken
+      ? {
+          font: {
+            aliasTo: value.font.referencedToken ? value.font.referencedToken.id : undefined,
+            value: value.font.referencedToken ? null : value.font
+          },
+          fontSize: {
+            aliasTo: value.fontSize.referencedToken ? value.fontSize.referencedToken.id : undefined,
+            value: value.fontSize.referencedToken
+              ? null
+              : {
+                  measure: value.fontSize.measure,
+                  unit: value.fontSize.unit
+                }
+          },
+          letterSpacing: {
+            aliasTo: value.letterSpacing.referencedToken ? value.letterSpacing.referencedToken.id : undefined,
+            value: value.letterSpacing.referencedToken
+              ? null
+              : {
+                  measure: value.letterSpacing.measure,
+                  unit: value.letterSpacing.unit
+                }
+          },
+          paragraphIndent: {
+            aliasTo: value.paragraphIndent.referencedToken ? value.paragraphIndent.referencedToken.id : undefined,
+            value: value.paragraphIndent.referencedToken
+              ? null
+              : {
+                  measure: value.paragraphIndent.measure,
+                  unit: value.paragraphIndent.unit
+                }
+          },
+          paragraphSpacing: {
+            aliasTo: value.paragraphSpacing.referencedToken ? value.paragraphSpacing.referencedToken.id : undefined,
+            value: value.paragraphSpacing.referencedToken
+              ? null
+              : {
+                  measure: value.paragraphSpacing.measure,
+                  unit: value.paragraphSpacing.unit
+                }
+          },
+          lineHeight: {
+            aliasTo: value.lineHeight.referencedToken ? value.lineHeight.referencedToken.id : undefined,
+            value: value.lineHeight.referencedToken
+              ? null
+              : {
+                  measure: value.lineHeight.measure,
+                  unit: value.lineHeight.unit
+                }
+          },
+          textCase: value.textCase,
+          textDecoration: value.textDecoration
+        }
+      : undefined
+
     return {
-      font: {
-        aliasTo: this.value.font.referencedToken ? this.value.font.referencedToken.id : undefined,
-        value: this.value.font.referencedToken ? null : this.value.font
-      },
-      fontSize: {
-        aliasTo: this.value.fontSize.referencedToken ? this.value.fontSize.referencedToken.id : undefined,
-        value: this.value.fontSize.referencedToken
-          ? null
-          : {
-              measure: this.value.fontSize.measure,
-              unit: this.value.fontSize.unit
-            }
-      },
-      letterSpacing: {
-        aliasTo: this.value.letterSpacing.referencedToken ? this.value.letterSpacing.referencedToken.id : undefined,
-        value: this.value.letterSpacing.referencedToken
-          ? null
-          : {
-              measure: this.value.letterSpacing.measure,
-              unit: this.value.letterSpacing.unit
-            }
-      },
-      paragraphIndent: {
-        aliasTo: this.value.paragraphIndent.referencedToken ? this.value.paragraphIndent.referencedToken.id : undefined,
-        value: this.value.paragraphIndent.referencedToken
-          ? null
-          : {
-              measure: this.value.paragraphIndent.measure,
-              unit: this.value.paragraphIndent.unit
-            }
-      },
-      paragraphSpacing: {
-        aliasTo: this.value.paragraphSpacing.referencedToken
-          ? this.value.paragraphSpacing.referencedToken.id
-          : undefined,
-        value: this.value.paragraphSpacing.referencedToken
-          ? null
-          : {
-              measure: this.value.paragraphSpacing.measure,
-              unit: this.value.paragraphSpacing.unit
-            }
-      },
-      lineHeight: {
-        aliasTo: this.value.lineHeight.referencedToken ? this.value.lineHeight.referencedToken.id : undefined,
-        value: this.value.lineHeight.referencedToken
-          ? null
-          : {
-              measure: this.value.lineHeight.measure,
-              unit: this.value.lineHeight.unit
-            }
-      },
-      textCase: this.value.textCase,
-      textDecoration: this.value.textDecoration
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

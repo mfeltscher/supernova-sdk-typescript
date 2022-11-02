@@ -21,6 +21,7 @@ import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import parseColor from 'parse-color'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
+import { ColorTokenRemoteData } from './remote/SDKRemoteTokenData'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -136,16 +137,15 @@ export class ColorToken extends Token {
   toWriteObject(): ColorTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as ColorTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = ColorToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): ColorTokenRemoteValue {
-    return this.value.hex
+  static valueToWriteObject(value: ColorTokenValue): { aliasTo: string | undefined; value: ColorTokenRemoteValue } {
+    let valueObject = !value.referencedToken ? (value.hex.startsWith("#") ? value.hex : `#${value.hex}`) : undefined
+    return {
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
+    }
   }
 }

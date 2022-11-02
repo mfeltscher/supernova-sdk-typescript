@@ -46,6 +46,7 @@ import { ElementPropertyRemoteModel } from '../../model/elements/SDKElementPrope
 import { ElementPropertyValueRemoteModel } from '../../model/elements/values/SDKElementPropertyValue'
 import { Workspace, WorkspaceRemoteModel } from '../SDKWorkspace'
 import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from '../../model/support/SDKWorkspaceNPMRegistry'
+import { TokenTheme, TokenThemeRemoteModel } from '../../model/themes/SDKTokenTheme'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
@@ -57,6 +58,7 @@ export class DataCore {
   // Synchronization
   private tokensSynced: boolean
   private tokenGroupsSynced: boolean
+  private themesSynced: boolean
   private componentsSynced: boolean
   private designComponentAssetSynced: boolean
   private designComponentAssetGroupsSynced: boolean
@@ -67,6 +69,7 @@ export class DataCore {
   // Synchronization mutexes
   private tokenMutex = new Mutex()
   private tokenGroupMutex = new Mutex()
+  private themesMutex = new Mutex()
   private componentMutex = new Mutex()
   private designComponentAssetMutex = new Mutex()
   private designComponentAssetGroupMutex = new Mutex()
@@ -77,6 +80,7 @@ export class DataCore {
   // Data store
   private tokens: Array<Token>
   private tokenGroups: Array<TokenGroup>
+  private themes: Array<TokenTheme>
   private components: Array<Component>
   private designComponents: Array<DesignComponent>
   private designComponentGroups: Array<DesignComponentGroup>
@@ -99,6 +103,9 @@ export class DataCore {
 
     this.tokenGroupsSynced = false
     this.tokenGroups = new Array<TokenGroup>()
+
+    this.themesSynced = false
+    this.themes = new Array<TokenTheme>()
 
     this.componentsSynced = false
     this.components = new Array<Component>()
@@ -146,6 +153,28 @@ export class DataCore {
     }
 
     return undefined
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Public Accessors - Themes
+
+  async currentDesignSystemThemes(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenTheme>> {
+    // Thread-lock the call
+    const release = await this.tokenMutex.acquire()
+
+    // Acquire data
+    if (!this.themesSynced) {
+      await this.updateThemesData(designSystemId, designSystemVersion)
+    }
+
+    // Unlock the thread
+    release()
+
+    // Retrieve the data
+    return this.themes
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -711,6 +740,59 @@ export class DataCore {
     return result
   }
 
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---e
+  // MARK: - Tokens
+
+  /** Prepare design system data for use for the entire design system, downloading and resolving all tokens */
+  async updateThemesData(designSystemId: string, designSystemVersion: DesignSystemVersion) {
+    // Download core design system token data
+    this.themes = await this.getThemes(designSystemId, designSystemVersion)
+    if (this.bridge.cache) {
+      this.themesSynced = true
+    }
+  }
+
+  private async getThemes(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenTheme>> {
+    // Get token groups
+    let baseTokens = await this.getTokens(designSystemId, designSystemVersion)
+    let baseTokenGroups = await this.getTokenGroups(designSystemId, designSystemVersion)
+
+    // Download the raw token data and resolve them
+    let rawData = await this.getRawThemeData(designSystemId, designSystemVersion)
+    let resolvedThemes = await this.resolveThemeData(rawData, baseTokens, baseTokenGroups, designSystemVersion)
+    return resolvedThemes
+  }
+
+  private async getRawThemeData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenThemeRemoteModel>> {
+    // Download token data from the design system endpoint. This downloads tokens of all types
+    const endpoint = 'themes'
+    let result: Array<TokenThemeRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).themes
+    return result
+  }
+
+  private async resolveThemeData(
+    data: Array<TokenThemeRemoteModel>,
+    tokens: Array<Token>,
+    tokenGroups: Array<TokenGroup>,
+    version: DesignSystemVersion
+  ): Promise<Array<TokenTheme>> {
+    let resolvedThemes = new Array<TokenTheme>()
+    for (let themeModel of data) {
+      // Note that each resolution must be done individually with new resolver to clean its state
+      // Some possible optimizations can eventually be possible (fasters hashes with more themes), but
+      // because we considering that there will only be very few themes at once, this is not needed now
+      let resolver = new TokenResolver(version)
+      let result = resolver.resolveThemeData(themeModel, tokens, tokenGroups)
+      resolvedThemes.push(result)
+    }
+    return resolvedThemes
+  }
+
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Components
 
@@ -1039,5 +1121,19 @@ export class DataCore {
       tokenGroups: Array<TokenGroup>
     } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload)
     return result
+  }
+
+  async writeTokenThemeData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    theme: TokenThemeRemoteModel
+  ): Promise<TokenThemeRemoteModel> {
+    const endpoint = `themes/${theme.id}`
+    const payload = theme
+
+    let result: {
+      theme: TokenThemeRemoteModel
+    } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload, true)
+    return result.theme
   }
 }

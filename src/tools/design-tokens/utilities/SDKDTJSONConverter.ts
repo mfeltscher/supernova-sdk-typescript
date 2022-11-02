@@ -19,7 +19,7 @@ import { RadiusToken } from "../../../model/tokens/SDKRadiusToken"
 import { ShadowToken } from "../../../model/tokens/SDKShadowToken"
 import { Token } from "../../../model/tokens/SDKToken"
 import { TypographyToken } from "../../../model/tokens/SDKTypographyToken"
-import { DTParsedNode } from "./SDKDTJSONLoader"
+import { DTParsedNode, DTPluginToSupernovaMapPack } from "./SDKDTJSONLoader"
 import { DTTokenMerger } from "./SDKDTTokenMerger"
 import { DTTokenReferenceResolver } from "./SDKDTTokenReferenceResolver"
 
@@ -50,40 +50,40 @@ export class DTJSONConverter {
   // MARK: - Properties
 
   version: DesignSystemVersion
-  brand: Brand
+  mapping: DTPluginToSupernovaMapPack
   referenceResolver: DTTokenReferenceResolver
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(version: DesignSystemVersion, brand: Brand) {
+  constructor(version: DesignSystemVersion, mapping: DTPluginToSupernovaMapPack) {
     this.version = version
-    this.brand = brand
+    this.mapping = mapping
     this.referenceResolver = new DTTokenReferenceResolver()
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Token Conversion
 
-  convertNodesToTokens(nodes: Array<DTParsedNode>): Array<DTProcessedTokenNode> {
+  convertNodesToTokens(nodes: Array<DTParsedNode>, brand: Brand): Array<DTProcessedTokenNode> {
 
     // Color tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["color"], nodes, brand)
 
     // Sizing tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity", "fontSizes", "paragraphSpacing", "lineHeights", "letterSpacing"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["sizing", "borderWidth", "spacing", "opacity", "fontSizes", "paragraphSpacing", "lineHeights", "letterSpacing"], nodes, brand)
 
     // Radii tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["borderRadius"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["borderRadius"], nodes, brand)
 
     // Other tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["other"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["other"], nodes, brand)
   
     // Shadow tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["boxShadow"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["boxShadow"], nodes, brand)
 
     // Typography tokens
-    this.convertNodesToTokensForSupportedNodeTypes(["typography"], nodes)
+    this.convertNodesToTokensForSupportedNodeTypes(["typography"], nodes, brand)
 
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
@@ -157,7 +157,7 @@ export class DTJSONConverter {
     return nodes
   }
 
-  private convertNodesToTokensForSupportedNodeTypes(types: Array<string>, nodes: Array<DTParsedNode>) {
+  private convertNodesToTokensForSupportedNodeTypes(types: Array<string>, nodes: Array<DTParsedNode>, brand: Brand) {
 
     // Filter out only nodes that we want to be resolving - we can't be resolving everything at once
     nodes = nodes.filter(n => types.includes(n.type))
@@ -165,8 +165,11 @@ export class DTJSONConverter {
 
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
-      if (!this.referenceResolver.valueIsReference(node.value)) {
-        let token = this.convertAtomicNode(node)
+      if (this.referenceResolver.valueNeedsComputing(node.value)) {
+        let token = this.convertAtomicNode(node, true, brand)
+        this.referenceResolver.addAtomicToken(token)
+      } else if (!this.referenceResolver.valueIsReference(node.value)) {
+        let token = this.convertAtomicNode(node, false, brand)
         this.referenceResolver.addAtomicToken(token)
       } else {
         unprocessedTokens.push(node)
@@ -179,7 +182,7 @@ export class DTJSONConverter {
     while (unprocessedTokens.length !== 0) {
       let unprocessedDepthTokens = new Array<DTParsedNode>()
       for (let node of unprocessedTokens) {
-        let token = this.convertReferencedNode(node)
+        let token = this.convertReferencedNode(node, brand)
         if (token) {
           this.referenceResolver.addAtomicToken(token)
         } else {
@@ -197,23 +200,23 @@ export class DTJSONConverter {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Atomic nodes
 
-  private convertAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertAtomicNode(node: DTParsedNode, computable: boolean, brand: Brand): DTProcessedTokenNode {
 
     let snType = this.convertDTTypeToSupernovaType(node.type)
     switch (snType) {
-      case TokenType.color: return this.convertColorAtomicNode(node)
-      case TokenType.measure: return this.convertMeasureAtomicNode(node)
-      case TokenType.radius: return this.convertRadiusAtomicNode(node)
-      case TokenType.shadow: return this.convertShadowAtomicNode(node)
-      case TokenType.typography: return this.convertTypographyAtomicNode(node)
-      case TokenType.generic: return this.convertGenericAtomicNode(node)
+      case TokenType.color: return this.convertColorAtomicNode(node, brand)
+      case TokenType.measure: return this.convertMeasureAtomicNode(node, computable, brand)
+      case TokenType.radius: return this.convertRadiusAtomicNode(node, brand)
+      case TokenType.shadow: return this.convertShadowAtomicNode(node, brand)
+      case TokenType.typography: return this.convertTypographyAtomicNode(node, brand)
+      case TokenType.generic: return this.convertGenericAtomicNode(node, brand)
       default: throw new Error("Unsupported token type " + snType)
     }
   }
 
-  private convertColorAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertColorAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, [], [])
+    let constructedToken = ColorToken.create(this.version, brand, node.name, node.description, node.value, undefined, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -222,9 +225,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertMeasureAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertMeasureAtomicNode(node: DTParsedNode, computable: boolean, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = MeasureToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, [], [])
+    let constructedToken = MeasureToken.create(this.version, brand, node.name, node.description, computable ? "1px" : node.value, undefined, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -233,9 +236,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertRadiusAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertRadiusAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, [], [])
+    let constructedToken = RadiusToken.create(this.version, brand, node.name, node.description, node.value, undefined, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -244,9 +247,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertShadowAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertShadowAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = ShadowToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, this.referenceResolver, [], [])
+    let constructedToken = ShadowToken.create(this.version, brand, node.name, node.description, node.value, undefined, this.referenceResolver, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -255,9 +258,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertTypographyAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertTypographyAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = TypographyToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, this.referenceResolver, [], [])
+    let constructedToken = TypographyToken.create(this.version, brand, node.name, node.description, node.value, undefined, this.referenceResolver, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -266,9 +269,9 @@ export class DTJSONConverter {
     }
   }
 
-  private convertGenericAtomicNode(node: DTParsedNode): DTProcessedTokenNode {
+  private convertGenericAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
 
-    let constructedToken = GenericToken.create(this.version, this.brand, node.name, node.description, node.value, undefined, [], [])
+    let constructedToken = GenericToken.create(this.version, brand, node.name, node.description, node.value, undefined, [], [])
     return {
       token: constructedToken,
       originalType: node.type,
@@ -281,7 +284,8 @@ export class DTJSONConverter {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Referenced nodes
 
-  private convertReferencedNode(node: DTParsedNode): DTProcessedTokenNode | undefined {
+  private convertReferencedNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode | undefined {
+
 
     let valueAsReference = node.value
     let resolvedToken = this.referenceResolver.lookupReferencedToken(valueAsReference)
@@ -290,12 +294,12 @@ export class DTJSONConverter {
       let constructedToken: Token
       let snType = this.convertDTTypeToSupernovaType(node.type)
       switch (snType) {
-        case TokenType.color: constructedToken = ColorToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as ColorToken, [], []); break;
-        case TokenType.measure: constructedToken = MeasureToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as MeasureToken, [], []); break;
-        case TokenType.radius: constructedToken = RadiusToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as RadiusToken, [], []); break;
-        case TokenType.shadow: constructedToken = ShadowToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as ShadowToken, this.referenceResolver, [], []); break;
-        case TokenType.typography: constructedToken = TypographyToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as TypographyToken, this.referenceResolver, [], []); break;
-        case TokenType.generic: constructedToken = GenericToken.create(this.version, this.brand, node.name, node.description, undefined, resolvedToken as GenericToken, [], []); break;
+        case TokenType.color: constructedToken = ColorToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as ColorToken, [], []); break;
+        case TokenType.measure: constructedToken = MeasureToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as MeasureToken, [], []); break;
+        case TokenType.radius: constructedToken = RadiusToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as RadiusToken, [], []); break;
+        case TokenType.shadow: constructedToken = ShadowToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as ShadowToken, this.referenceResolver, [], []); break;
+        case TokenType.typography: constructedToken = TypographyToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as TypographyToken, this.referenceResolver, [], []); break;
+        case TokenType.generic: constructedToken = GenericToken.create(this.version, brand, node.name, node.description, undefined, resolvedToken as GenericToken, [], []); break;
         default: throw new Error("Unsupported token type " + snType)
       }
       

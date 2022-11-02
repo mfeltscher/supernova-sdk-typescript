@@ -48,7 +48,7 @@ export class ShadowToken extends Token {
     this.isVirtual = false
 
     if (alias) {
-      this.value.referencedToken = alias
+      value.referencedToken = alias
     }
   }
 
@@ -145,60 +145,62 @@ export class ShadowToken extends Token {
   toWriteObject(): ShadowTokenRemoteModel {
     let baseData = this.toBaseWriteObject()
     let specificData = baseData as ShadowTokenRemoteModel
-
-    specificData.data = {
-      aliasTo: this.value.referencedToken ? this.value.referencedToken.id : undefined,
-      value: !this.value.referencedToken ? this.toWriteValueObject() : undefined
-    }
-
+    specificData.data = ShadowToken.valueToWriteObject(this.value)
     return specificData
   }
 
-  toWriteValueObject(): ShadowTokenRemoteValue {
+  static valueToWriteObject(value: ShadowTokenValue): { aliasTo: string | undefined; value: ShadowTokenRemoteValue } {
+    let valueObject = !value.referencedToken
+      ? {
+          color: {
+            aliasTo: value.color.referencedToken ? value.color.referencedToken.id : undefined,
+            value: value.color.referencedToken ? null : value.color.hex
+          },
+          isEnabled: true,
+          x: {
+            aliasTo: value.x.referencedToken ? value.x.referencedToken.id : undefined,
+            value: value.x.referencedToken
+              ? null
+              : {
+                  measure: value.x.measure,
+                  unit: value.x.unit
+                }
+          },
+          y: {
+            aliasTo: value.y.referencedToken ? value.y.referencedToken.id : undefined,
+            value: value.y.referencedToken
+              ? null
+              : {
+                  measure: value.y.measure,
+                  unit: value.y.unit
+                }
+          },
+          spread: {
+            aliasTo: value.spread.referencedToken ? value.spread.referencedToken.id : undefined,
+            value: value.spread.referencedToken
+              ? null
+              : {
+                  measure: value.spread.measure,
+                  unit: value.spread.unit
+                }
+          },
+          radius: {
+            aliasTo: value.radius.referencedToken ? value.radius.referencedToken.id : undefined,
+            value: value.radius.referencedToken
+              ? null
+              : {
+                  measure: value.radius.measure,
+                  unit: value.radius.unit
+                }
+          },
+          opacity: value.opacity,
+          type: value.type
+        }
+      : undefined
+
     return {
-      color: {
-        aliasTo: this.value.color.referencedToken ? this.value.color.referencedToken.id : undefined,
-        value: this.value.color.referencedToken ? null : this.value.color.hex
-      },
-      isEnabled: true,
-      x: {
-        aliasTo: this.value.x.referencedToken ? this.value.x.referencedToken.id : undefined,
-        value: this.value.x.referencedToken
-          ? null
-          : {
-              measure: this.value.x.measure,
-              unit: this.value.x.unit
-            }
-      },
-      y: {
-        aliasTo: this.value.y.referencedToken ? this.value.y.referencedToken.id : undefined,
-        value: this.value.y.referencedToken
-          ? null
-          : {
-              measure: this.value.y.measure,
-              unit: this.value.y.unit
-            }
-      },
-      spread: {
-        aliasTo: this.value.spread.referencedToken ? this.value.spread.referencedToken.id : undefined,
-        value: this.value.spread.referencedToken
-          ? null
-          : {
-              measure: this.value.spread.measure,
-              unit: this.value.spread.unit
-            }
-      },
-      radius: {
-        aliasTo: this.value.radius.referencedToken ? this.value.radius.referencedToken.id : undefined,
-        value: this.value.radius.referencedToken
-          ? null
-          : {
-              measure: this.value.radius.measure,
-              unit: this.value.radius.unit
-            }
-      },
-      opacity: this.value.opacity,
-      type: this.value.type
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }

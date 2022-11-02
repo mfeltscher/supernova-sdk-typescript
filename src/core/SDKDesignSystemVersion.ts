@@ -20,6 +20,7 @@ import { TokenType } from "../model/enums/SDKTokenType"
 import { AssetGroup } from "../model/groups/SDKAssetGroup"
 import { DesignComponentGroup } from "../model/groups/SDKDesignComponentGroup"
 import { TokenGroup } from "../model/groups/SDKTokenGroup"
+import { TokenTheme } from "../model/themes/SDKTokenTheme"
 import { Token } from "../model/tokens/SDKToken"
 import { DataCore } from "./data/SDKDataCore"
 import { SupernovaError } from "./errors/SDKSupernovaError"
@@ -127,6 +128,62 @@ export class DesignSystemVersion {
     async tokens(): Promise<Array<Token>> {
 
         return this.dataCore.currentDesignSystemTokens(this.designSystem.id, this)
+    }
+
+    /** Fetches all themes in this design system version. This method retrieves all groups defined across all brands */
+    async themes(): Promise<Array<TokenTheme>> {
+
+        return this.dataCore.currentDesignSystemThemes(this.designSystem.id, this)
+    }
+
+    /** Fetches all tokens and retrieves resolved array of tokens with applied themes */
+    async tokensByApplyingThemes(tokenIds: Array<string>, themeIds: Array<string>): Promise<Array<Token>> {
+        
+      // Fetch both tokens and themes
+      let allTokens = await this.tokens()
+      // Filter tokens based on provided tokens
+      let tokens = allTokens.filter(t => tokenIds.includes(t.id))
+      if (tokenIds.length !== tokens.length) {
+        throw new Error(`Can't apply themes to selected tokens: Some token ids that were requesting don't exist in the current design system version`)
+      }
+      let themes = await this.themes()
+  
+      // Create (crude) hashed search index to make this more performant
+      var index: { [key: string]: Map<string, Token> } = {}
+      for (let id of themeIds) {
+        let theme = themes.find(t => t.id === id)
+        if (!theme) {
+          throw new Error(
+            `Can't apply themes to current tokens: Theme id ${id} doesn't exist in the current design system version`
+          )
+        }
+        let overrides = new Map<string, Token>()
+        for (let override of theme.overriddenTokens) {
+          overrides.set(override.id, override)
+        }
+        index[id] = overrides
+      }
+  
+      // Select each correct token by first searching the overrides in reverse order, or fallback to default token if not found in any
+      let reverseIds = themeIds.reverse()
+      let resolvedTokens: Array<Token> = []
+      for (let token of tokens) {
+        let override: Token | null = null
+        for (let id of reverseIds) {
+          let override = index[id].get(token.id) ?? null
+          if (override) {
+            // If there is override, prioritize that
+            resolvedTokens.push(override)
+            break
+          }
+        }
+        if (!override) {
+          // When no override was found in this pass, retrieve the token
+          resolvedTokens.push(token)
+        }
+      }
+  
+      return resolvedTokens
     }
 
     /** Fetches all token groups in this design system version. This method retrieves all groups defined across all brands */

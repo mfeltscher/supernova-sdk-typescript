@@ -12,7 +12,8 @@
 import { ElementProperty } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
-import { TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { TextTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
+import { TextTokenRemoteValue } from './remote/SDKRemoteTokenValue'
 import { Token } from './SDKToken'
 import { TextTokenValue } from './SDKTokenValue'
 
@@ -40,6 +41,25 @@ export class TextToken extends Token {
     this.value = value
     if (alias) {
       this.value.referencedToken = alias
+    }
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Write
+
+  toWriteObject(): TextTokenRemoteModel {
+    let baseData = this.toBaseWriteObject()
+    let specificData = baseData as TextTokenRemoteModel
+    specificData.data = TextToken.valueToWriteObject(this.value)
+    return specificData
+  }
+
+  static valueToWriteObject(value: TextTokenValue): { aliasTo: string | undefined; value: TextTokenRemoteValue } {
+    let valueObject = !value.referencedToken ? value.text : undefined
+
+    return {
+      aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
+      value: valueObject
     }
   }
 }
