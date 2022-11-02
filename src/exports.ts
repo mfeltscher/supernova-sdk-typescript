@@ -129,6 +129,10 @@ export { TypographyToken } from '../src/model/tokens/SDKTypographyToken'
 export { TextToken } from '../src/model/tokens/SDKTextToken'
 export { Token } from '../src/model/tokens/SDKToken'
 
+// Themes
+export { TokenTheme } from './model/themes/SDKTokenTheme'
+export { TokenThemeOverride } from './model/themes/SDKTokenThemeOverride'
+
 // Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption } from './tools/json-builder/SDKToolsJSONBuilder'
 export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
