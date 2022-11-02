@@ -12,8 +12,6 @@
 import { TokenGroup } from '../../..'
 import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
-import { DTProcessedTokenSet } from './SDKDTTokenSetResolver'
-// import fs from "fs"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -112,8 +110,19 @@ export class DTJSONLoader {
 
   /** Load token definitions from path */
   /*
-  async loadDSObjectsFromPath(path: string): Promise<Array<DTParsedNode>> {
+  async loadDSObjectsFromTokenFile(pathToFile: string): Promise<Array<DTParsedNode>> {
 
+    try {
+      let definition = fs.readFileSync(path, "utf8") 
+      return this.loadDSObjectsFromDefinition(definition)
+    } catch (error) {
+      throw SupernovaError.fromProcessingError(
+        'Unable to load JSON definition file: ' + error
+      )
+    }
+  }
+
+  async loadDSObjectsFromTokenFileDirectory(pathToDirectory: string): Promise<Array<DTParsedNode>> {
     try {
       let definition = fs.readFileSync(path, "utf8") 
       return this.loadDSObjectsFromDefinition(definition)
