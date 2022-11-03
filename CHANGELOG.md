@@ -2,6 +2,13 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.7] - 2022-02-11
+### Exposed TokenTheme and TokenThemeOverride objects
+
+All page blocks can now use new property `theme` that contains information about what theme to apply. It additionally also allows listing of `blacklistedElementProperties` to filter what properties to show and what not to. Finally, a new property `userMetadata` is available on every documentation block to store any arbitrary payload from the users.
+
+We have also audited all packages, removed some unused ones and updated all libraries to their recommended version for tighter security. We have additionally removed commands for documentation and test coverage as part of the cleanup, as we'll use different approaches going forward (work in progress).
+
 ## [1.8.6] - 2022-02-11
 ### Exposed TokenTheme and TokenThemeOverride objects
 
