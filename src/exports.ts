@@ -1,3 +1,5 @@
+
+
 // Export main Supernova object
 export { Supernova } from '../src/core/SDKSupernova'
 
@@ -98,6 +100,7 @@ export { DocumentationGroupBehavior } from '../src/model/enums/SDKDocumentationG
 export { DocumentationHeadingType } from '../src/model/enums/SDKDocumentationHeadingType'
 export { DocumentationItemType } from '../src/model/enums/SDKDocumentationItemType'
 export { DocumentationPageBlockType } from '../src/model/enums/SDKDocumentationPageBlockType'
+export { DocumentationPageBlockThemeType } from './model/enums/SDKDocumentationPageBlockThemeType'
 export { FrameAlignment } from '../src/model/enums/SDKFrameAlignment'
 export { FrameLayout } from '../src/model/enums/SDKFrameLayout'
 export { GradientType } from '../src/model/enums/SDKGradientType'

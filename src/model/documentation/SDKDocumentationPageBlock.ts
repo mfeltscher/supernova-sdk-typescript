@@ -13,6 +13,7 @@ import { DocumentationPageBlockType } from "../enums/SDKDocumentationPageBlockTy
 import { DocumentationBlockBuilder } from "./builder/SDKDocumentationBlockBuilder"
 import { ExporterCustomBlock } from "../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "./SDKDocumentationConfiguration"
+import { DocumentationPageBlockThemeType } from "../enums/SDKDocumentationPageBlockThemeType"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -24,6 +25,12 @@ export interface DocumentationPageBlockModel {
   type: DocumentationPageBlockType
   children: Array<DocumentationPageBlockModel>
   variantKey?: string
+  theme?: {
+    themeIds: Array<string>,
+    type: DocumentationPageBlockThemeType
+  }
+  blacklistedElementProperties?: Array<string>
+  userMetadata?: string
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -38,7 +45,13 @@ export class DocumentationPageBlock {
   type: DocumentationPageBlockType
   beginsTypeChain: boolean
   endsTypeChain: boolean
-  variantKey: string
+  variantKey: string | null
+  theme: {
+    themeIds: Array<string>,
+    type: DocumentationPageBlockThemeType
+  } | null
+  blacklistedElementProperties: Array<string> | null
+  userMetadata: object | Array<any> | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -48,8 +61,16 @@ export class DocumentationPageBlock {
     // Map children. Children that are not supported by the data model natively should be ignored
     this.children = model.children.map(c => DocumentationBlockBuilder.fromGenericModel(c, customBlocks, configuration)).filter(c => c !== undefined)
     this.type = model.type
-    this.variantKey = model.variantKey ?? null
     this.beginsTypeChain = true // Will be computed by resolver
     this.endsTypeChain = true // Will be computed by resolver
+    this.theme = model.theme ? model.theme : null
+    this.variantKey = model.variantKey ?? null
+    this.blacklistedElementProperties = model.blacklistedElementProperties ?? null
+
+    if (model.userMetadata) {
+      this.userMetadata = JSON.parse(model.userMetadata)
+    } else {
+      this.userMetadata = null
+    }
   }
 }
