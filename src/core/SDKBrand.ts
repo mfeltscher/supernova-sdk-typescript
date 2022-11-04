@@ -134,7 +134,7 @@ export class Brand {
     for (let token of tokens) {
       let override: Token | null = null
       for (let id of reverseIds) {
-        let override = index[id].get(id) ?? null
+        override = index[id].get(token.id) ?? null
         if (override) {
           // If there is override, prioritize that
           resolvedTokens.push(override)

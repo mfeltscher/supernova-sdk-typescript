@@ -87,7 +87,6 @@ export class DTTokenReferenceResolver {
     }
 
     if ((value.match(/{/g)||[]).length > 1 || value.includes("*") || value.includes("/") || value.includes("%")) {
-      console.log("Value needs computing")
       return true
     }
 
