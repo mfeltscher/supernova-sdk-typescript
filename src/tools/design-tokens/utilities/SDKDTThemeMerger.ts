@@ -114,11 +114,6 @@ export class DTThemeMerger {
         }
     }
 
-    console.log(`Base tokens: ${upstreamTokens.length}`)
-    console.log(`Overrides in selected theme: ${upstreamTheme.overriddenTokens.length}`)
-    console.log(`Possible overrides: ${processedNodes.length}`)
-    console.log(`New theme overrides: ${themeReplica.overriddenTokens.length}`)
-
     return themeReplica
   }
 
