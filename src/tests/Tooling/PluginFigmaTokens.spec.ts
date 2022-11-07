@@ -69,7 +69,7 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let tool = new SupernovaToolsDesignTokensPlugin(version)
   let tokens = path.join(process.cwd(), 'files', 'tokens.json')
   let definition = fs.readFileSync(tokens, 'utf8')
-  let processedMaps = tool.loadTokensFromDefinition(definition, mapping, brands)
+  let processedMaps = await tool.loadTokensFromDefinition(definition, mapping, brands)
   for (let map of processedMaps) {
     // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
     if (map.bindToTheme) {
