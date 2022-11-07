@@ -80,9 +80,9 @@ export class SupernovaToolsDesignTokensPlugin {
   }*/
 
   /** Load token definitions from a JSON file */
-  loadTokensFromDefinition(definition: string, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): DTPluginToSupernovaMapPack {
+  async loadTokensFromDefinition(definition: string, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): Promise<DTPluginToSupernovaMapPack> {
     let loader = new DTJSONLoader()
-    let parseResult = loader.loadDSObjectsFromDefinition(definition)
+    let parseResult = await loader.loadDSObjectsFromDefinition(definition)
     console.log(`:: INITIAL DATA PARSING COMPLETE WITH RESULT:`)
     console.log(`-----------`)
     console.log(`Nodes: ${parseResult.nodes.length}`)
@@ -93,9 +93,9 @@ export class SupernovaToolsDesignTokensPlugin {
   }
 
   /** Load token definitions from a definition object */
-  loadTokensFromObject(definition: object, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): DTPluginToSupernovaMapPack {
+  async loadTokensFromObject(definition: object, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): Promise<DTPluginToSupernovaMapPack> {
     let loader = new DTJSONLoader()
-    let parseResult = loader.loadDSObjectsFromObject(definition)
+    let parseResult = await loader.loadDSObjectsFromObject(definition)
 
     console.log(`:: INITIAL DATA PARSING COMPLETE WITH RESULT:`)
     console.log(`-----------`)
