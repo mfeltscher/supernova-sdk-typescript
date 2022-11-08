@@ -1,4 +1,3 @@
-
 //
 //  SDKToolsDesignTokensPlugin.ts
 //  Supernova SDK
@@ -10,38 +9,46 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DesignSystemVersion } from "../../core/SDKDesignSystemVersion"
-import { Supernova } from "../../core/SDKSupernova"
-import { TokenGroup } from "../../model/groups/SDKTokenGroup"
-import { Token } from "../../model/tokens/SDKToken"
-import _ from "lodash"
-import { DTJSONLoader, DTParsedNode, DTParsedTheme, DTParsedThemeSetPriority, DTParsedTokenSet, DTPluginToSupernovaMapPack } from "./utilities/SDKDTJSONLoader"
-import { DTJSONConverter, DTProcessedTokenNode } from "./utilities/SDKDTJSONConverter"
-import { DTJSONGroupBuilder } from "./utilities/SDKDTJSONGroupBuilder"
-import { DTTokenGroupTreeMerger } from "./utilities/SDKDTTokenGroupTreeMerger"
-import { DTTokenMerger } from "./utilities/SDKDTTokenMerger"
-import { Brand } from "../../core/SDKBrand"
-import { DTMapResolver } from "./utilities/SDKDTMapResolver"
-import { TokenTheme } from "../../model/themes/SDKTokenTheme"
-import { DTThemeMerger } from "./utilities/SDKDTThemeMerger"
-
+import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { TokenGroup } from '../../model/groups/SDKTokenGroup'
+import { Token } from '../../model/tokens/SDKToken'
+import _ from 'lodash'
+import {
+  DTJSONLoader,
+  DTParsedNode,
+  DTParsedTheme,
+  DTParsedTokenSet
+} from './utilities/SDKDTJSONLoader'
+import { DTJSONConverter, DTProcessedTokenNode } from './utilities/SDKDTJSONConverter'
+import { DTJSONGroupBuilder } from './utilities/SDKDTJSONGroupBuilder'
+import { DTTokenGroupTreeMerger } from './utilities/SDKDTTokenGroupTreeMerger'
+import { DTTokenMerger } from './utilities/SDKDTTokenMerger'
+import { Brand } from '../../core/SDKBrand'
+import { DTMapResolver } from './utilities/SDKDTMapResolver'
+import { TokenTheme } from '../../model/themes/SDKTokenTheme'
+import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
+import { DTMapLoader, DTPluginToSupernovaMapPack } from './utilities/SDKDTMapLoader'
+import { DTJSONParser } from './utilities/SDKDTJSONParser'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
 
+export type SupernovaToolsDesignTokensLoadingResult = {
+  processedNodes: Array<DTProcessedTokenNode>
+  tokens: Array<Token>
+  groups: Array<TokenGroup>
+}
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
 /** Design Tokens Plugin Manipulation Tool */
 export class SupernovaToolsDesignTokensPlugin {
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
   private version: DesignSystemVersion
   private sortMultiplier: number = 100
-
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -50,66 +57,94 @@ export class SupernovaToolsDesignTokensPlugin {
     this.version = version
   }
 
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Primary synchronization
+
+  /** Synchronizes tokens with specified version of design system using all JSONs in a specific directory. Will load mapping configuration from the provided mapping file path as well. */
+  async synchronizeTokensFromDirectory(directoryPath: string, mappingPath: string): Promise<boolean> {
+    // Load mapping from file
+    let mapLoader = new DTMapLoader()
+    let mapping = await mapLoader.loadFromPath(mappingPath)
+
+    // Load data from path, and construct the final object
+    let jsonLoader = new DTJSONLoader()
+    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath)
+    return this.synchronizeTokensFromData(data, mapping)
+  }
+
+  /** Synchronizes tokens with specified version of design system from the tokens file provided. Will load mapping configuration from the provided mapping file path as well. */
+  async synchronizeTokensFromFile(filePath: string, mappingPath: string): Promise<boolean> {
+    // Load mapping from file
+    let mapLoader = new DTMapLoader()
+    let mapping = await mapLoader.loadFromPath(mappingPath)
+
+    // Load data from provided file and retrieve the data
+    let jsonLoader = new DTJSONLoader()
+    let data = await jsonLoader.loadDSObjectsFromTokenFile(filePath)
+    return this.synchronizeTokensFromData(data, mapping)
+  }
+
+  async synchronizeTokensFromData(data: object, mapping: DTPluginToSupernovaMapPack): Promise<boolean> {
+    // Fetch brand and themes
+    let brands = await this.version.brands()
+    let themes = await this.version.themes()
+
+    // Parse data from object
+    let parser = new DTJSONParser()
+    let parsedData = await parser.processPluginDataRepresentation(data)
+
+    // Post process the data
+    this.processTokenNodes(parsedData, mapping, brands)
+
+    for (let map of mapping) {
+      // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
+      if (map.bindToTheme) {
+        continue
+      }
+      // Find the destination brand
+      let brand = brands.find(b => b.persistentId === map.bindToBrand)
+      if (!brand) {
+        throw new Error(`Unknown brand provided in binding`)
+      }
+      await this.mergeWithRemoteSource(map.processedNodes, brand, true)
+      console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
+    }
+
+    for (let map of mapping) {
+      // Merge all remaining themes
+      if (!map.bindToTheme) {
+        continue
+      }
+      // Find the destination brand
+      let brand = brands.find(b => b.persistentId === map.bindToBrand)
+      if (!brand) {
+        throw new Error(`Unknown brand provided in binding`)
+      }
+      // Find the destination theme
+      let theme = themes.find(t => t.id === map.bindToTheme)
+      if (!theme) {
+        throw new Error(`Unknown theme provided in binding`)
+      }
+      await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, true)
+      console.log(
+        `Finished map synchronization: Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
+      )
+    }
+
+    return true
+  }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Loader
+  // MARK: - Data processing
 
-  /** Load token definitions from multiple sources */
-  /*
-  async loadTokensFromDefinitions(definitions: Array<string>): Promise<{
-      tokens: Array<Token>
-      groups: Array<TokenGroup>
-  }> {
-
-    for (let definition of definitions) {
-        let result = this.loadTokensFromDefinition(definition)
-    }
-    throw new Error("Not implemented")
-  }
-  */
-  /** Load token definitions from path */
-  /*
-  async loadTokensFromPath(path: string): Promise<{
-    processedNodes: Array<DTProcessedTokenNode>,
-    tokens: Array<Token>,
-    groups: Array<TokenGroup>
-  }> {
-    let loader = new DTJSONLoader()
-    let nodes = await loader.loadDSObjectsFromPath(path)
-    return this.processTokenNodes(nodes)
-  }*/
-
-  /** Load token definitions from a JSON file */
-  async loadTokensFromDefinition(definition: string, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): Promise<DTPluginToSupernovaMapPack> {
-    let loader = new DTJSONLoader()
-    let parseResult = await loader.loadDSObjectsFromDefinition(definition)
-    console.log(`:: INITIAL DATA PARSING COMPLETE WITH RESULT:`)
-    console.log(`-----------`)
-    console.log(`Nodes: ${parseResult.nodes.length}`)
-    console.log(`Sets: ${parseResult.sets.length}, ${(parseResult.sets.map(s => `\n   ${s.name}: ${s.contains.length} nodes`))}`)
-    console.log(`Themes: ${parseResult.themes.length}, ${parseResult.themes.map(t => `\n   ${t.name}: ${t.selectedTokenSets.filter(s => s.priority !== DTParsedThemeSetPriority.disabled).length} sets`)}`)
-    console.log(`-----------`)
-    return this.processTokenNodes(parseResult, mapping, brands)
-  }
-
-  /** Load token definitions from a definition object */
-  async loadTokensFromObject(definition: object, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): Promise<DTPluginToSupernovaMapPack> {
-    let loader = new DTJSONLoader()
-    let parseResult = await loader.loadDSObjectsFromObject(definition)
-
-    console.log(`:: INITIAL DATA PARSING COMPLETE WITH RESULT:`)
-    console.log(`-----------`)
-    console.log(`Nodes: ${parseResult.nodes.length}`)
-    console.log(`Sets: ${parseResult.sets.length}, ${(parseResult.sets.map(s => `\n   ${s.name}: ${s.contains.length} nodes`))}`)
-    console.log(`Themes: ${parseResult.themes.length}, ${parseResult.themes.map(t => `\n   ${t.name}: ${t.selectedTokenSets.filter(s => s.priority !== DTParsedThemeSetPriority.disabled).length} sets`)}`)
-    console.log(`-----------`)
-    return this.processTokenNodes(parseResult, mapping, brands)
-  }
-
-  private processTokenNodes(parseResult: { nodes: Array<DTParsedNode>, themes: Array<DTParsedTheme>, sets: Array<DTParsedTokenSet> }, mapping: DTPluginToSupernovaMapPack, brands: Array<Brand>): DTPluginToSupernovaMapPack {
+  private processTokenNodes(
+    parseResult: { nodes: Array<DTParsedNode>; themes: Array<DTParsedTheme>; sets: Array<DTParsedTokenSet> },
+    mapping: DTPluginToSupernovaMapPack,
+    brands: Array<Brand>
+  ): DTPluginToSupernovaMapPack {
     // Create base objects
     let mapResolver = new DTMapResolver(this.version)
-    
+
     // Resolve each theme or set separately
     for (let map of mapping) {
       let resolvedMap = mapResolver.mappedNodePools(map, parseResult.themes, parseResult.sets)
@@ -127,7 +162,7 @@ export class SupernovaToolsDesignTokensPlugin {
       let converter = new DTJSONConverter(this.version, mapping)
       let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)
 
-      let processedNodes = converter.convertNodesToTokens(map.nodes, brand) 
+      let processedNodes = converter.convertNodesToTokens(map.nodes, brand)
       let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes, brand)
       map.processedNodes = processedNodes
       map.processedGroups = processedGroups
@@ -141,14 +176,17 @@ export class SupernovaToolsDesignTokensPlugin {
     return mapping
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merging
 
   /** Loads remote source connected to this tool, then merges tokens and groups with it, creating union. Can optionally write to the source as well */
-  async mergeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, brand: Brand, write: boolean): Promise<{
-      tokens: Array<Token>
-      groups: Array<TokenGroup>
+  async mergeWithRemoteSource(
+    processedNodes: Array<DTProcessedTokenNode>,
+    brand: Brand,
+    write: boolean
+  ): Promise<{
+    tokens: Array<Token>
+    groups: Array<TokenGroup>
   }> {
     // Get remote token data
     let upstreamTokenGroups = await brand.tokenGroups()
@@ -190,7 +228,11 @@ export class SupernovaToolsDesignTokensPlugin {
 
     if (write) {
       let writer = brand.writer()
-      await writer.writeTokens(tokenMergeResult.toCreateOrUpdate.map(r => r.token), tokenGroupsToWrite, tokenMergeResult.toDelete.map(r => r.token))
+      await writer.writeTokens(
+        tokenMergeResult.toCreateOrUpdate.map(r => r.token),
+        tokenGroupsToWrite,
+        tokenMergeResult.toDelete.map(r => r.token)
+      )
     }
 
     console.log(`:: COMPLETED REMOTE SYNC:`)
@@ -207,9 +249,14 @@ export class SupernovaToolsDesignTokensPlugin {
     }
   }
 
-    /** Loads remote source connected to this tool, then creates the diff from the base tree and updates the associated theme. Can optionally write to the source as well */
-    async mergeThemeWithRemoteSource(processedNodes: Array<DTProcessedTokenNode>, brand: Brand, theme: TokenTheme, write: boolean): Promise<{
-      theme: TokenTheme
+  /** Loads remote source connected to this tool, then creates the diff from the base tree and updates the associated theme. Can optionally write to the source as well */
+  async mergeThemeWithRemoteSource(
+    processedNodes: Array<DTProcessedTokenNode>,
+    brand: Brand,
+    theme: TokenTheme,
+    write: boolean
+  ): Promise<{
+    theme: TokenTheme
   }> {
     // Get remote token data
     let upstreamTokens = await brand.tokens()
@@ -234,7 +281,6 @@ export class SupernovaToolsDesignTokensPlugin {
   }
 
   correctSortOrder(tokens: Array<Token>, tokenGroups: Array<TokenGroup>) {
-
     // Build maps so lookup is faster
     let tokenMap = new Map<string, Token>()
     let groupMap = new Map<string, TokenGroup>()
@@ -247,7 +293,6 @@ export class SupernovaToolsDesignTokensPlugin {
   }
 
   correctSortOrderFromTypeRoot(root: TokenGroup, tokenMap: Map<string, Token>, groupMap: Map<string, TokenGroup>) {
-
     let ids = this.flattenedIdsFromRoot(root, tokenMap, groupMap)
     for (let i = 0; i < ids.length; i++) {
       let element = tokenMap.get(ids[i]) ?? groupMap.get(ids[i])
@@ -255,8 +300,11 @@ export class SupernovaToolsDesignTokensPlugin {
     }
   }
 
-  flattenedIdsFromRoot(root: TokenGroup, tokenMap: Map<string, Token>, groupMap: Map<string, TokenGroup>): Array<string> {
-
+  flattenedIdsFromRoot(
+    root: TokenGroup,
+    tokenMap: Map<string, Token>,
+    groupMap: Map<string, TokenGroup>
+  ): Array<string> {
     let result: Array<string> = [root.id]
     let ids = root.childrenIds
     for (let id of ids) {
