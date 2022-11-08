@@ -13,12 +13,7 @@ import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { TokenGroup } from '../../model/groups/SDKTokenGroup'
 import { Token } from '../../model/tokens/SDKToken'
 import _ from 'lodash'
-import {
-  DTJSONLoader,
-  DTParsedNode,
-  DTParsedTheme,
-  DTParsedTokenSet
-} from './utilities/SDKDTJSONLoader'
+import { DTJSONLoader, DTParsedNode, DTParsedTheme, DTParsedTokenSet } from './utilities/SDKDTJSONLoader'
 import { DTJSONConverter, DTProcessedTokenNode } from './utilities/SDKDTJSONConverter'
 import { DTJSONGroupBuilder } from './utilities/SDKDTJSONGroupBuilder'
 import { DTTokenGroupTreeMerger } from './utilities/SDKDTTokenGroupTreeMerger'
@@ -104,7 +99,7 @@ export class SupernovaToolsDesignTokensPlugin {
       // Find the destination brand
       let brand = brands.find(b => b.persistentId === map.bindToBrand)
       if (!brand) {
-        throw new Error(`Unknown brand provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
       }
       await this.mergeWithRemoteSource(map.processedNodes, brand, true)
       console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
@@ -118,7 +113,7 @@ export class SupernovaToolsDesignTokensPlugin {
       // Find the destination brand
       let brand = brands.find(b => b.persistentId === map.bindToBrand)
       if (!brand) {
-        throw new Error(`Unknown brand provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
       }
       // Find the destination theme
       let theme = themes.find(t => t.id === map.bindToTheme)
@@ -156,8 +151,9 @@ export class SupernovaToolsDesignTokensPlugin {
     for (let map of mapping) {
       // Find appropriate brand
       let brand = brands.find(b => b.persistentId === map.bindToBrand)
+
       if (!brand) {
-        throw new Error(`Unknown brand provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
       }
       let converter = new DTJSONConverter(this.version, mapping)
       let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)

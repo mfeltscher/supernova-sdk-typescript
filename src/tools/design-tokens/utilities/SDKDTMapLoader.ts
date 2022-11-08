@@ -65,6 +65,11 @@ export class DTMapLoader {
 
   loadFromPath(pathToFile: string): DTPluginToSupernovaMapPack {
     try {
+
+      if (!(fs.existsSync(pathToFile) && fs.lstatSync(pathToFile).isFile())) {
+        throw SupernovaError.fromProcessingError(`Provided configuration file directory ${pathToFile} is not a file or doesn't exist`)
+      }
+
       let definition = fs.readFileSync(pathToFile, 'utf8')
       let parsedDefinition = this.parseDefinition(definition) as DTPluginToSupernovaMappingFile
       this.weakValidateMapping(parsedDefinition)

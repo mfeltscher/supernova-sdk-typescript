@@ -72,6 +72,11 @@ export class DTJSONLoader {
   /** Load token definitions from path */
   async loadDSObjectsFromTokenFile(pathToFile: string): Promise<object> {
     try {
+
+      if (!(fs.existsSync(pathToFile) && fs.lstatSync(pathToFile).isFile())) {
+        throw SupernovaError.fromProcessingError(`Provided token file directory ${pathToFile} is not a file or doesn't exist`)
+      }
+
       let definition = fs.readFileSync(pathToFile, 'utf8')
       let parsedDefinition = this.parseDefinition(definition)
       return parsedDefinition
@@ -83,6 +88,10 @@ export class DTJSONLoader {
   async loadDSObjectsFromTokenFileDirectory(pathToDirectory: string): Promise<object> {
     try {
       let fullStructuredObject = {}
+      
+      if (!(fs.existsSync(pathToDirectory) && fs.lstatSync(pathToDirectory).isDirectory())) {
+        throw SupernovaError.fromProcessingError(`Provided data directory ${pathToDirectory} is not a directory or doesn't exist`)
+      }
 
       // Read all files in the path
       let paths = fs
