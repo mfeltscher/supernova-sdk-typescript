@@ -22,7 +22,7 @@ import { Brand } from '../../core/SDKBrand'
 import { DTMapResolver } from './utilities/SDKDTMapResolver'
 import { TokenTheme } from '../../model/themes/SDKTokenTheme'
 import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
-import { DTMapLoader, DTPluginToSupernovaMapPack } from './utilities/SDKDTMapLoader'
+import { DTMapLoader, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
 import { DTJSONParser } from './utilities/SDKDTJSONParser'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -59,27 +59,31 @@ export class SupernovaToolsDesignTokensPlugin {
   async synchronizeTokensFromDirectory(directoryPath: string, mappingPath: string): Promise<boolean> {
     // Load mapping from file
     let mapLoader = new DTMapLoader()
-    let mapping = await mapLoader.loadFromPath(mappingPath)
+    let configuration = await mapLoader.loadFromPath(mappingPath)
 
     // Load data from path, and construct the final object
     let jsonLoader = new DTJSONLoader()
     let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath)
-    return this.synchronizeTokensFromData(data, mapping)
+    return this.synchronizeTokensFromData(data, configuration.mapping, configuration.settings)
   }
 
   /** Synchronizes tokens with specified version of design system from the tokens file provided. Will load mapping configuration from the provided mapping file path as well. */
   async synchronizeTokensFromFile(filePath: string, mappingPath: string): Promise<boolean> {
     // Load mapping from file
     let mapLoader = new DTMapLoader()
-    let mapping = await mapLoader.loadFromPath(mappingPath)
+    let configuration = await mapLoader.loadFromPath(mappingPath)
 
     // Load data from provided file and retrieve the data
     let jsonLoader = new DTJSONLoader()
     let data = await jsonLoader.loadDSObjectsFromTokenFile(filePath)
-    return this.synchronizeTokensFromData(data, mapping)
+    return this.synchronizeTokensFromData(data, configuration.mapping, configuration.settings)
   }
 
-  async synchronizeTokensFromData(data: object, mapping: DTPluginToSupernovaMapPack): Promise<boolean> {
+  async synchronizeTokensFromData(
+    data: object,
+    mapping: DTPluginToSupernovaMapPack,
+    settings: DTPluginToSupernovaSettings
+  ): Promise<boolean> {
     // Fetch brand and themes
     let brands = await this.version.brands()
     let themes = await this.version.themes()
@@ -89,7 +93,7 @@ export class SupernovaToolsDesignTokensPlugin {
     let parsedData = await parser.processPluginDataRepresentation(data)
 
     // Post process the data
-    this.processTokenNodes(parsedData, mapping, brands)
+    this.processTokenNodes(parsedData, mapping, brands, settings.verbose)
 
     for (let map of mapping) {
       // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
@@ -101,8 +105,10 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!brand) {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
       }
-      await this.mergeWithRemoteSource(map.processedNodes, brand, true)
-      console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
+      await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose)
+      if (settings.verbose) {
+        console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
+      }
     }
 
     for (let map of mapping) {
@@ -120,10 +126,12 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!theme) {
         throw new Error(`Unknown theme provided in binding`)
       }
-      await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, true)
-      console.log(
-        `Finished map synchronization: Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
-      )
+      await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
+      if (settings.verbose) {
+        console.log(
+          `Finished map synchronization: Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
+        )
+      }
     }
 
     return true
@@ -135,7 +143,8 @@ export class SupernovaToolsDesignTokensPlugin {
   private processTokenNodes(
     parseResult: { nodes: Array<DTParsedNode>; themes: Array<DTParsedTheme>; sets: Array<DTParsedTokenSet> },
     mapping: DTPluginToSupernovaMapPack,
-    brands: Array<Brand>
+    brands: Array<Brand>,
+    verbose: boolean
   ): DTPluginToSupernovaMapPack {
     // Create base objects
     let mapResolver = new DTMapResolver(this.version)
@@ -163,11 +172,13 @@ export class SupernovaToolsDesignTokensPlugin {
       map.processedNodes = processedNodes
       map.processedGroups = processedGroups
 
-      console.log(`:: COMPLETED CONVERSION RESULT OF SINGULAR MAP:`)
-      console.log(`-----------`)
-      console.log(`Processed nodes: ${processedNodes.length}`)
-      console.log(`Processed groups: ${processedGroups.length}`)
-      console.log(`-----------`)
+      if (verbose) {
+        console.log(`:: COMPLETED CONVERSION RESULT OF SINGULAR MAP:`)
+        console.log(`-----------`)
+        console.log(`Processed nodes: ${processedNodes.length}`)
+        console.log(`Processed groups: ${processedGroups.length}`)
+        console.log(`-----------`)
+      }
     }
     return mapping
   }
@@ -179,7 +190,8 @@ export class SupernovaToolsDesignTokensPlugin {
   async mergeWithRemoteSource(
     processedNodes: Array<DTProcessedTokenNode>,
     brand: Brand,
-    write: boolean
+    write: boolean,
+    verbose: boolean
   ): Promise<{
     tokens: Array<Token>
     groups: Array<TokenGroup>
@@ -217,10 +229,12 @@ export class SupernovaToolsDesignTokensPlugin {
     let tokensToWrite = processedNodes.map(n => n.token)
     let tokenGroupsToWrite = groups
 
-    console.log(`:: COMPLETED MERGE OF TREES OF SINGULAR MAP:`)
-    console.log(`-----------`)
-    console.log(`Writing token groups: ${tokenGroupsToWrite.length}`)
-    console.log(`-----------`)
+    if (verbose) {
+      console.log(`:: COMPLETED MERGE OF TREES OF SINGULAR MAP:`)
+      console.log(`-----------`)
+      console.log(`Writing token groups: ${tokenGroupsToWrite.length}`)
+      console.log(`-----------`)
+    }
 
     if (write) {
       let writer = brand.writer()
@@ -231,13 +245,15 @@ export class SupernovaToolsDesignTokensPlugin {
       )
     }
 
-    console.log(`:: COMPLETED REMOTE SYNC:`)
-    console.log(`-----------`)
-    console.log(`Merge result (to create): ${tokenMergeResult.toCreate.length}`)
-    console.log(`Merge result (to create or update): ${tokenMergeResult.toCreateOrUpdate.length}`)
-    console.log(`Merge result (to delete): ${tokenMergeResult.toDelete.length}`)
-    console.log(`Merge result (to update): ${tokenMergeResult.toUpdate.length}`)
-    console.log(`-----------`)
+    if (verbose) {
+      console.log(`:: COMPLETED REMOTE SYNC:`)
+      console.log(`-----------`)
+      console.log(`Merge result (to create): ${tokenMergeResult.toCreate.length}`)
+      console.log(`Merge result (to create or update): ${tokenMergeResult.toCreateOrUpdate.length}`)
+      console.log(`Merge result (to delete): ${tokenMergeResult.toDelete.length}`)
+      console.log(`Merge result (to update): ${tokenMergeResult.toUpdate.length}`)
+      console.log(`-----------`)
+    }
 
     return {
       tokens: tokensToWrite,
@@ -250,7 +266,8 @@ export class SupernovaToolsDesignTokensPlugin {
     processedNodes: Array<DTProcessedTokenNode>,
     brand: Brand,
     theme: TokenTheme,
-    write: boolean
+    write: boolean,
+    verbose: boolean
   ): Promise<{
     theme: TokenTheme
   }> {
@@ -266,10 +283,15 @@ export class SupernovaToolsDesignTokensPlugin {
       await writer.writeTheme(themeMergerResult)
     }
 
-    console.log(`:: COMPLETED REMOTE SYNC:`)
-    console.log(`-----------`)
-    console.log(`Merge result (theme overrides): ${themeMergerResult.overriddenTokens.length}`)
-    console.log(`-----------`)
+    if (verbose) {
+      console.log(`:: COMPLETED REMOTE SYNC:`)
+      console.log(`-----------`)
+      console.log(`Merge result (theme overrides): ${themeMergerResult.overriddenTokens.length}`)
+      if (!write) {
+        console.log(`Skipped synchronization with workspace because dryRun was enabled`)
+      }
+      console.log(`-----------`)
+    }
 
     return {
       theme: theme
