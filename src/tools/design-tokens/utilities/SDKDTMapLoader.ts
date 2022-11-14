@@ -49,12 +49,14 @@ export type DTPluginToSupernovaMappingFile = {
   settings?: {
     verbose?: boolean
     dryRun?: boolean
+    preciseCopy?: boolean
   }
 }
 
 export type DTPluginToSupernovaSettings = {
   verbose: boolean
   dryRun: boolean
+  preciseCopy: boolean
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -155,6 +157,9 @@ export class DTMapLoader {
       if (mapping.settings.hasOwnProperty('verbose') && typeof mapping.settings.verbose !== 'boolean') {
         throw SupernovaError.fromProcessingError('Unable to load mapping file: `verbose` must be of boolan type')
       }
+      if (mapping.settings.hasOwnProperty('preciseCopy') && typeof mapping.settings.preciseCopy !== 'boolean') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `preciseCopy` must be of boolan type')
+      }
     }
   }
 
@@ -180,7 +185,8 @@ export class DTMapLoader {
 
     let settings: DTPluginToSupernovaSettings = {
       dryRun: mapping.settings?.dryRun ?? false,
-      verbose: mapping.settings?.verbose ?? false
+      verbose: mapping.settings?.verbose ?? false,
+      preciseCopy: mapping.settings?.verbose ?? false
     }
 
     return {

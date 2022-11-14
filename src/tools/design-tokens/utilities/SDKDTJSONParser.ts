@@ -49,26 +49,6 @@ export enum DTParsedThemeSetPriority {
   disabled = "disabled"
 }
 
-export type DTPluginToSupernovaMap = {
-  type: DTPluginToSupernovaMapType,
-  pluginSet: string | null,
-  pluginTheme: string | null,
-  bindToBrand: string,
-  bindToTheme: string | null // If not provided, will be default
-
-  nodes: Array<DTParsedNode> | null // This will be added when map is resolved
-  processedNodes: Array<DTProcessedTokenNode> | null // This will be added when nodes are processed
-  processedGroups: Array<TokenGroup> | null // This will be added when groups are created
-}
-
-export type DTPluginToSupernovaMapPack = Array<DTPluginToSupernovaMap>
-
-export enum DTPluginToSupernovaMapType {
-  theme = "theme",
-  set = "set"
-}
-
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
@@ -98,6 +78,23 @@ export class DTJSONParser {
     let sets = this.processSets(definition)
     let nodes = this.parseNode([], definition, sets)
     let themes = this.processThemes(definition, sets)
+
+    let setArray = Array.from(sets.values())
+
+    console.log(`----- Loaded token data:`)
+    console.log(`Nodes: ${nodes.length}`)
+    console.log(
+      `Sets: ${setArray.length}, ${setArray.map(s => `\n | ${s.name}: ${s.contains.length} nodes`)}`
+    )
+    console.log(
+      `Themes: ${themes.length}, ${themes.map(
+        t =>
+          `\n | ${t.name}: ${
+            t.selectedTokenSets.filter(s => s.priority !== DTParsedThemeSetPriority.disabled).length
+          } sets`
+      )}`
+    )
+
     return {
       nodes: nodes,
       sets: Array.from(sets.values()),

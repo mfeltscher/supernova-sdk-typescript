@@ -1,4 +1,4 @@
-<img src="https://github.com/Supernova-Studio/sdk-typescript/blob/main/readme-icon.png?raw=true" alt="Supernova + Gatsby Starter Pack" style="max-width:100%; margin-bottom: 20px;" />
+<img src="https://github.com/Supernova-Studio/sdk-typescript/blob/main/readme-icon.png?raw=true" alt="Supernova SDK" style="max-width:100%; margin-bottom: 20px;" />
 
 # Supernova JS/TS SDK [![License](https://img.shields.io/badge/License-MIT-lightgray)](https://raw.githubusercontent.com/Supernova-Studio/sdk-typescript/main/LICENSE.md) [![SDK Status](https://img.shields.io/badge/SDK%20Status-Beta-blue)]() [![Version 1.7.0](https://img.shields.io/badge/Version-1.7.0-success)]()
 

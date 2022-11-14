@@ -61,14 +61,14 @@ export class DTMapResolver {
     } else if (map.pluginTheme) {
       let theme = themes.find(t => t.id === map.pluginTheme || t.name === map.pluginTheme)
       if (!theme) {
-        throw new Error(`Incorrect theme ${map.pluginTheme} referenced by the mapping`)
+        throw new Error(`Incorrect plugin theme ${map.pluginTheme} referenced by the mapping.\n\nAvailable plugin themes are: [${themes.map(t => t.name)}]\nYou can also use any of loaded sets: [${sets.map(s => s.name)}]`)
       }
       // Find if there is a source first
       for (let pair of theme.selectedTokenSets) {
         if (pair.priority === DTParsedThemeSetPriority.source) {
           let set = setMap.get(pair.set.id)
           if (!set) {
-            throw new Error(`Incorrect set ${pair.set.id} referenced by the mapping`)
+            throw new Error(`Incorrect plugin set ${pair.set.id} referenced by the mapping.\n\nAvailable plugin sets are: [${sets.map(s => s.name)}]\nYou can also use any of loaded themes: [${themes.map(t => t.name)}]`)
           }
           tokenSetToUse.push(set)
         }
@@ -79,7 +79,7 @@ export class DTMapResolver {
         if (pair.priority === DTParsedThemeSetPriority.enabled) {
           let set = setMap.get(pair.set.id)
           if (!set) {
-            throw new Error(`Incorrect set ${pair.set.id} referenced by the mapping`)
+            throw new Error(`Incorrect plugin set ${pair.set.id} referenced by the mapping.\n\nAvailable plugin sets are: [${sets.map(s => s.name)}]\nYou can also use any of loaded themes: [${themes.map(t => t.name)}]`)
           }
           tokenSetToUse.push(set)
         }

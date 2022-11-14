@@ -101,13 +101,13 @@ export class SupernovaToolsDesignTokensPlugin {
         continue
       }
       // Find the destination brand
-      let brand = brands.find(b => b.persistentId === map.bindToBrand)
+      let brand = brands.find(b => b.persistentId === map.bindToBrand || (map.bindToBrand.toLowerCase().trim()) === b.name.toLowerCase().trim())
       if (!brand) {
-        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
-      await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose)
+      await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
       if (settings.verbose) {
-        console.log(`Finished map synchronization: Synchronized base tokens for brand ${brand.name}`)
+        console.log(`✅ (task done) Synchronized base tokens for brand ${brand.name}`)
       }
     }
 
@@ -117,19 +117,19 @@ export class SupernovaToolsDesignTokensPlugin {
         continue
       }
       // Find the destination brand
-      let brand = brands.find(b => b.persistentId === map.bindToBrand)
+      let brand = brands.find(b => b.persistentId === map.bindToBrand || (map.bindToBrand.toLowerCase().trim()) === b.name.toLowerCase().trim())
       if (!brand) {
-        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
       // Find the destination theme
-      let theme = themes.find(t => t.id === map.bindToTheme)
+      let theme = themes.find(t => t.id === map.bindToTheme || (map.bindToTheme.toLowerCase().trim()) === t.name.toLowerCase().trim())
       if (!theme) {
-        throw new Error(`Unknown theme provided in binding`)
+        throw new Error(`Unknown theme ${map.bindToTheme} provided in binding.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
       }
       await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
       if (settings.verbose) {
         console.log(
-          `Finished map synchronization: Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
+          `✅ (task done) Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
         )
       }
     }
@@ -157,12 +157,15 @@ export class SupernovaToolsDesignTokensPlugin {
       }
     }
 
+    let count = 0
     for (let map of mapping) {
+      count++
+
       // Find appropriate brand
-      let brand = brands.find(b => b.persistentId === map.bindToBrand)
+      let brand = brands.find(b => b.persistentId === map.bindToBrand || (map.bindToBrand.toLowerCase().trim()) === b.name.toLowerCase().trim())
 
       if (!brand) {
-        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding`)
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding. Available brands in this design system: \n\n ${brands.map(b => `${b.name} (id: ${b.persistentId})`)}`)
       }
       let converter = new DTJSONConverter(this.version, mapping)
       let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)
@@ -173,11 +176,9 @@ export class SupernovaToolsDesignTokensPlugin {
       map.processedGroups = processedGroups
 
       if (verbose) {
-        console.log(`:: COMPLETED CONVERSION RESULT OF SINGULAR MAP:`)
-        console.log(`-----------`)
+        console.log(`\n----- Processing mapping entry #${count}:`)
         console.log(`Processed nodes: ${processedNodes.length}`)
         console.log(`Processed groups: ${processedGroups.length}`)
-        console.log(`-----------`)
       }
     }
     return mapping
@@ -191,7 +192,8 @@ export class SupernovaToolsDesignTokensPlugin {
     processedNodes: Array<DTProcessedTokenNode>,
     brand: Brand,
     write: boolean,
-    verbose: boolean
+    verbose: boolean,
+    preciseCopy: boolean
   ): Promise<{
     tokens: Array<Token>
     groups: Array<TokenGroup>
@@ -229,30 +231,25 @@ export class SupernovaToolsDesignTokensPlugin {
     let tokensToWrite = processedNodes.map(n => n.token)
     let tokenGroupsToWrite = groups
 
-    if (verbose) {
-      console.log(`:: COMPLETED MERGE OF TREES OF SINGULAR MAP:`)
-      console.log(`-----------`)
-      console.log(`Writing token groups: ${tokenGroupsToWrite.length}`)
-      console.log(`-----------`)
-    }
-
     if (write) {
       let writer = brand.writer()
       await writer.writeTokens(
         tokenMergeResult.toCreateOrUpdate.map(r => r.token),
         tokenGroupsToWrite,
-        tokenMergeResult.toDelete.map(r => r.token)
+        preciseCopy ? tokenMergeResult.toDelete.map(r => r.token) : [] // If precise copy is enabled, we'll delete the tokens that were not in the source
       )
     }
 
     if (verbose) {
-      console.log(`:: COMPLETED REMOTE SYNC:`)
-      console.log(`-----------`)
-      console.log(`Merge result (to create): ${tokenMergeResult.toCreate.length}`)
-      console.log(`Merge result (to create or update): ${tokenMergeResult.toCreateOrUpdate.length}`)
-      console.log(`Merge result (to delete): ${tokenMergeResult.toDelete.length}`)
-      console.log(`Merge result (to update): ${tokenMergeResult.toUpdate.length}`)
-      console.log(`-----------`)
+      console.log(`\n----- Base values synchronized: `)
+      console.log(`Token groups updated: ${tokenGroupsToWrite.length}`)
+      console.log(`Tokens created: ${tokenMergeResult.toCreate.length}`)
+      console.log(`Tokens updated: ${tokenMergeResult.toUpdate.length}`)
+      console.log(`Tokens deleted: ${preciseCopy ? tokenMergeResult.toDelete.length : `Deletion disabled because preciseCopy: false`}`)
+      if (!write) {
+        console.log(`Data were not written to workspace because dryRun was enabled`)
+      }
+      console.log(`\n`)
     }
 
     return {
@@ -284,13 +281,11 @@ export class SupernovaToolsDesignTokensPlugin {
     }
 
     if (verbose) {
-      console.log(`:: COMPLETED REMOTE SYNC:`)
-      console.log(`-----------`)
-      console.log(`Merge result (theme overrides): ${themeMergerResult.overriddenTokens.length}`)
+      console.log(`----- Theme values synchronized:`)
+      console.log(`Created or updated overrides: ${themeMergerResult.overriddenTokens.length}`)
       if (!write) {
-        console.log(`Skipped synchronization with workspace because dryRun was enabled`)
+        console.log(`Data were not written to workspace because dryRun was enabled`)
       }
-      console.log(`-----------`)
     }
 
     return {
