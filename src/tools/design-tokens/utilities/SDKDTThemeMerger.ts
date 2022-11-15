@@ -120,15 +120,14 @@ export class DTThemeMerger {
   replaceIdAcrossAllPossibleReferences(override: DTProcessedTokenNode, newId: string, allTokens: Array<DTProcessedTokenNode>) {
 
     let currentId = override.token.id
-    // console.log(`current id: ${currentId}, new id: ${newId}`)
     override.token.id = newId
     for (let token of allTokens) {
         if (token.token instanceof ColorToken) {
             if (token.token.value.referencedToken && token.token.value.referencedToken.id === currentId) {
                 token.token.value.referencedToken.id = newId
-                console.log(`REPLACING ${currentId} ${newId}`)
             }
         }
+        // TODO
     }
   }
 

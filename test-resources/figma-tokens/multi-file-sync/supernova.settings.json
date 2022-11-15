@@ -1,4 +1,5 @@
 {
+    "mode": "multi-file",
     "mapping": [{
             "tokensTheme": "079b44a8b28ed46aff5be1542d750aaa108d08e1",
             "supernovaBrand": "42d93b8e-ef03-4c0d-bf77-cbbb12a3953a",
@@ -9,5 +10,9 @@
             "supernovaBrand": "42d93b8e-ef03-4c0d-bf77-cbbb12a3953a",
             "supernovaTheme": "a47eef50-fb6d-4c01-b9be-76b7a094d510"
         }
-    ]
+    ],
+    "settings": {
+        "dryRun": true,
+        "verbose": false
+    }
 }

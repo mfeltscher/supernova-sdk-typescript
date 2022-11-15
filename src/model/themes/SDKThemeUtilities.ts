@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Token, DesignSystemVersion, TokenType, BorderToken, ColorToken, FontToken, GenericToken, GradientToken, MeasureToken, RadiusToken, ShadowToken, TextToken, TokenOrigin } from '../..'
+import { Token, DesignSystemVersion, TokenType, BorderToken, ColorToken, FontToken, GenericToken, GradientToken, MeasureToken, RadiusToken, ShadowToken, TextToken, TokenOrigin, TypographyToken } from '../..'
 import { BlurToken } from '../tokens/SDKBlurToken'
 import { AnyToken } from '../tokens/SDKTokenValue'
 
@@ -40,6 +40,7 @@ export class ThemeUtilities {
       case TokenType.radius: replica = new RadiusToken(version, {} as any, null, null, [], []); break;
       case TokenType.shadow: replica = new ShadowToken(version, {} as any, null, null, [], []); break;
       case TokenType.text: replica = new TextToken(version, {} as any, null, null, [], []); break;
+      case TokenType.typography: replica = new TypographyToken(version, {} as any, null, null, [], []); break;
       default: throw new Error(`Unsupported type ${token.tokenType}`)
     }
 

@@ -12,7 +12,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Brand, DesignSystemVersion, TokenGroup, TokenType } from '../../..'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
-import { DTPluginToSupernovaMapPack } from './SDKDTJSONLoader'
+import { DTPluginToSupernovaMapPack } from './SDKDTMapLoader'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types

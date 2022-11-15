@@ -9,22 +9,61 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Brand } from "../../../core/SDKBrand"
-import { DesignSystemVersion } from "../../../core/SDKDesignSystemVersion"
-import { DTParsedNode, DTParsedTheme, DTParsedThemeSetPriority, DTParsedTokenSet, DTPluginToSupernovaMap } from "./SDKDTJSONLoader"
-import { DTTokenMerger } from "./SDKDTTokenMerger"
-
+import { TokenGroup } from '../../..'
+import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
+import { DTProcessedTokenNode } from './SDKDTJSONConverter'
+import { DTParsedNode } from './SDKDTJSONLoader'
+import * as fs from 'fs'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
+export type DTPluginToSupernovaMapPack = Array<DTPluginToSupernovaMap>
+export enum DTPluginToSupernovaMapType {
+  theme = 'theme',
+  set = 'set'
+}
+
+export type DTPluginToSupernovaMap = {
+  type: DTPluginToSupernovaMapType
+  pluginSets: Array<string> | null
+  pluginTheme: string | null
+  bindToBrand: string
+  bindToTheme: string | null // If not provided, will be default
+
+  nodes: Array<DTParsedNode> | null // This will be added when map is resolved
+  processedNodes: Array<DTProcessedTokenNode> | null // This will be added when nodes are processed
+  processedGroups: Array<TokenGroup> | null // This will be added when groups are created
+}
+
+export type DTPluginToSupernovaMappingFile = {
+  mode: 'single-file' | 'multi-file'
+  mapping: [
+    {
+      tokensTheme?: string
+      tokenSets?: Array<string>
+      supernovaBrand: string
+      supernovaTheme?: string
+    }
+  ]
+  settings?: {
+    verbose?: boolean
+    dryRun?: boolean
+    preciseCopy?: boolean
+  }
+}
+
+export type DTPluginToSupernovaSettings = {
+  verbose: boolean
+  dryRun: boolean
+  preciseCopy: boolean
+}
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tool implementation
 
 /** Utility to load token maps */
 export class DTMapLoader {
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
@@ -34,76 +73,144 @@ export class DTMapLoader {
   constructor() {}
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Token Conversion
+  // MARK: - Mapping Conversion
 
-  loadFromPath(map: DTPluginToSupernovaMap, themes: Array<DTParsedTheme>, sets: Array<DTParsedTokenSet>): DTPluginToSupernovaMap {
+  loadFromPath(
+    pathToFile: string
+  ): {
+    mapping: DTPluginToSupernovaMapPack
+    settings: DTPluginToSupernovaSettings
+  } {
+    try {
+      if (!(fs.existsSync(pathToFile) && fs.lstatSync(pathToFile).isFile())) {
+        throw SupernovaError.fromProcessingError(
+          `Provided configuration file directory ${pathToFile} is not a file or doesn't exist`
+        )
+      }
 
-    // Check data is valid
-    if ((!map.pluginSet && !map.pluginTheme) || (map.pluginSet && map.pluginTheme)) {
-        throw new Error("Plugin mapping must define exactly one origin theme or token set, but contains neither or both")
+      let definition = fs.readFileSync(pathToFile, 'utf8')
+      let parsedDefinition = this.parseDefinition(definition) as DTPluginToSupernovaMappingFile
+      this.weakValidateMapping(parsedDefinition)
+      return this.processFileToMapping(parsedDefinition)
+    } catch (error) {
+      throw SupernovaError.fromProcessingError('Unable to load JSON definition file: ' + error)
     }
-
-    // Remap for performance
-    let setMap = new Map<string, DTParsedTokenSet>()
-    for (let set of sets) {
-        setMap.set(set.id, set)
-    }
-
-    // Resolve which sets we need to use
-    let tokenSetToUse = new Array<DTParsedTokenSet>()
-    if (map.pluginSet) {
-        let set = setMap.get(map.pluginSet)
-        if (!set) {
-            throw new Error(`Incorrect set ${map.pluginSet} referenced by the mapping`)
-        }
-        tokenSetToUse.push(set)
-    } else if (map.pluginTheme) {
-        let theme = themes.find(t => t.id === map.pluginTheme)
-        if (!theme) {
-            throw new Error(`Incorrect theme ${map.pluginTheme} referenced by the mapping`)
-        }
-        // Find if there is a source first
-        for (let pair of theme.selectedTokenSets) {
-            if (pair.priority === DTParsedThemeSetPriority.source) {
-                let set = setMap.get(pair.set.id)
-                if (!set) {
-                    throw new Error(`Incorrect set ${pair.set.id} referenced by the mapping`)
-                }
-                tokenSetToUse.push(set)
-            }
-        }
-
-        // Find other enabled sources
-        for (let pair of theme.selectedTokenSets) {
-            if (pair.priority === DTParsedThemeSetPriority.enabled) {
-                let set = setMap.get(pair.set.id)
-                if (!set) {
-                    throw new Error(`Incorrect set ${pair.set.id} referenced by the mapping`)
-                }
-                tokenSetToUse.push(set)
-            }
-        }
-    }
-
-    // Compute unique nodes based on the set combination provided, and retrieve enhanced map
-    let uniqueNodes = this.computeUniqueNodesFromSets(tokenSetToUse)
-    map.nodes = uniqueNodes
-    return map
   }
 
-  private computeUniqueNodesFromSets(sets: Array<DTParsedTokenSet>): Array<DTParsedNode> {
-
-    // This method will compute unique nodes based on the created key for the node. 
-    // If some sets override previous nodes, they'll be overriden, otherwise union is constructed.
-    // There can always only be a single path-unique node, the last one applied from all overrides
-    let uniqueNodes = new Map<string, DTParsedNode>()
-    for (let set of sets) {
-        for (let node of set.contains) {
-            let key = DTTokenMerger.buildKey(node.path, node.name)
-            uniqueNodes.set(key, node)
-        }
+  weakValidateMapping(mapping: DTPluginToSupernovaMappingFile) {
+    if (
+      !mapping.hasOwnProperty('mode') ||
+      typeof mapping.mode !== 'string' ||
+      (mapping.mode !== 'multi-file' && mapping.mode !== 'single-file')
+    ) {
+      throw SupernovaError.fromProcessingError(
+        'Unable to load mapping file: `mode` must be provided [single-file or multi-file]`'
+      )
+    }
+    if (!mapping.mapping || !(mapping.mapping instanceof Array)) {
+      throw SupernovaError.fromProcessingError('Unable to load mapping file: `mapping` key must be present and array.')
+    }
+    let mapPack = mapping.mapping
+    for (let map of mapPack) {
+      if (typeof map !== 'object') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `mapping` must contain objects only')
+      }
+      if (!map.tokenSets && !map.tokensTheme) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `mapping` must contain either `tokensTheme` or `tokenSets`'
+        )
+      }
+      if (map.tokenSets && map.tokensTheme) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `mapping` must not contain both `tokensTheme` or `tokenSets`'
+        )
+      }
+      if (map.tokenSets && (!(map.tokenSets instanceof Array) || (map.tokenSets as Array<any>).length === 0)) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `mapping`.`tokenSets` must be an Array with at least one entry'
+        )
+      }
+      if (map.tokensTheme && (typeof map.tokensTheme !== 'string' || (map.tokensTheme as string).length === 0)) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `mapping`.`tokensTheme` must be a non-empty string'
+        )
+      }
+      if (!map.supernovaBrand || typeof map.supernovaBrand !== 'string' || map.supernovaBrand.length === 0) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `supernovaBrand` must be a non-empty string'
+        )
+      }
+      if (map.supernovaTheme && (typeof map.supernovaTheme !== 'string' || map.supernovaTheme.length === 0)) {
+        throw SupernovaError.fromProcessingError(
+          'Unable to load mapping file: `supernovaTheme` may be empty but must be non-empty string if not'
+        )
+      }
     }
 
-    return Array.from(uniqueNodes.values())
+    if (mapping.settings) {
+      if (typeof mapping.settings !== 'object') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `settings` must be an object')
+      }
+      if (mapping.settings.hasOwnProperty('dryRun') && typeof mapping.settings.dryRun !== 'boolean') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `dryRun` must be of boolan type')
+      }
+      if (mapping.settings.hasOwnProperty('verbose') && typeof mapping.settings.verbose !== 'boolean') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `verbose` must be of boolan type')
+      }
+      if (mapping.settings.hasOwnProperty('preciseCopy') && typeof mapping.settings.preciseCopy !== 'boolean') {
+        throw SupernovaError.fromProcessingError('Unable to load mapping file: `preciseCopy` must be of boolan type')
+      }
+    }
+  }
+
+  processFileToMapping(
+    mapping: DTPluginToSupernovaMappingFile
+  ): {
+    mapping: DTPluginToSupernovaMapPack
+    settings: DTPluginToSupernovaSettings
+  } {
+    let result = new Array<DTPluginToSupernovaMap>()
+    for (let map of mapping.mapping) {
+      result.push({
+        type: map.tokenSets ? DTPluginToSupernovaMapType.set : DTPluginToSupernovaMapType.theme,
+        pluginSets: map.tokenSets,
+        pluginTheme: map.tokensTheme ?? null,
+        bindToBrand: map.supernovaBrand,
+        bindToTheme: map.supernovaTheme ?? null,
+        nodes: null,
+        processedNodes: null,
+        processedGroups: null
+      })
+    }
+
+    let settings: DTPluginToSupernovaSettings = {
+      dryRun: mapping.settings?.dryRun ?? false,
+      verbose: mapping.settings?.verbose ?? false,
+      preciseCopy: mapping.settings?.verbose ?? false
+    }
+
+    return {
+      mapping: result,
+      settings: settings
+    }
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - File Parser
+
+  private parseDefinition(definition: string): object {
+    try {
+      let object = JSON.parse(definition)
+      if (typeof object !== 'object') {
+        throw SupernovaError.fromProcessingError(
+          'Invalid Supernova mapping definition JSON file - root level entity must be object'
+        )
+      }
+      return object
+    } catch (error) {
+      throw SupernovaError.fromProcessingError(
+        'Invalid Supernova mapping definition JSON file - file structure invalid'
+      )
+    }
   }
 }
