@@ -66,17 +66,6 @@ export class DataCore {
   private documentationSynced: boolean
   private exporterCustomBlocksSynced: boolean
 
-  // Synchronization mutexes
-  private tokenMutex = new Mutex()
-  private tokenGroupMutex = new Mutex()
-  private themesMutex = new Mutex()
-  private componentMutex = new Mutex()
-  private designComponentAssetMutex = new Mutex()
-  private designComponentAssetGroupMutex = new Mutex()
-  private documentationItemMutex = new Mutex()
-  private configurationMutex = new Mutex()
-  private exporterCustomBlocksMutex = new Mutex()
-
   // Data store
   private tokens: Array<Token>
   private tokenGroups: Array<TokenGroup>
@@ -162,18 +151,9 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<TokenTheme>> {
-    // Thread-lock the call
-    const release = await this.tokenMutex.acquire()
-
-    // Acquire data
     if (!this.themesSynced) {
       await this.updateThemesData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.themes
   }
 
@@ -184,18 +164,9 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<Token>> {
-    // Thread-lock the call
-    const release = await this.tokenMutex.acquire()
-
-    // Acquire data
     if (!this.tokensSynced) {
       await this.updateTokenData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.tokens
   }
 
@@ -203,18 +174,9 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<TokenGroup>> {
-    // Thread-lock the call
-    const release = await this.tokenGroupMutex.acquire()
-
-    // Acquire data
     if (!this.tokenGroupsSynced) {
       await this.updateTokenGroupData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.tokenGroups
   }
 
@@ -225,18 +187,9 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<Asset>> {
-    // Thread-lock the call
-    const release = await this.designComponentAssetMutex.acquire()
-
-    // Acquire data
     if (!this.designComponentAssetSynced) {
       await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.assets
   }
 
@@ -244,21 +197,12 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<AssetGroup>> {
-    // Thread-lock the call
-    const release = await this.designComponentAssetGroupMutex.acquire()
-
-    // Acquire data
     if (!this.designComponentAssetSynced) {
       await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
     if (!this.designComponentAssetGroupsSynced) {
       await this.updateDesignComponentAndAssetGroupData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.assetGroups
   }
 
@@ -288,7 +232,7 @@ export class DataCore {
     const items = (
       await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, configuration)
     ).items as Array<RenderedAssetModel>
-    
+
     // Create rendered items index
     const renderedItemsMap = new Map<string, RenderedAssetModel>()
     for (const renderedItem of items) {
@@ -296,7 +240,7 @@ export class DataCore {
     }
 
     if (Array.from(renderedItemsMap.entries()).length !== assets.length) {
-      throw new Error("Number of rendered assets doesn't align with number of requested assets");
+      throw new Error("Number of rendered assets doesn't align with number of requested assets")
     }
 
     const assetsMap = new Map<string, Asset>()
@@ -308,9 +252,6 @@ export class DataCore {
 
     // For duplicates
     let names = new Map<string, number>()
-    for (let item of items) {
-      names.set(item.originalName.toLowerCase(), 0)
-    }
 
     for (const asset of assets) {
       const item = renderedItemsMap.get(asset.id)
@@ -323,6 +264,11 @@ export class DataCore {
         }
       }
 
+      let assetPath = this.assetPath(asset, renderedGroup)
+      if (!names.get(assetPath)) {
+        names.set(assetPath, 0)
+      }
+
       if (!renderedGroup) {
         throw new Error(`Each asset must be assigned to some group`)
       }
@@ -330,13 +276,24 @@ export class DataCore {
       let renderedAsset = new RenderedAsset(item, asset, renderedGroup, names.get(lowercasedName))
 
       // Increase number of duplicates
-      names.set(lowercasedName, names.get(lowercasedName) + 1)
+      names.set(assetPath, names.get(assetPath) + 1)
 
       // Store
       resultingAssets.push(renderedAsset)
     }
 
     return resultingAssets
+  }
+
+
+  assetPath(asset: Asset, parent: AssetGroup): string {
+
+    let segments = [asset.name]
+    while (parent) {
+      segments.push(parent.name)
+      parent = parent.parent
+    }
+    return segments.reverse().join("/")
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -346,18 +303,10 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<Component>> {
-    // Thread-lock the call
-    const release = await this.componentMutex.acquire()
-
-    // Acquire data
     if (!this.componentsSynced) {
       await this.updateComponentData(designSystemId, designSystemVersion)
     }
 
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.components
   }
 
@@ -368,18 +317,10 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<DesignComponent>> {
-    // Thread-lock the call
-    const release = await this.designComponentAssetMutex.acquire()
-
-    // Acquire data
     if (!this.designComponentAssetSynced) {
       await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
 
-    // Unlock the thread
-    release()
-
-    // Retrieve the data
     return this.designComponents
   }
 
@@ -387,19 +328,12 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<DesignComponentGroup>> {
-    // Thread-lock the call
-    const release = await this.designComponentAssetGroupMutex.acquire()
-
-    // Acquire data
     if (!this.designComponentAssetSynced) {
       await this.updateDesignComponentAndAssetData(designSystemId, designSystemVersion)
     }
     if (!this.designComponentAssetGroupsSynced) {
       await this.updateDesignComponentAndAssetGroupData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
 
     // Retrieve the data
     return this.designComponentGroups
@@ -412,9 +346,6 @@ export class DataCore {
     designSystem: DesignSystem,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<DocumentationItem>> {
-    // Thread-lock the call
-    const release = await this.documentationItemMutex.acquire()
-
     // Acquire custom blocks and doc configuration first, so they can be used for resolution
     let blocks = await this.currentExporterCustomBlocks(designSystem.id, designSystemVersion)
     let documentation = (await this.currentDesignSystemDocumentation(designSystem, designSystemVersion)).settings
@@ -424,9 +355,6 @@ export class DataCore {
       await this.updateDocumentationItemData(designSystem.id, designSystemVersion, blocks, documentation)
     }
 
-    // Unlock the thread
-    release()
-
     // Retrieve the data
     return this.documentationItems
   }
@@ -435,16 +363,10 @@ export class DataCore {
     designSystem: DesignSystem,
     designSystemVersion: DesignSystemVersion
   ): Promise<Documentation> {
-    // Thread-lock the call
-    const release = await this.configurationMutex.acquire()
-
     // Acquire data
     if (!this.documentationSynced) {
       await this.updateDocumentationData(designSystem, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
 
     // Retrieve the data
     return this.documentation
@@ -454,16 +376,10 @@ export class DataCore {
     designSystemId: string,
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<ExporterCustomBlock>> {
-    // Thread-lock the call
-    const release = await this.exporterCustomBlocksMutex.acquire()
-
     // Acquire data
     if (!this.exporterCustomBlocksSynced) {
       await this.updateExporterCustomBlocksData(designSystemId, designSystemVersion)
     }
-
-    // Unlock the thread
-    release()
 
     // Retrieve the data
     return this.exporterCustomBlocks
@@ -669,12 +585,25 @@ export class DataCore {
     let tokenGroups = await this.getTokenGroups(designSystemId, designSystemVersion)
 
     // Download the raw token data and resolve them
-    let rawData = await this.getRawTokenData(designSystemId, designSystemVersion)
-    let rawProperties = await this.getRawElementPropertyData(designSystemId, designSystemVersion)
-    let rawValues = await this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
-    let resolvedTokens = await this.resolveTokenData(rawData, rawProperties, rawValues, tokenGroups, designSystemVersion)
+    let result = await Promise.all([
+      this.getRawTokenData(designSystemId, designSystemVersion),
+      this.getRawElementPropertyData(designSystemId, designSystemVersion),
+      this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
+    ])
+
+    let rawData = result[0]
+    let rawProperties = result[1]
+    let rawValues = await result[2]
+    let resolvedTokens = await this.resolveTokenData(
+      rawData,
+      rawProperties,
+      rawValues,
+      tokenGroups,
+      designSystemVersion
+    )
     return resolvedTokens
   }
+
 
   private async getRawTokenData(
     designSystemId: string,
@@ -752,10 +681,13 @@ export class DataCore {
     }
   }
 
-  private async getThemes(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<Array<TokenTheme>> {
+  private async getThemes(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion
+  ): Promise<Array<TokenTheme>> {
     // Get token groups
-    let baseTokens = await this.getTokens(designSystemId, designSystemVersion)
-    let baseTokenGroups = await this.getTokenGroups(designSystemId, designSystemVersion)
+    let baseTokens = await this.currentDesignSystemTokens(designSystemId, designSystemVersion)
+    let baseTokenGroups = await this.currentDesignSystemTokenGroups(designSystemId, designSystemVersion)
 
     // Download the raw token data and resolve them
     let rawData = await this.getRawThemeData(designSystemId, designSystemVersion)
@@ -811,9 +743,14 @@ export class DataCore {
     designSystemVersion: DesignSystemVersion
   ): Promise<Array<Component>> {
     // Download the raw component data, including their properties, and resolve them
-    let rawComponents = await this.getRawComponentData(designSystemId, designSystemVersion)
-    let rawProperties = await this.getRawElementPropertyData(designSystemId, designSystemVersion)
-    let rawValues = await this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
+    let result = await Promise.all([
+      this.getRawComponentData(designSystemId, designSystemVersion),
+      this.getRawElementPropertyData(designSystemId, designSystemVersion),
+      this.getRawElementPropertyValuesData(designSystemId, designSystemVersion)
+    ])
+    let rawComponents = result[0]
+    let rawProperties = result[1]
+    let rawValues = result[2]
     let resolvedComponents = await this.resolveComponentData(
       rawComponents,
       rawProperties,

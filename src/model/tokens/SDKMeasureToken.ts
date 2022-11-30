@@ -106,6 +106,12 @@ export class MeasureToken extends Token {
     measure: number
     unit: Unit
   } {
+    if (typeof definition !== "string") {
+      return {
+        measure: 1,
+        unit: Unit.pixels
+      }
+    }
     // Parse out unit
     let measure = definition.replace(' ', '')
     let unit = Unit.pixels
