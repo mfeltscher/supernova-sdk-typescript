@@ -123,6 +123,7 @@ test('test_brand_assets', async t => {
 
     // Fetch its active version
     let assets = await brand.assets()
+
     t.true(assets.length > 0)
 })
 

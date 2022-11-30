@@ -10,7 +10,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DataBridge, DataBridgeRequestHook } from "./data/SDKDataBridge"
+import { DataBridge, DataBridgeRequestHook, DebugRequestObserver, DebugResponseObserver } from "./data/SDKDataBridge"
 import { DataCore } from "./data/SDKDataCore"
 import { Configuration } from "./data/SDKConfiguration"
 import { DesignSystem } from "./SDKDesignSystem"
@@ -33,18 +33,22 @@ export class Supernova {
   private apiUrl: string
   private apiVersion: string
   private requestHook: DataBridgeRequestHook | null
+  private debugRequestObserver: DebugRequestObserver | null
+  private debugResponseObserver: DebugResponseObserver | null
   dataBridge: DataBridge
 
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(apiKey: string, url: string | null, requestHook: DataBridgeRequestHook | null) {
+  constructor(apiKey: string, url: string | null = null, requestHook: DataBridgeRequestHook | null = null, requestObserver: DebugRequestObserver | null = null, responseObserver: DebugResponseObserver | null = null) {
 
     this.apiKey = apiKey
     this.apiUrl = url ?? Configuration.apiUrlForDefaultEnvironment()
     this.apiVersion = Configuration.apiVersionForDefaultEnvironment()
-    this.requestHook = requestHook;
+    this.requestHook = requestHook ?? null
+    this.debugRequestObserver = requestObserver ?? null
+    this.debugResponseObserver = responseObserver ?? null
 
     this.rebuildBridge()
   }
@@ -211,7 +215,6 @@ export class Supernova {
     this.dataBridge.cache = isEnabled
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Data core replication
 
@@ -225,6 +228,8 @@ export class Supernova {
       accessToken: this.apiKey,
       target: null,
       requestHook: this.requestHook,
+      debugRequestObserver: this.debugRequestObserver,
+      debugResponseObserver: this.debugResponseObserver
     })
   }
 
@@ -237,7 +242,9 @@ export class Supernova {
       apiVersion: this.apiVersion,
       accessToken: this.apiKey,
       target: null,
-      requestHook: this.requestHook
+      requestHook: this.requestHook,
+      debugRequestObserver: this.debugRequestObserver,
+      debugResponseObserver: this.debugResponseObserver
     })
     return new DataCore(bridge)
   }

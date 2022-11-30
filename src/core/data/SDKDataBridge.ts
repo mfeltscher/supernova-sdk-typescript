@@ -13,8 +13,21 @@ import axios, { AxiosRequestConfig, Method } from 'axios'
 import { SupernovaError } from '../errors/SDKSupernovaError'
 import { DataCore } from './SDKDataCore'
 
-type DataBridgeRequestHookResult = { skipDefaultAuth?: boolean };
-export type DataBridgeRequestHook = (request: AxiosRequestConfig) => void | DataBridgeRequestHookResult | Promise<void | DataBridgeRequestHookResult>
+type DataBridgeRequestHookResult = { skipDefaultAuth?: boolean }
+export type DataBridgeRequestHook = (
+  request: AxiosRequestConfig
+) => void | DataBridgeRequestHookResult | Promise<void | DataBridgeRequestHookResult>
+
+export type DebugResponseObserver = (info: {
+  requestUrl: string,
+  response: any,
+  executionTime: number
+}) => void
+
+export type DebugRequestObserver = (info: {
+  requestUrl: string,
+  requestMethod: string
+}) => void
 
 export interface DataBridgeConfiguration {
   apiUrl: string
@@ -23,10 +36,14 @@ export interface DataBridgeConfiguration {
   target: string | null
   cache: boolean
   requestHook: DataBridgeRequestHook | null
+  debugRequestObserver?: DebugRequestObserver | null
+  debugResponseObserver?: DebugResponseObserver | null
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
+
+let axiosInterceptorSet = false
 
 export class DataBridge {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -38,7 +55,11 @@ export class DataBridge {
   apiUrl: string
   apiVersion: string
   target: string | null
+
   requestHook: DataBridgeRequestHook | null
+  debugRequestObserver: DebugRequestObserver | null
+  debugResponseObserver: DebugResponseObserver | null
+
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
@@ -49,6 +70,33 @@ export class DataBridge {
     this.apiVersion = conf.apiVersion
     this.target = conf.target
     this.requestHook = conf.requestHook
+    this.debugRequestObserver = conf.debugRequestObserver ?? null
+    this.debugResponseObserver = conf.debugResponseObserver ?? null
+
+    // Add performance interceptors once
+    if (!axiosInterceptorSet) {
+      axios.interceptors.request.use(r => {
+        let c: any = r
+        c.meta = c.meta || {}
+        c.meta.requestStartedAt = new Date().getTime()
+        return r
+      })
+
+      axios.interceptors.response.use(response => {
+        if (this.debugResponseObserver) {
+          let timing = (new Date().getTime()) - (response.config as any).meta.requestStartedAt
+          let url = response.config.url
+          this.debugResponseObserver({
+            requestUrl: url,
+            response: response, 
+            executionTime: timing
+          })
+        }
+        return response
+      })
+      
+      axiosInterceptorSet = true
+    }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -77,7 +125,7 @@ export class DataBridge {
 
     let skipAuth = false
     if (this.requestHook) {
-      const hookResult = await this.requestHook(config);
+      const hookResult = await this.requestHook(config)
       if (hookResult && hookResult.skipDefaultAuth) {
         skipAuth = true
       }
@@ -90,8 +138,14 @@ export class DataBridge {
   }
 
   private async getDataForAuthenticatedEndpoint(requestURL: string): Promise<any> {
-    const config = await this.buildRequestConfig(requestURL, 'GET')
-
+    const method = "GET"
+    const config = await this.buildRequestConfig(requestURL, method)
+    if (this.debugRequestObserver) {
+      this.debugRequestObserver({
+        requestUrl: requestURL,
+        requestMethod: method
+      })
+    }
     // Make authorized ds request
     return new Promise((resolve, reject) => {
       // Fetch the data
@@ -129,7 +183,14 @@ export class DataBridge {
   }
 
   private async postDataForAuthenticatedEndpoint(requestURL: string, data: any, put: boolean = false): Promise<any> {
-    const config = await this.buildRequestConfig(requestURL, put ? 'PUT' : 'POST', data)
+    const method = put ? 'PUT' : 'POST'
+    const config = await this.buildRequestConfig(requestURL, method, data)
+    if (this.debugRequestObserver) {
+      this.debugRequestObserver({
+        requestUrl: requestURL,
+        requestMethod: method
+      })
+    }
 
     // Make authorized ds request
     return new Promise((resolve, reject) => {

@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.8 - 1.8.21] - 2022-29-11
+### Major performance optimizations, debug mode, CLI hooks
+
+We have significantly improved performance, added debug mode for network calls inside SDK, and added some underlaying pre-requirements for our CLI. You'll see the fruits of this really soon!
+
 ## [1.8.7] - 2022-02-11
 ### Exposed TokenTheme and TokenThemeOverride objects
 
