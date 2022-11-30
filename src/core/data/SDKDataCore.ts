@@ -272,8 +272,7 @@ export class DataCore {
       if (!renderedGroup) {
         throw new Error(`Each asset must be assigned to some group`)
       }
-      let lowercasedName = item.originalName.toLowerCase()
-      let renderedAsset = new RenderedAsset(item, asset, renderedGroup, names.get(lowercasedName))
+      let renderedAsset = new RenderedAsset(item, asset, renderedGroup, names.get(assetPath))
 
       // Increase number of duplicates
       names.set(assetPath, names.get(assetPath) + 1)
