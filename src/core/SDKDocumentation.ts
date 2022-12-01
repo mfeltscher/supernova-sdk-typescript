@@ -115,4 +115,56 @@ export class Documentation {
 
     return await this.version.dataCore.currentExporterBlockVariants(this.designSystem.workspaceId, this.designSystem.id, this.designSystem.documentationExporterId, this.version)
   }
+
+  /** Publish documentation. This queues a build on Supernova's server that will be processed by the asynchronous CI/CD pipeline. You can request status of the build with associated `isBeingPublished` method. */
+  async publish(): Promise<{
+    status: 'Queued' | 'InProgress' | 'Failure'
+    jobId: string | null
+    exporterId: string | null
+  }> {
+    // Check if doc is being published by downloading the latest documentation job. If so, prevent publishing
+    let lastJob = await this.isPublishing()
+    if (lastJob.status === "Idle") {
+      return await this.version.dataCore.publishDocumentation(this.version)
+    } else {
+      return {
+        status: 'InProgress',
+        jobId: lastJob.jobId,
+        exporterId: lastJob.exporterId
+      }
+    }
+
+  }
+
+  /** Publish documentation. This queues a build on Supernova's server that will be processed by the asynchronous CI/CD pipeline. You can request status of the build with associated `isBeingPublished` method. */
+  async isPublishing(): Promise<{
+    status: 'InProgress' | 'Idle'
+    jobId: string | null
+    exporterId: string | null
+  }> {
+    let jobs = await this.version.dataCore.documetationJobs(this.version, 1)
+    if (jobs.length === 0) {
+      // Nothing published just yet
+      return {
+        status: "Idle",
+        jobId: null,
+        exporterId: null,
+      }
+    } 
+
+    let job = jobs[0]
+    if (job.status === "InProgress") {
+      return {
+        status: "InProgress",
+        jobId: job.id,
+        exporterId: job.exporterId
+      }
+    } else {
+      return {
+        status: "Idle",
+        jobId: null,
+        exporterId: null
+      }
+    }
+  }
 }

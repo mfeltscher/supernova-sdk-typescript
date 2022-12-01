@@ -126,3 +126,26 @@ test('test_documentation_configuration_variants', async t => {
     t.true(variants.length > 0)
 })
 
+
+test('test_documentation_publish', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let documentation = await version.documentation()
+
+    // Publish docs
+    let publishingResult = await documentation.publish()
+    t.true(publishingResult.status === "Queued" || publishingResult.status === "InProgress")
+})
+
+
+test('test_documentation_is_publishing', async t => {
+
+    // Fetch specific design system version
+    let version = await testInstance.designSystemVersion(process.env.TEST_DB_DESIGN_SYSTEM_ID, process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID)
+    let documentation = await version.documentation()
+
+    // Publish docs
+    let isPublishing = await documentation.isPublishing()
+    t.true(isPublishing.status === "InProgress" || isPublishing.status === "Idle")
+})
