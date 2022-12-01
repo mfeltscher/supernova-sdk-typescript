@@ -2,6 +2,13 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.23] - 2022-30-11
+### Option to invoke publication of the documentation from the command line
+
+We have added option to publish documentation using our SDK. To do that, simply use your existing `Documentation` object and call `publish()`. Do note that builds gets only queued if there isn't already existing build happening, to prevent spamming the build server.
+
+Finally, if you ever need to check progress of your deployment of the documentation, call `isPublishing()` on top of the documentation object to get all the information you need.
+
 ## [1.8.8 - 1.8.21] - 2022-29-11
 ### Major performance optimizations, debug mode, CLI hooks
 

@@ -182,6 +182,15 @@ export class DataBridge {
     return this.postDataForAuthenticatedEndpoint(url, data, put)
   }
 
+  async postDSMDataToGenericEndpoint(
+    endpoint: string,
+    data: any,
+    put: boolean = false
+  ): Promise<any> {
+    let url = `${this.dsGenericRequestURL()}/${endpoint}`
+    return this.postDataForAuthenticatedEndpoint(url, data, put)
+  }
+
   private async postDataForAuthenticatedEndpoint(requestURL: string, data: any, put: boolean = false): Promise<any> {
     const method = put ? 'PUT' : 'POST'
     const config = await this.buildRequestConfig(requestURL, method, data)

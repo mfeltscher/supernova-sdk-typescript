@@ -284,15 +284,13 @@ export class DataCore {
     return resultingAssets
   }
 
-
   assetPath(asset: Asset, parent: AssetGroup): string {
-
     let segments = [asset.name]
     while (parent) {
       segments.push(parent.name)
       parent = parent.parent
     }
-    return segments.reverse().join("/")
+    return segments.reverse().join('/')
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -602,7 +600,6 @@ export class DataCore {
     )
     return resolvedTokens
   }
-
 
   private async getRawTokenData(
     designSystemId: string,
@@ -1071,5 +1068,54 @@ export class DataCore {
       theme: TokenThemeRemoteModel
     } = await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, payload, true)
     return result.theme
+  }
+
+  async documetationJobs(version: DesignSystemVersion, limit: number = 10): Promise<Array<{
+    status: 'InProgress' | 'Success' | 'Failed',
+    id: string | null,
+    exporterId: string | null
+  }>> {
+    const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs?designSystemVersionId=${version.id}&destinations[]=documentation&offset=0&limit=${limit}`
+    let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
+    return jobs
+  }
+
+  async publishDocumentation(
+    version: DesignSystemVersion
+  ): Promise<{
+    status: 'Queued' | 'InProgress' | 'Failure'
+    jobId: string | null
+    exporterId: string | null
+  }> {
+    const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs/documentation`
+    const payload = {
+      designSystemId: version.designSystem.id,
+      designSystemVersionId: version.id
+    }
+
+    let result: {
+      job: {
+        id: string
+        status: string
+        scheduledId: string
+        exporterId: string
+      }
+    } = await this.bridge.postDSMDataToGenericEndpoint(endpoint, payload, false)
+
+    // Check status
+    let resultingStatus: 'Queued' | 'InProgress' | 'Failure'
+    if (result.job.status === 'InProgress' || result.job.status === 'Success') {
+      resultingStatus = 'Queued'
+    } else if (result.job.status === 'Failed') {
+      resultingStatus = 'Failure'
+    } else {
+      throw new Error(`Unsupported status ${result.job.status}`)
+    }
+
+    return {
+      status: resultingStatus,
+      jobId: result.job.id,
+      exporterId: result.job.exporterId
+    }
   }
 }
