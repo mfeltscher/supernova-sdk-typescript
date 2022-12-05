@@ -138,6 +138,61 @@ export class SupernovaToolsDesignTokensPlugin {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Primary validation
+
+  /** Loads the token tree as if it was being synchronized from the provided token directory - however, it doesn't ask server for data and constructs it the same as if data were written to empty design system.
+   * 
+   * Note: This method will additionally validate the integrity of the data, and allows for offline validation as well. */
+  async validateLoadingFromDirectory(directoryPath: string, mappingSettings: {
+    pluginTheme: string | null,
+    pluginSets: Array<string> | null,
+  }): Promise<boolean> {
+
+    // Load data from path, and construct the final object
+    let jsonLoader = new DTJSONLoader()
+    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath)
+    return this.validateLoadingFromData(data, mappingSettings)
+  }
+
+  /** Loads the token tree as if it was being synchronized from the provided token file - however, it doesn't ask server for data and constructs it the same as if data were written to empty design system.
+   * 
+   * Note: This method will additionally validate the integrity of the data, and allows for offline validation as well. */
+  async validateLoadingFromPath(filePath: string, mappingSettings: {
+    pluginTheme: string | null,
+    pluginSets: Array<string> | null,
+  }): Promise<boolean> {
+    // Load data from provided file and retrieve the data
+    let jsonLoader = new DTJSONLoader()
+    let data = await jsonLoader.loadDSObjectsFromTokenFile(filePath)
+    return this.validateLoadingFromData(data, mappingSettings)
+  }
+
+  async validateLoadingFromData(
+    data: object,
+    mappingSettings: {
+      pluginTheme: string | null,
+      pluginSets: Array<string> | null,
+    }
+  ): Promise<boolean> {
+
+    // Parse data from object
+    let parser = new DTJSONParser()
+    let parsedData = await parser.processPluginDataRepresentation(data)
+
+    // Build tree depending on settings
+    if (mappingSettings.pluginTheme) {
+
+    } else if (mappingSettings.pluginSets) {
+
+    }
+
+    // Post process the data
+    this.createPureTokenTree(parsedData, mappingSettings)
+    
+    return true
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Data processing
 
   private processTokenNodes(
@@ -183,6 +238,111 @@ export class SupernovaToolsDesignTokensPlugin {
     }
     return mapping
   }
+
+
+  private processTokenNodes(
+    parseResult: { nodes: Array<DTParsedNode>; themes: Array<DTParsedTheme>; sets: Array<DTParsedTokenSet> },
+    mapping: DTPluginToSupernovaMapPack,
+    brands: Array<Brand>,
+    verbose: boolean
+  ): DTPluginToSupernovaMapPack {
+    // Create base objects
+    let mapResolver = new DTMapResolver(this.version)
+
+    // Resolve each theme or set separately
+    for (let map of mapping) {
+      let resolvedMap = mapResolver.mappedNodePools(map, parseResult.themes, parseResult.sets)
+      if (!resolvedMap.nodes) {
+        throw new Error("Resolved map doesn't contain resulting nodes")
+      }
+    }
+
+    let count = 0
+    for (let map of mapping) {
+      count++
+
+      // Find appropriate brand
+      let brand = brands.find(b => b.persistentId === map.bindToBrand || (map.bindToBrand.toLowerCase().trim()) === b.name.toLowerCase().trim())
+
+      if (!brand) {
+        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding. Available brands in this design system: \n\n ${brands.map(b => `${b.name} (id: ${b.persistentId})`)}`)
+      }
+      let converter = new DTJSONConverter(this.version, mapping)
+      let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)
+
+      let processedNodes = converter.convertNodesToTokens(map.nodes, brand)
+      let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes, brand)
+      map.processedNodes = processedNodes
+      map.processedGroups = processedGroups
+
+      if (verbose) {
+        console.log(`\n----- Processing mapping entry #${count}:`)
+        console.log(`Processed nodes: ${processedNodes.length}`)
+        console.log(`Processed groups: ${processedGroups.length}`)
+      }
+    }
+    return mapping
+  }
+
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Validation
+
+  /** Creates pure tree for validation purposes, ignoring any existing token state in workspaces. This method works offline. */
+  async createPureTokenTree(
+    processedNodes: Array<DTProcessedTokenNode>,
+    verbose: boolean
+  ): Promise<{
+    tokens: Array<Token>
+    groups: Array<TokenGroup>
+  }> {
+    // Fake remote token data
+    let upstreamTokenGroups = new Array<TokenGroup>()
+    let upstreamTokens = new Array<Token>()
+
+    // Assign correct sorting order to incoming tokens and token groups
+    this.correctSortOrder(upstreamTokens, upstreamTokenGroups)
+
+    // Merge trees
+    let pack: Array<Token | TokenGroup> = [...upstreamTokens, ...upstreamTokenGroups]
+    let treeMerger = new DTTokenGroupTreeMerger()
+    let tokenMerger = new DTTokenMerger()
+    let tokenMergeResult = tokenMerger.makeTokensDiff(upstreamTokens, processedNodes)
+    let result = treeMerger.makeGroupsDiff(tokenMergeResult, pack)
+
+    // Update referenced tokens in group based on the result
+    let groups: Array<TokenGroup> = []
+    for (let item of result.toCreate) {
+      if (item.element instanceof TokenGroup) {
+        item.element.childrenIds = item.childrenIds
+        groups.push(item.element)
+      }
+    }
+    for (let item of result.toUpdate) {
+      if (item.element instanceof TokenGroup) {
+        item.element.childrenIds = item.childrenIds
+        groups.push(item.element)
+      }
+    }
+
+    // Prepare data for take synchronization
+    let tokensToWrite = processedNodes.map(n => n.token)
+    let tokenGroupsToWrite = groups
+
+    // Log if needed
+    if (verbose) {
+      console.log(`\n----- Token tree constructed: `)
+      console.log(`Token groups updated: ${tokenGroupsToWrite.length}`)
+      console.log(`Tokens created: ${tokenMergeResult.toCreate.length}`)
+      console.log(`\n`)
+    }
+
+    return {
+      tokens: tokensToWrite,
+      groups: tokenGroupsToWrite
+    }
+  }
+
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merging

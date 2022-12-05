@@ -6,15 +6,17 @@
 //  Copyright © 2022 Supernova. All rights reserved.
 //
 
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ColorToken, DesignSystemVersion, Token } from '../../..'
-import { ThemeUtilities } from '../../../model/themes/SDKThemeUtilities'
-import { TokenTheme } from '../../../model/themes/SDKTokenTheme'
-import { TokenComparator } from '../../../model/tokens/SDKTokenCompator'
-import { DTProcessedTokenNode } from './SDKDTJSONConverter'
-import { DTTokenMerger } from './SDKDTTokenMerger'
+import { DesignSystemVersion } from "../../../core/SDKDesignSystemVersion"
+import { DTProcessedTokenNode } from "./SDKDTJSONConverter"
+import { AnyToken } from "../../../model/tokens/SDKTokenValue"
+import { TokenTheme } from "../../../model/themes/SDKTokenTheme"
+import { Token } from "../../../model/tokens/SDKToken"
+import { TokenComparator } from "../../../model/tokens/SDKTokenCompator"
+import { BlurToken, BorderToken, GradientToken, RadiusToken, ShadowToken, TypographyToken } from "../../.."
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -121,13 +123,83 @@ export class DTThemeMerger {
 
     let currentId = override.token.id
     override.token.id = newId
-    for (let token of allTokens) {
-        if (token.token instanceof ColorToken) {
-            if (token.token.value.referencedToken && token.token.value.referencedToken.id === currentId) {
-                token.token.value.referencedToken.id = newId
-            }
+    for (let t of allTokens) {
+        let token = t.token as AnyToken
+        // Generic check for reference
+        if (token.value.referencedToken && token.value.referencedToken.id === currentId) {
+            token.value.referencedToken.id = newId
         }
-        // TODO
+
+        // Specific checks for tokens that can reference other values internally
+        if (token instanceof TypographyToken) {
+            if (token.value.font?.referencedToken && token.value.font?.referencedToken?.id === currentId) {
+                token.value.font.referencedToken.id = newId
+            }
+            if (token.value.fontSize?.referencedToken && token.value.fontSize?.referencedToken?.id === currentId) {
+                token.value.fontSize.referencedToken.id = newId
+            }
+            if (token.value.letterSpacing?.referencedToken && token.value.letterSpacing?.referencedToken?.id === currentId) {
+                token.value.letterSpacing.referencedToken.id = newId
+            }
+            if (token.value.lineHeight?.referencedToken && token.value.lineHeight?.referencedToken?.id === currentId) {
+                token.value.lineHeight.referencedToken.id = newId
+            }
+            if (token.value.paragraphIndent?.referencedToken && token.value.paragraphIndent?.referencedToken?.id === currentId) {
+                token.value.paragraphIndent.referencedToken.id = newId
+            }
+            if (token.value.paragraphSpacing?.referencedToken && token.value.paragraphSpacing?.referencedToken?.id === currentId) {
+                token.value.paragraphSpacing.referencedToken.id = newId
+            }
+        } else if (token instanceof RadiusToken) {
+            if (token.value.radius?.referencedToken && token.value.radius?.referencedToken?.id === currentId) {
+                token.value.radius.referencedToken.id = newId
+            }
+            if (token.value.topLeft?.referencedToken && token.value.topLeft?.referencedToken?.id === currentId) {
+                token.value.topLeft.referencedToken.id = newId
+            }
+            if (token.value.topRight?.referencedToken && token.value.topRight?.referencedToken?.id === currentId) {
+                token.value.topRight.referencedToken.id = newId
+            }
+            if (token.value.bottomLeft?.referencedToken && token.value.bottomLeft?.referencedToken?.id === currentId) {
+                token.value.bottomLeft.referencedToken.id = newId
+            }
+            if (token.value.bottomRight?.referencedToken && token.value.bottomRight?.referencedToken?.id === currentId) {
+                token.value.bottomRight.referencedToken.id = newId
+            }
+        } else if (token instanceof ShadowToken) {
+            if (token.value.color?.referencedToken && token.value.color?.referencedToken?.id === currentId) {
+                token.value.color.referencedToken.id = newId
+            }
+            if (token.value.x?.referencedToken && token.value.x?.referencedToken?.id === currentId) {
+                token.value.x.referencedToken.id = newId
+            }
+            if (token.value.y?.referencedToken && token.value.y?.referencedToken?.id === currentId) {
+                token.value.y.referencedToken.id = newId
+            }
+            if (token.value.radius?.referencedToken && token.value.radius?.referencedToken?.id === currentId) {
+                token.value.radius.referencedToken.id = newId
+            }
+            if (token.value.spread?.referencedToken && token.value.spread?.referencedToken?.id === currentId) {
+                token.value.spread.referencedToken.id = newId
+            }
+        } else if (token instanceof BorderToken) {
+            if (token.value.color?.referencedToken && token.value.color?.referencedToken?.id === currentId) {
+                token.value.color.referencedToken.id = newId
+            }
+            if (token.value.width?.referencedToken && token.value.width?.referencedToken?.id === currentId) {
+                token.value.width.referencedToken.id = newId
+            }
+        } else if (token instanceof GradientToken) {
+            for (let stop of token.value.stops) {
+                if (stop.color?.referencedToken && stop.color?.referencedToken?.id === currentId) {
+                    stop.color.referencedToken.id = newId
+                }
+            }
+        } else if (token instanceof BlurToken) {
+            if (token.value.radius?.referencedToken && token.value.radius?.referencedToken?.id === currentId) {
+                token.value.radius.referencedToken.id = newId
+            }
+        } 
     }
   }
 
