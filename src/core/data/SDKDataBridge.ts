@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import axios, { AxiosRequestConfig, Method } from 'axios'
+import { request } from 'http'
 import { SupernovaError } from '../errors/SDKSupernovaError'
 import { DataCore } from './SDKDataCore'
 
@@ -19,15 +20,13 @@ export type DataBridgeRequestHook = (
 ) => void | DataBridgeRequestHookResult | Promise<void | DataBridgeRequestHookResult>
 
 export type DebugResponseObserver = (info: {
-  requestUrl: string,
-  response: any,
+  requestUrl: string
+  response: any
   executionTime: number
+  error?: Error
 }) => void
 
-export type DebugRequestObserver = (info: {
-  requestUrl: string,
-  requestMethod: string
-}) => void
+export type DebugRequestObserver = (info: { requestUrl: string; requestMethod: string }) => void
 
 export interface DataBridgeConfiguration {
   apiUrl: string
@@ -82,19 +81,38 @@ export class DataBridge {
         return r
       })
 
-      axios.interceptors.response.use(response => {
-        if (this.debugResponseObserver) {
-          let timing = (new Date().getTime()) - (response.config as any).meta.requestStartedAt
-          let url = response.config.url
-          this.debugResponseObserver({
-            requestUrl: url,
-            response: response, 
-            executionTime: timing
-          })
+      const responseObserver = this.debugResponseObserver
+
+      axios.interceptors.response.use(
+        successResponse => {
+          if (responseObserver) {
+            let timing = new Date().getTime() - (successResponse.config as any).meta.requestStartedAt
+            let url = successResponse.config.url
+            responseObserver({
+              requestUrl: url,
+              response: successResponse,
+              executionTime: timing,
+              error: null
+            })
+          }
+          return successResponse
+        },
+        // Handle 4xx & 5xx responses
+        errorResponse => {
+          if (responseObserver) {
+            let timing = new Date().getTime() - (errorResponse.config as any).meta.requestStartedAt
+            let url = errorResponse.config.url
+            responseObserver({
+              requestUrl: url,
+              response: errorResponse,
+              executionTime: timing,
+              error: errorResponse
+            })
+          }
+          throw errorResponse
         }
-        return response
-      })
-      
+      )
+
       axiosInterceptorSet = true
     }
   }
@@ -138,7 +156,8 @@ export class DataBridge {
   }
 
   private async getDataForAuthenticatedEndpoint(requestURL: string): Promise<any> {
-    const method = "GET"
+
+    const method = 'GET'
     const config = await this.buildRequestConfig(requestURL, method)
     if (this.debugRequestObserver) {
       this.debugRequestObserver({
@@ -149,25 +168,30 @@ export class DataBridge {
     // Make authorized ds request
     return new Promise((resolve, reject) => {
       // Fetch the data
-      axios
-        .request(config)
-        .then(result => {
-          // Filter the data from the API, if needed (if we only need a certain part of the retrieved tree)
-          let data = result.data.result
+      try {
+        axios
+          .request(config)
+          .then(result => {
 
-          // Map the data
-          resolve(data)
-        })
-        .catch(error => {
-          // Throw different error based on the type of recieved response
-          if (error.response) {
-            reject(SupernovaError.fromAxiosResponseError(error.response))
-          } else if (error.request) {
-            reject(SupernovaError.fromAxiosRequestError(error.request))
-          } else {
-            reject(SupernovaError.fromSDKError(error.message))
-          }
-        })
+            // Filter the data from the API, if needed (if we only need a certain part of the retrieved tree)
+            let data = result.data.result
+
+            // Map the data
+            resolve(data)
+          })
+          .catch(error => {
+            // Throw different error based on the type of recieved response
+            if (error.response) {
+              reject(SupernovaError.fromAxiosResponseError(error.response))
+            } else if (error.request) {
+              reject(SupernovaError.fromAxiosRequestError(error.request))
+            } else {
+              reject(SupernovaError.fromSDKError(error.message))
+            }
+          })
+      } catch (error) {
+        reject(error)
+      }
     })
   }
 
@@ -182,11 +206,7 @@ export class DataBridge {
     return this.postDataForAuthenticatedEndpoint(url, data, put)
   }
 
-  async postDSMDataToGenericEndpoint(
-    endpoint: string,
-    data: any,
-    put: boolean = false
-  ): Promise<any> {
+  async postDSMDataToGenericEndpoint(endpoint: string, data: any, put: boolean = false): Promise<any> {
     let url = `${this.dsGenericRequestURL()}/${endpoint}`
     return this.postDataForAuthenticatedEndpoint(url, data, put)
   }
