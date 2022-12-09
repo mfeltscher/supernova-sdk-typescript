@@ -14,5 +14,5 @@ exporters-wip
 .env
 .env.development
 .npmrc
-test-resources/enterprise/*
 src/tests/Enterprise/*
+test-resources/enterprise/*

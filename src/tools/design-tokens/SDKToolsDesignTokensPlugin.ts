@@ -187,58 +187,13 @@ export class SupernovaToolsDesignTokensPlugin {
     }
 
     // Post process the data
-    this.createPureTokenTree(parsedData, mappingSettings)
-    
+    // this.createPureTokenTree(parsedData, mappingSettings)
+
     return true
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Data processing
-
-  private processTokenNodes(
-    parseResult: { nodes: Array<DTParsedNode>; themes: Array<DTParsedTheme>; sets: Array<DTParsedTokenSet> },
-    mapping: DTPluginToSupernovaMapPack,
-    brands: Array<Brand>,
-    verbose: boolean
-  ): DTPluginToSupernovaMapPack {
-    // Create base objects
-    let mapResolver = new DTMapResolver(this.version)
-
-    // Resolve each theme or set separately
-    for (let map of mapping) {
-      let resolvedMap = mapResolver.mappedNodePools(map, parseResult.themes, parseResult.sets)
-      if (!resolvedMap.nodes) {
-        throw new Error("Resolved map doesn't contain resulting nodes")
-      }
-    }
-
-    let count = 0
-    for (let map of mapping) {
-      count++
-
-      // Find appropriate brand
-      let brand = brands.find(b => b.persistentId === map.bindToBrand || (map.bindToBrand.toLowerCase().trim()) === b.name.toLowerCase().trim())
-
-      if (!brand) {
-        throw new Error(`Unknown brand ${map.bindToBrand} provided in binding. Available brands in this design system: \n\n ${brands.map(b => `${b.name} (id: ${b.persistentId})`)}`)
-      }
-      let converter = new DTJSONConverter(this.version, mapping)
-      let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)
-
-      let processedNodes = converter.convertNodesToTokens(map.nodes, brand)
-      let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes, brand)
-      map.processedNodes = processedNodes
-      map.processedGroups = processedGroups
-
-      if (verbose) {
-        console.log(`\n----- Processing mapping entry #${count}:`)
-        console.log(`Processed nodes: ${processedNodes.length}`)
-        console.log(`Processed groups: ${processedGroups.length}`)
-      }
-    }
-    return mapping
-  }
-
 
   private processTokenNodes(
     parseResult: { nodes: Array<DTParsedNode>; themes: Array<DTParsedTheme>; sets: Array<DTParsedTokenSet> },
