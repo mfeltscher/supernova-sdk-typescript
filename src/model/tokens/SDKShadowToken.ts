@@ -107,7 +107,15 @@ export class ShadowToken extends Token {
       if (definition.length > 0) {
         definition = definition[0]
       } else {
-        throw SupernovaError.fromSDKError(`Box Shadow definition must contain at least one shadow layer`)
+        // Empty definition needs to fallback to proper SN definition - make it transparent shadow with 0 0 0 0 values
+        definition = {
+          x: 0,
+          y: 0, 
+          blur: 0,
+          spread: 0,
+          color: "rgba(0,0,0,0)",
+          type: "dropShadow"
+        }
       }
     }
 

@@ -121,34 +121,36 @@ export class DTJSONParser {
     }
 
     let themeDefinitions = definition["$themes"]// Parse each theme separately
-    for (let themeObject of themeDefinitions) {
-      let name = themeObject["name"]
-      let id = themeObject["id"]
-      let selectedTokenSets = themeObject["selectedTokenSets"]
-      if (!name || !id || !selectedTokenSets) {
-        // Skip execution of this theme as it doesn't have correct information provided
-        throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
-      }
-
-      // Process token sets
-      let pairedSets = new Array<any>()
-      for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
-        let setName = tokenSetName
-        let setPriority = unknownPriority
-        let fetchedSet = tokenSets.get(setName)
-        let pair: DTParsedThemeSetPriorityPair = {
-          priority: setPriority as DTParsedThemeSetPriority,
-          set: fetchedSet
+    if (themeDefinitions) {
+      for (let themeObject of themeDefinitions) {
+        let name = themeObject["name"]
+        let id = themeObject["id"]
+        let selectedTokenSets = themeObject["selectedTokenSets"]
+        if (!name || !id || !selectedTokenSets) {
+          // Skip execution of this theme as it doesn't have correct information provided
+          throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
         }
-        pairedSets.push(pair)
-      }
 
-      let theme: DTParsedTheme = {
-        selectedTokenSets: pairedSets,
-        name: name,
-        id: id
+        // Process token sets
+        let pairedSets = new Array<any>()
+        for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
+          let setName = tokenSetName
+          let setPriority = unknownPriority
+          let fetchedSet = tokenSets.get(setName)
+          let pair: DTParsedThemeSetPriorityPair = {
+            priority: setPriority as DTParsedThemeSetPriority,
+            set: fetchedSet
+          }
+          pairedSets.push(pair)
+        }
+
+        let theme: DTParsedTheme = {
+          selectedTokenSets: pairedSets,
+          name: name,
+          id: id
+        }
+        themes.push(theme)
       }
-      themes.push(theme)
     }
 
     return themes

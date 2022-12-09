@@ -77,3 +77,24 @@ test('test_tooling_design_tokens_load_and_merge_from_directory', async t => {
   await t.notThrowsAsync(syncTool.synchronizeTokensFromDirectory(dataFilePath, mappingFilePath))
 })
 
+
+test('test_tooling_design_tokens_test', async t => {
+
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'test', "global.json")
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'test', 'supernova.settings.json')
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromFile(dataFilePath, mappingFilePath))
+})
+
+
