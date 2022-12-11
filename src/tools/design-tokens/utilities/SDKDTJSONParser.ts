@@ -185,16 +185,14 @@ export class DTJSONParser {
     let result: Array<DTParsedNode> = []
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {
-        if (name.startsWith("$")) {
-          // Skipping keys internal to design token plugin because we are currently not using them
-        } else if (value.hasOwnProperty('value') && value.hasOwnProperty('type')) {
+        if ((value.hasOwnProperty('value') && value.hasOwnProperty('type')) || (value.hasOwnProperty('$value') && value.hasOwnProperty('$type'))) {
           // Treat as value
           let entity = {
             rootKey: path[0], 
             name: name,
             path: path,
-            type: value['type'],
-            value: value['value'],
+            type: value['type'] ?? value['$type'],
+            value: value['value'] ?? value['$value'],
             description: value['description'] ?? null
           }
           let set = sets.get(entity.rootKey)
@@ -203,6 +201,8 @@ export class DTJSONParser {
           }
           set.contains.push(entity)
           result.push(entity)
+        } else if (name.startsWith("$")) {
+          // Skipping keys internal to design token plugin because we are currently not using them
         } else {
           // Treat as leaf
           result = result.concat(this.parseNode(path.concat(name), value, sets))
