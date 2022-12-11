@@ -64,23 +64,22 @@ export class DTJSONConverter {
   // MARK: - Token Conversion
 
   convertNodesToTokens(nodes: Array<DTParsedNode>, brand: Brand): Array<DTProcessedTokenNode> {
-    console.log('convert start')
     // Compute measures first. Measures can be used to do all types of calculation, so they must be available at the beginning for all other types of tokens
+    console.log("1")
     this.convertNodesToTokensForSupportedNodeTypes(
-      ['sizing', 'borderWidth', 'spacing', 'opacity', 'fontSizes', 'paragraphSpacing', 'lineHeights', 'letterSpacing'],
+      ['sizing', 'borderWidth', 'spacing', 'opacity', 'fontSizes', 'paragraphSpacing', 'lineHeights', 'letterSpacing', 'other'],
       nodes,
       brand
     )
+    console.log("2")
+    // Other tokens
+    // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
-    console.log('color')
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
-
+    console.log("3")
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(['borderRadius'], nodes, brand)
-
-    // Other tokens
-    this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
@@ -178,7 +177,6 @@ export class DTJSONConverter {
     // Filter out only nodes that we want to be resolving - we can't be resolving everything at once
     nodes = nodes.filter(n => types.includes(n.type))
     let unprocessedTokens = new Array<DTParsedNode>()
-
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
       if (!this.referenceResolver.valueHasReference(node.value)) {
@@ -193,7 +191,7 @@ export class DTJSONConverter {
     // References will be emptying pool until they are all resolved (this can take multiple
     // passes, resolving one depth level with each pass)
     let depth = 0
-    let maximumDepth = 10
+    let maximumDepth = 100
 
     while (unprocessedTokens.length !== 0) {
       let unprocessedDepthTokens = new Array<DTParsedNode>()
@@ -369,11 +367,9 @@ export class DTJSONConverter {
     }
 
     if (this.referenceResolver.valueIsPureReference(node.value)) {
-      console.log('value pure referenced')
       // Option 1: Pure reference, in which case we can create the token directly based on the reference
       return this.convertPureReferencedNode(node, brand)
     } else {
-      console.log('value not pure reference')
       // Option 2: The value is more complex string. We first need to resolve the references, reduce the issue, then try to build the token again
       return this.convertComplexReferenceNode(node, brand)
     }
@@ -481,9 +477,20 @@ export class DTJSONConverter {
     let references = this.referenceResolver.lookupAllReferencedTokens(valueAsReference)
     if (!references) {
       return undefined
+    } else {
+      let resolvedValue = this.referenceResolver.replaceAllReferencedTokens(valueAsReference, references)
+      // Create temporary node with replaced value that will have no more references
+      let resolvedNode = {
+        rootKey: node.rootKey,
+        name: node.name,
+        path: node.path,
+        type: node.type,
+        value: resolvedValue,
+        description: node.description
+      }
+      let processedNode = this.convertAtomicNode(resolvedNode, brand)
+      return processedNode
     }
-
-    return undefined
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -507,9 +514,8 @@ export class DTJSONConverter {
       case 'paragraphSpacing':
       case 'letterSpacing':
       case 'lineHeights':
-        return TokenType.measure
       case 'other':
-        return TokenType.generic
+        return TokenType.measure
       default:
         throw new Error('Unsupported token type ' + type)
     }

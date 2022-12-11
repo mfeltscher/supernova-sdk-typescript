@@ -40,7 +40,7 @@ export class DTExpressionParser {
 
       const evaluatedExpression = parser.evaluate(unitlessExpr)
       if (unit) {
-        Number.parseFloat(evaluatedExpression.toFixed(3))
+        return Number.parseFloat(evaluatedExpression.toFixed(3))
       } else {
         return `${evaluatedExpression}${unit}`
       }

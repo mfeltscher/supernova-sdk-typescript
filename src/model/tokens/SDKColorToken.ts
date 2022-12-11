@@ -18,10 +18,13 @@ import { Token } from './SDKToken'
 import { ColorTokenValue } from './SDKTokenValue'
 import { v4 as uuidv4 } from 'uuid'
 import { SupernovaError } from '../../core/errors/SDKSupernovaError'
-import parseColor from 'parse-color'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { ColorTokenRemoteData } from './remote/SDKRemoteTokenData'
+
+import parseColor from 'parse-color'
+import { parseToRgba, toHex } from 'color2k'
+const matchAll = require('string.prototype.matchall')
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -96,7 +99,9 @@ export class ColorToken extends Token {
   }
 
   static colorValueFromDefinition(definition: string): ColorTokenValue {
-    let result = parseColor(definition)
+
+    let normalizedDefinition = this.normalizeColor(definition)
+    let result = parseColor(normalizedDefinition)
     if (!result || result.hex === undefined) {
       throw SupernovaError.fromSDKError(
         `Unable to parse provided color value '${definition}'. Hex, RGB, HSL, HSV or CMYK are supported`
@@ -112,19 +117,103 @@ export class ColorToken extends Token {
     }
   }
 
+  static normalizeColor(color: string): string | null {
+    // This function is taken directly from figma tokens plugin, so the implementation aligns for the importer:
+    // https://github.com/tokens-studio/figma-plugin/blob/main/src/utils/color/convertToRgb.ts
+    try {
+      if (typeof color !== 'string') {
+        return color
+      }
+      const hexRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g
+      const hslaRegex = /(hsla?\(.*?\))/g
+      const rgbaRegex = /(rgba?\(.*?\))/g
+      let returnedColor = color
+
+      try {
+        const matchesRgba = Array.from(matchAll(returnedColor, rgbaRegex), m => m[0])
+        const matchesHsla = Array.from(matchAll(returnedColor, hslaRegex), m => m[0])
+        if (matchesHsla.length > 0) {
+          matchesHsla.forEach(match => {
+            returnedColor = returnedColor.replace(match, toHex(match))
+          })
+        }
+        if (matchesRgba.length > 0) {
+          matchesRgba.forEach(match => {
+            const matchedString = match
+            const matchedColor = match.replace(/rgba?\(/g, '').replace(')', '')
+            const matchesHexInsideRgba = matchedColor.match(hexRegex)
+            let r
+            let g
+            let b
+            let alpha = '1'
+            if (matchesHexInsideRgba) {
+              ;[r, g, b] = parseToRgba(matchesHexInsideRgba[0])
+              alpha =
+                matchedColor
+                  .split(',')
+                  .pop()
+                  ?.trim() ?? '0'
+            } else {
+              ;[r, g, b, alpha = '1'] = matchedColor.split(',').map(n => n.trim())
+            }
+            const a = this.normalizeOpacity(alpha)
+            returnedColor = returnedColor.split(matchedString).join(toHex(`rgba(${r}, ${g}, ${b}, ${a})`))
+          })
+        }
+      } catch (e) {
+        console.log('error', e, color)
+      }
+      return returnedColor
+    } catch (e) {
+      console.error(e)
+    }
+
+    return null
+  }
+
+  static normalizeOpacity(value: string): number {
+    // Matches 50%, 100%, etc.
+    const matched = value.match(/(\d+%)/)
+    if (matched) {
+      return Number(matched[0].slice(0, -1)) / 100
+    }
+    return Number(value)
+  }
+
   static colorValueFromDefinitionOrReference(
     definition: any,
     referenceResolver: DTTokenReferenceResolver
-  ): ColorTokenValue {
+  ): ColorTokenValue | undefined {
     if (referenceResolver.valueHasReference(definition)) {
-      let reference = referenceResolver.lookupReferencedToken(definition) as ColorToken
-      return {
-        referencedToken: reference,
-        hex: reference.value.hex,
-        a: reference.value.a,
-        r: reference.value.r,
-        g: reference.value.g,
-        b: reference.value.b
+      if (!referenceResolver.isBalancedReference(definition)) {
+        // Internal syntax of reference corrupted
+        throw new Error(`Invalid reference syntax in token value: ${definition}`)
+      }
+      if (referenceResolver.valueIsPureReference(definition)) {
+        // When color is pure reference, we can immediately resolve it
+        let reference = referenceResolver.lookupReferencedToken(definition) as ColorToken
+        if (!reference) {
+          return undefined
+        }
+        return {
+          referencedToken: reference,
+          hex: reference.value.hex,
+          a: reference.value.a,
+          r: reference.value.r,
+          g: reference.value.g,
+          b: reference.value.b
+        }
+      } else {
+        // When color is not a pure reference, we must resolve it further before we can resolve it
+        let references = referenceResolver.lookupAllReferencedTokens(definition)
+        if (!references) {
+          // Still unable to solve the reference, continue looking in some other tokens
+          return undefined
+        } else {
+          // Resolved all internal references
+          let resolvedValue = referenceResolver.replaceAllReferencedTokens(definition, references)
+          return this.colorValueFromDefinition(resolvedValue)
+        }
       }
     } else {
       return this.colorValueFromDefinition(definition)
@@ -142,7 +231,7 @@ export class ColorToken extends Token {
   }
 
   static valueToWriteObject(value: ColorTokenValue): { aliasTo: string | undefined; value: ColorTokenRemoteValue } {
-    let valueObject = !value.referencedToken ? (value.hex.startsWith("#") ? value.hex : `#${value.hex}`) : undefined
+    let valueObject = !value.referencedToken ? (value.hex.startsWith('#') ? value.hex : `#${value.hex}`) : undefined
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject

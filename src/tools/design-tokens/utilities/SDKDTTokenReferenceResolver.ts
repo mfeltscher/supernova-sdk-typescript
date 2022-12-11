@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { ColorToken, GenericToken, MeasureToken, TextToken, TokenType } from '../../..'
 import { Token } from '../../../model/tokens/SDKToken'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
@@ -60,41 +61,104 @@ export class DTTokenReferenceResolver {
     return this.mappedTokens.get(reference)
   }
 
-  lookupAllReferencedTokens(reference: string): Token | undefined {
-
+  lookupAllReferencedTokens(
+    reference: string
+  ):
+    | Array<{
+        token: Token
+        key: string
+        location: number
+      }>
+    | undefined {
     let findings = this.findBracketStrings(reference)
+    let result: Array<{
+      token: Token
+      key: string
+      location: number
+    }> = []
     for (let finding of findings) {
-      console.log(finding)
+      let fullkey = `{${finding.value}}` 
+      if (this.mappedTokens.get(fullkey)) {
+        // Found referenced token
+        result.push({
+          token: this.mappedTokens.get(fullkey),
+          key: finding.value,
+          location: finding.index
+        })
+      } else {
+        // Skip as there is a reference that doesn't exist
+        return undefined
+      }
     }
 
-    return undefined
+    return result
+  }
+
+  replaceAllReferencedTokens(
+    reference: string,
+    replacements: Array<{
+      token: Token
+      key: string
+      location: number
+    }>
+  ): string {
+
+    // Seek from the last position so we don't have to deal with repositioning
+    let sortedReps = replacements.sort((a, b) => b.location - a.location)
+    let finalReference = reference
+    for (let r of sortedReps) {
+      if (r.token.tokenType !== TokenType.measure && r.token.tokenType !== TokenType.generic && r.token.tokenType !== TokenType.color) {
+        throw new Error("Invalid reference in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%)")
+      }
+      finalReference = this.replaceToken(finalReference, r.token, r.key, r.location)
+    }
+
+    return finalReference
+  }
+
+  replaceToken(base: string, token: Token, key: string, location: number): string {
+
+    let fullkey = `{${key}}` 
+    let value = this.replacableValue(token)
+    return this.replaceAt(base, fullkey, value, location)
+  }
+
+  replaceAt(s: string, what: string, replacement: string, index: number): string {
+    return s.substring(0, index) + replacement + s.substring(index + what.length)
+  }
+
+  replacableValue(token: Token): string {
+    switch (token.tokenType) {
+      case TokenType.color: return (token as ColorToken).value.hex
+      case TokenType.measure: return (token as MeasureToken).value.measure.toString()
+      case TokenType.generic: return (token as GenericToken).value.text
+      case TokenType.text: return (token as TextToken).value.text
+      default: throw new Error("Invalid replacable value. Only measures, colors or generic/text tokens can provide value for complex tokens / inline replaces")
+    }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Conveniences
 
   isBalancedReference(syntax: string): boolean {
-    return this.hasSameNumberOfCharacters(syntax, "{", "}")
+    return this.hasSameNumberOfCharacters(syntax, '{', '}')
   }
 
   valueHasReference(value: string | object): boolean {
     if (typeof value !== 'string') {
-      console.log('value not reference')
       return false
     }
 
-    console.log('value reference' + (value.includes('{') || value.includes('}')))
     return value.includes('{') || value.includes('}')
   }
 
   valueIsPureReference(value: string | object): boolean {
     if (typeof value !== 'string') {
-      console.log('value not reference')
       return false
     }
 
     let trimmed = value.trim()
-    return value.startsWith('{') && value.endsWith('}')
+    return trimmed.startsWith('{') && trimmed.endsWith('}')
   }
 
   hasSameNumberOfCharacters(str: string, char1: string, char2: string): boolean {
@@ -121,39 +185,38 @@ export class DTTokenReferenceResolver {
     return '{' + [...newPath, name].join('.') + '}'
   }
 
+  findBracketStrings(str: string): { index: number; value: string }[] {
+    const results = []
+    let currentIndex = 0
 
-  findBracketStrings(str: string): { index: number, value: string }[] {
-    const results = [];
-    let currentIndex = 0;
-  
     while (currentIndex < str.length) {
       // Find the index of the next opening bracket
-      const openBracketIndex = str.indexOf("{", currentIndex);
-  
+      const openBracketIndex = str.indexOf('{', currentIndex)
+
       // If no more opening brackets are found, we can stop searching
       if (openBracketIndex === -1) {
-        break;
+        break
       }
-  
+
       // Find the index of the closing bracket that corresponds to the opening bracket
-      const closeBracketIndex = str.indexOf("}", openBracketIndex);
-  
+      const closeBracketIndex = str.indexOf('}', openBracketIndex)
+
       // If no closing bracket is found, we can stop searching
       if (closeBracketIndex === -1) {
-        break;
+        break
       }
-  
+
       // Extract the string between the brackets and add it to the results
-      const bracketString = str.substring(openBracketIndex + 1, closeBracketIndex);
+      const bracketString = str.substring(openBracketIndex + 1, closeBracketIndex)
       results.push({
         index: openBracketIndex,
         value: bracketString
-      });
-  
+      })
+
       // Continue searching after the closing bracket
-      currentIndex = closeBracketIndex + 1;
+      currentIndex = closeBracketIndex + 1
     }
-  
-    return results;
+
+    return results
   }
 }

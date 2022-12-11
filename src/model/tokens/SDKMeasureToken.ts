@@ -104,7 +104,6 @@ export class MeasureToken extends Token {
     measure: number
     unit: Unit
   } {
-    console.log("PARSE")
     if (typeof definition !== "string") {
       return {
         measure: 1,
@@ -143,8 +142,6 @@ export class MeasureToken extends Token {
 
     // Parse
     let parsedMeasure = parseFloat(measure)
-
-    console.log("PARSEEND")
     return {
       measure: parsedMeasure,
       unit: unit
@@ -155,21 +152,36 @@ export class MeasureToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): MeasureTokenValue {
-    console.log("PARSE FROM REFERNECE")
     if (referenceResolver.valueHasReference(definition)) {
-      let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
-      return {
-        referencedToken: reference,
-        measure: reference.value.measure,
-        unit: reference.value.unit
+      if (!referenceResolver.isBalancedReference(definition)) {
+        // Internal syntax of reference corrupted
+        throw new Error(`Invalid reference syntax in token value: ${definition}`)
+      }
+      if (referenceResolver.valueIsPureReference(definition)) {
+        // When color is pure reference, we can immediately resolve it
+        let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
+        if (!reference) {
+          return undefined
+        }
+        return {
+          referencedToken: reference,
+          measure: reference.value.measure,
+          unit: reference.value.unit
+        }
+      } else {
+        // When color is not a pure reference, we must resolve it further before we can resolve it
+        let references = referenceResolver.lookupAllReferencedTokens(definition)
+        if (!references) {
+          // Still unable to solve the reference, continue looking in some other tokens
+          return undefined
+        } else {
+          // Resolved all internal references
+          let resolvedValue = referenceResolver.replaceAllReferencedTokens(definition, references)
+          return this.measureValueFromDefinition(resolvedValue)
+        }
       }
     } else {
-      let measure = MeasureToken.parseMeasure(definition)
-      return {
-        referencedToken: null,
-        measure: measure.measure,
-        unit: measure.unit
-      }
+      return this.measureValueFromDefinition(definition)
     }
   }
 
