@@ -116,7 +116,7 @@ export class ColorToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): ColorTokenValue {
-    if (referenceResolver.valueIsReference(definition)) {
+    if (referenceResolver.valueHasReference(definition)) {
       let reference = referenceResolver.lookupReferencedToken(definition) as ColorToken
       return {
         referencedToken: reference,

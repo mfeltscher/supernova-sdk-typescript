@@ -1,36 +1,51 @@
-import { Parser } from 'expr-eval';
-import calcAstParser from 'postcss-calc-ast-parser';
-import { Root } from 'postcss-calc-ast-parser/dist/types/ast';
+//
+//  SDKDTJSONConverter.ts
+//  Supernova SDK
+//
+//  Created by Jiri Trecak.
+//  Copyright © 2022 Supernova. All rights reserved.
+//
 
-const parser = new Parser();
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// MARK: - Imports
+import { Parser } from 'expr-eval'
+import calcAstParser from 'postcss-calc-ast-parser'
 
-export function checkAndEvaluateMath(expr: string) {
-  let calcParsed: Root;
-  try {
-    calcParsed = calcAstParser.parse(expr);
-  } catch (ex) {
-    return expr;
-  }
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// MARK: - Definitions
 
-  const calcReduced = calcAstParser.reduceExpression(calcParsed);
-  let unitlessExpr = expr;
-  let unit = '';
+const parser = new Parser()
 
-  if (calcReduced && calcReduced.type !== 'Number') {
-    unitlessExpr = expr.replace(new RegExp(calcReduced.unit, 'ig'), '');
-    unit = calcReduced.unit;
-  }
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// MARK: - Tool implementation
 
-  let evaluated: number;
+/** Parsing and reduction utility for math expressions */
+export class DTExpressionParser {
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Expressions
 
-  try {
-    evaluated = parser.evaluate(unitlessExpr);
-  } catch (ex) {
-    return expr;
-  }
-  try {
-    return unit ? `${evaluated}${unit}` : Number.parseFloat(evaluated.toFixed(3));
-  } catch {
-    return expr;
+  /** Reduce value of expressions to their base form */
+  static reduceExpressionsToBaseForm(baseExpression: string) {
+    try {
+      let parsedExpression = calcAstParser.parse(baseExpression)
+      const reducedExpression = calcAstParser.reduceExpression(parsedExpression)
+
+      let unitlessExpr = baseExpression
+      let unit = ''
+
+      if (reducedExpression && reducedExpression.type !== 'Number') {
+        unitlessExpr = baseExpression.replace(new RegExp(reducedExpression.unit, 'ig'), '')
+        unit = reducedExpression.unit
+      }
+
+      const evaluatedExpression = parser.evaluate(unitlessExpr)
+      if (unit) {
+        Number.parseFloat(evaluatedExpression.toFixed(3))
+      } else {
+        return `${evaluatedExpression}${unit}`
+      }
+    } catch (error) {
+      return baseExpression
+    }
   }
 }

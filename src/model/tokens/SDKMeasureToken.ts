@@ -12,6 +12,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Brand, ElementProperty, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { DTExpressionParser } from '../../tools/design-tokens/utilities/expression/SDKDTExpressionParser'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { Unit } from '../enums/SDKUnit'
@@ -75,9 +76,6 @@ export class MeasureToken extends Token {
     }
 
     if (value) {
-      // Raw value
-
-      // TODO
       let tokenValue = this.measureValueFromDefinition(value)
       return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
@@ -106,25 +104,36 @@ export class MeasureToken extends Token {
     measure: number
     unit: Unit
   } {
+    console.log("PARSE")
     if (typeof definition !== "string") {
       return {
         measure: 1,
         unit: Unit.pixels
       }
     }
+
+    // Use expression parser to handle the expression
+    let parsedDefinition = DTExpressionParser.reduceExpressionsToBaseForm(definition)
+    if (typeof parsedDefinition === "number") {
+      return {
+        measure: parsedDefinition,
+        unit: Unit.pixels
+      }
+    }
+    
     // Parse out unit
-    let measure = definition.replace(' ', '')
+    let measure = parsedDefinition.replace(' ', '')
     let unit = Unit.pixels
-    if (definition.endsWith('px')) {
+    if (parsedDefinition.endsWith('px')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.pixels
-    } else if (definition.endsWith('%')) {
+    } else if (parsedDefinition.endsWith('%')) {
       measure = measure.substring(0, measure.length - 1)
       unit = Unit.percent
-    } else if (definition.endsWith('em')) {
+    } else if (parsedDefinition.endsWith('em')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.ems
-    } else if (definition.endsWith('pt')) {
+    } else if (parsedDefinition.endsWith('pt')) {
       measure = measure.substring(0, measure.length - 2)
       unit = Unit.points
     }
@@ -135,6 +144,7 @@ export class MeasureToken extends Token {
     // Parse
     let parsedMeasure = parseFloat(measure)
 
+    console.log("PARSEEND")
     return {
       measure: parsedMeasure,
       unit: unit
@@ -145,15 +155,8 @@ export class MeasureToken extends Token {
     definition: any,
     referenceResolver: DTTokenReferenceResolver
   ): MeasureTokenValue {
-    if (referenceResolver.valueNeedsComputing(definition)) {
-      // TODO: Do measure computing
-      let measure = MeasureToken.parseMeasure("0")
-      return {
-        referencedToken: null,
-        measure: measure.measure,
-        unit: measure.unit,
-      }
-    } else if (referenceResolver.valueIsReference(definition)) {
+    console.log("PARSE FROM REFERNECE")
+    if (referenceResolver.valueHasReference(definition)) {
       let reference = referenceResolver.lookupReferencedToken(definition) as MeasureToken
       return {
         referencedToken: reference,
