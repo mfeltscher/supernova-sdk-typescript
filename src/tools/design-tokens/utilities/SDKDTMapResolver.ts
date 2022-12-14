@@ -54,7 +54,7 @@ export class DTMapResolver {
       for (let pluginSet of map.pluginSets) {
         let set = setMap.get(pluginSet)
         if (!set) {
-          throw new Error(`Incorrect set ${set} referenced by the mapping`)
+          throw new Error(`Mapping references token set '${pluginSet}' that wasn't defined in the sourced data`)
         }
         tokenSetToUse.push(set)
       }

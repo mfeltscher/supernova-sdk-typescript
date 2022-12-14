@@ -115,7 +115,7 @@ export class MeasureToken extends Token {
     let parsedDefinition = DTExpressionParser.reduceExpressionsToBaseForm(definition)
     if (typeof parsedDefinition === "number") {
       return {
-        measure: parsedDefinition,
+        measure: parsedDefinition ?? 0,
         unit: Unit.pixels
       }
     }
@@ -143,7 +143,7 @@ export class MeasureToken extends Token {
     // Parse
     let parsedMeasure = parseFloat(measure)
     return {
-      measure: parsedMeasure,
+      measure: parsedMeasure ?? 0,
       unit: unit
     }
   }
@@ -198,7 +198,7 @@ export class MeasureToken extends Token {
   static valueToWriteObject(value: MeasureTokenValue): { aliasTo: string | undefined; value: MeasureTokenRemoteValue } {
     let valueObject = !value.referencedToken
       ? {
-          measure: value.measure,
+          measure: (Number.isNaN(value.measure) || value.measure === undefined || value.measure === null) ? 0 : value.measure,
           unit: value.unit
         }
       : undefined

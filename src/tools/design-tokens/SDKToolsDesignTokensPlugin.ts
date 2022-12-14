@@ -63,7 +63,7 @@ export class SupernovaToolsDesignTokensPlugin {
 
     // Load data from path, and construct the final object
     let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath)
+    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath, mappingPath)
     return this.synchronizeTokensFromData(data, configuration.mapping, configuration.settings)
   }
 
@@ -143,14 +143,14 @@ export class SupernovaToolsDesignTokensPlugin {
   /** Loads the token tree as if it was being synchronized from the provided token directory - however, it doesn't ask server for data and constructs it the same as if data were written to empty design system.
    * 
    * Note: This method will additionally validate the integrity of the data, and allows for offline validation as well. */
-  async validateLoadingFromDirectory(directoryPath: string, mappingSettings: {
+  async validateLoadingFromDirectory(directoryPath: string, settingsPath: string, mappingSettings: {
     pluginTheme: string | null,
     pluginSets: Array<string> | null,
   }): Promise<boolean> {
 
     // Load data from path, and construct the final object
     let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath)
+    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath, settingsPath)
     return this.validateLoadingFromData(data, mappingSettings)
   }
 

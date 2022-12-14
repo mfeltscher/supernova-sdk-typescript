@@ -219,9 +219,9 @@ export class DTJSONConverter {
 
       if (depth > maximumDepth) {
         throw new Error(
-          `Interrupting process due to error: Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
+          `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
             .map(t => DTTokenMerger.buildKey(t.path, t.name))
-            .join('\n')}\n\nThis is either caused by using unsupported feature or using a circular reference. Please report the bug on our Discord (https://community.supernova.io)`
+            .join('\n')}\n\nThis can be caused by few things:\n\n- Not including all token sets you wanted to reference in the mapping file\n- Reference pointing to the token that doesn't exist\nCircular reference where two tokens reference each other\nUsing (other) token for defining strings, instead of numbers (current limitation)\n\nIf you are sure this is not the case, please report the bug on our Discord (https://community.supernova.io) and we'll help you solve it :)`
         )
       }
     }

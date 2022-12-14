@@ -96,5 +96,3 @@ test('test_tooling_design_tokens_test', async t => {
   // Run sync
   await t.notThrowsAsync(syncTool.synchronizeTokensFromFile(dataFilePath, mappingFilePath))
 })
-
-
