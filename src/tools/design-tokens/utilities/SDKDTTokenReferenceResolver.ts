@@ -77,7 +77,7 @@ export class DTTokenReferenceResolver {
       location: number
     }> = []
     for (let finding of findings) {
-      let fullkey = `{${finding.value}}` 
+      let fullkey = `{${finding.value}}`
       if (this.mappedTokens.get(fullkey)) {
         // Found referenced token
         result.push({
@@ -102,13 +102,18 @@ export class DTTokenReferenceResolver {
       location: number
     }>
   ): string {
-
     // Seek from the last position so we don't have to deal with repositioning
     let sortedReps = replacements.sort((a, b) => b.location - a.location)
     let finalReference = reference
     for (let r of sortedReps) {
-      if (r.token.tokenType !== TokenType.measure && r.token.tokenType !== TokenType.generic && r.token.tokenType !== TokenType.color) {
-        throw new Error("Invalid reference in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%)")
+      if (
+        r.token.tokenType !== TokenType.measure &&
+        r.token.tokenType !== TokenType.generic &&
+        r.token.tokenType !== TokenType.color
+      ) {
+        throw new Error(
+          'Invalid reference in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%)'
+        )
       }
       finalReference = this.replaceToken(finalReference, r.token, r.key, r.location)
     }
@@ -117,8 +122,7 @@ export class DTTokenReferenceResolver {
   }
 
   replaceToken(base: string, token: Token, key: string, location: number): string {
-
-    let fullkey = `{${key}}` 
+    let fullkey = `{${key}}`
     let value = this.replacableValue(token)
     return this.replaceAt(base, fullkey, value, location)
   }
@@ -129,11 +133,18 @@ export class DTTokenReferenceResolver {
 
   replacableValue(token: Token): string {
     switch (token.tokenType) {
-      case TokenType.color: return (token as ColorToken).value.hex
-      case TokenType.measure: return (token as MeasureToken).value.measure.toString()
-      case TokenType.generic: return (token as GenericToken).value.text
-      case TokenType.text: return (token as TextToken).value.text
-      default: throw new Error("Invalid replacable value. Only measures, colors or generic/text tokens can provide value for complex tokens / inline replaces")
+      case TokenType.color:
+        return (token as ColorToken).value.hex
+      case TokenType.measure:
+        return (token as MeasureToken).value.measure.toString()
+      case TokenType.generic:
+        return (token as GenericToken).value.text
+      case TokenType.text:
+        return (token as TextToken).value.text
+      default:
+        throw new Error(
+          'Invalid replacable value. Only measures, colors or generic/text tokens can provide value for complex tokens / inline replaces'
+        )
     }
   }
 
@@ -158,7 +169,14 @@ export class DTTokenReferenceResolver {
     }
 
     let trimmed = value.trim()
-    return trimmed.startsWith('{') && trimmed.endsWith('}')
+
+    // If there is more than one opening or closing bracket, it is not a pure reference. Must also open and close the syntax
+    return (
+      trimmed.startsWith('{') &&
+      trimmed.endsWith('}') &&
+      this.countCharacter(trimmed, '{') === 1 &&
+      this.countCharacter(trimmed, '}') === 1
+    )
   }
 
   hasSameNumberOfCharacters(str: string, char1: string, char2: string): boolean {
@@ -174,6 +192,16 @@ export class DTTokenReferenceResolver {
     }
 
     return count1 === count2
+  }
+
+  countCharacter(str: string, char: string): number {
+    let count = 0
+    for (const c of str) {
+      if (c === char) {
+        count++
+      }
+    }
+    return count
   }
 
   tokenReferenceKey(path: Array<String>, name: string): string {

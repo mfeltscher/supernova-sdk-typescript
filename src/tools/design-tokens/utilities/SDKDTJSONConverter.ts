@@ -65,19 +65,17 @@ export class DTJSONConverter {
 
   convertNodesToTokens(nodes: Array<DTParsedNode>, brand: Brand): Array<DTProcessedTokenNode> {
     // Compute measures first. Measures can be used to do all types of calculation, so they must be available at the beginning for all other types of tokens
-    console.log("1")
     this.convertNodesToTokensForSupportedNodeTypes(
       ['sizing', 'borderWidth', 'spacing', 'opacity', 'fontSizes', 'paragraphSpacing', 'lineHeights', 'letterSpacing', 'other'],
       nodes,
       brand
     )
-    console.log("2")
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
-    console.log("3")
+
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(['borderRadius'], nodes, brand)
 
