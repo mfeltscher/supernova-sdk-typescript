@@ -66,7 +66,17 @@ export class DTJSONConverter {
   convertNodesToTokens(nodes: Array<DTParsedNode>, brand: Brand): Array<DTProcessedTokenNode> {
     // Compute measures first. Measures can be used to do all types of calculation, so they must be available at the beginning for all other types of tokens
     this.convertNodesToTokensForSupportedNodeTypes(
-      ['sizing', 'borderWidth', 'spacing', 'opacity', 'fontSizes', 'paragraphSpacing', 'lineHeights', 'letterSpacing', 'other'],
+      [
+        'sizing',
+        'borderWidth',
+        'spacing',
+        'opacity',
+        'fontSizes',
+        'paragraphSpacing',
+        'lineHeights',
+        'letterSpacing',
+        'other'
+      ],
       nodes,
       brand
     )
@@ -209,9 +219,9 @@ export class DTJSONConverter {
 
       if (depth > maximumDepth) {
         throw new Error(
-          `Interrupting process due to error: Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens.map(
-            t => DTTokenMerger.buildKey(t.path, t.name)
-          )}\n\nThis is either caused by using unsupported feature or using a circular reference`
+          `Interrupting process due to error: Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
+            .map(t => DTTokenMerger.buildKey(t.path, t.name))
+            .join('\n')}\n\nThis is either caused by using unsupported feature or using a circular reference. Please report the bug on our Discord (https://community.supernova.io)`
         )
       }
     }
