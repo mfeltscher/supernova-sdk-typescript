@@ -104,7 +104,7 @@ export class MeasureToken extends Token {
     measure: number
     unit: Unit
   } {
-    if (typeof definition !== "string") {
+    if (typeof definition !== 'string') {
       return {
         measure: 1,
         unit: Unit.pixels
@@ -113,13 +113,13 @@ export class MeasureToken extends Token {
 
     // Use expression parser to handle the expression
     let parsedDefinition = DTExpressionParser.reduceExpressionsToBaseForm(definition)
-    if (typeof parsedDefinition === "number") {
+    if (typeof parsedDefinition === 'number') {
       return {
-        measure: parsedDefinition ?? 0,
+        measure: (Number.isNaN(parsedDefinition) || parsedDefinition === undefined || parsedDefinition === null) ? 0 : parsedDefinition,
         unit: Unit.pixels
       }
     }
-    
+
     // Parse out unit
     let measure = parsedDefinition.replace(' ', '')
     let unit = Unit.pixels
@@ -143,7 +143,7 @@ export class MeasureToken extends Token {
     // Parse
     let parsedMeasure = parseFloat(measure)
     return {
-      measure: parsedMeasure ?? 0,
+      measure: (Number.isNaN(parsedMeasure) || parsedMeasure === undefined || parsedMeasure === null) ? 0 : parsedMeasure,
       unit: unit
     }
   }
@@ -198,7 +198,8 @@ export class MeasureToken extends Token {
   static valueToWriteObject(value: MeasureTokenValue): { aliasTo: string | undefined; value: MeasureTokenRemoteValue } {
     let valueObject = !value.referencedToken
       ? {
-          measure: (Number.isNaN(value.measure) || value.measure === undefined || value.measure === null) ? 0 : value.measure,
+          measure:
+            Number.isNaN(value.measure) || value.measure === undefined || value.measure === null ? 0 : value.measure,
           unit: value.unit
         }
       : undefined
@@ -207,5 +208,15 @@ export class MeasureToken extends Token {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject
     }
+  }
+
+  static valueToInternalWriteObject(value: MeasureTokenValue | null): MeasureTokenValue | null {
+    return value
+      ? {
+          unit: value.unit,
+          measure: value.measure,
+          referencedToken: undefined
+        }
+      : null
   }
 }

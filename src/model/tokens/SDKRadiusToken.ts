@@ -211,7 +211,7 @@ export class RadiusToken extends Token {
             : null
         }
       : undefined
-
+      
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject

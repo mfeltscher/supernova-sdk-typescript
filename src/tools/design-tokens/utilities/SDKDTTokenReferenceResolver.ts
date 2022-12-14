@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ColorToken, GenericToken, MeasureToken, TextToken, TokenType } from '../../..'
+import { ColorToken, GenericToken, MeasureToken, RadiusToken, TextToken, TokenType } from '../../..'
 import { Token } from '../../../model/tokens/SDKToken'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
@@ -109,10 +109,11 @@ export class DTTokenReferenceResolver {
       if (
         r.token.tokenType !== TokenType.measure &&
         r.token.tokenType !== TokenType.generic &&
-        r.token.tokenType !== TokenType.color
+        r.token.tokenType !== TokenType.color &&
+        r.token.tokenType !== TokenType.radius
       ) {
         throw new Error(
-          'Invalid reference in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%)'
+          `Invalid reference ${reference} in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%), however was ${r.token.tokenType}`
         )
       }
       finalReference = this.replaceToken(finalReference, r.token, r.key, r.location)
@@ -137,6 +138,8 @@ export class DTTokenReferenceResolver {
         return (token as ColorToken).value.hex
       case TokenType.measure:
         return (token as MeasureToken).value.measure.toString()
+      case TokenType.radius:
+        return (token as RadiusToken).value.radius.toString()
       case TokenType.generic:
         return (token as GenericToken).value.text
       case TokenType.text:

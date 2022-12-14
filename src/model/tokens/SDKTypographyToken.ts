@@ -183,7 +183,7 @@ export class TypographyToken extends Token {
             value: value.fontSize.referencedToken
               ? null
               : {
-                  measure: value.fontSize.measure,
+                  measure: value.fontSize.measure < 1 ? 1 : value.fontSize.measure, // Font size must be > 0
                   unit: value.fontSize.unit
                 }
           },
