@@ -29,6 +29,7 @@ export interface DesignComponentRemoteModel {
         name: string,
         description: string,
     }
+    
     originComponent?: DesignComponentOriginModel
 
     // Not used RN, so not properly defined - will be defined properly when we extend  model with components as well

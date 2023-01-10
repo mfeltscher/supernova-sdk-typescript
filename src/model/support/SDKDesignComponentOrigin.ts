@@ -19,7 +19,10 @@ export interface DesignComponentOriginModel {
     sourceId: string
     nodeId: string
     name?: string
+    width?: number
+    height?: number
 }
+
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -35,6 +38,8 @@ export class DesignComponentOrigin {
   id: string | null
   nodeId: string | null
   name: string | null
+  width: number | null
+  height: number | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -55,6 +60,9 @@ export class DesignComponentOrigin {
         this.fileName = remoteSource.fileName ?? null
       }
     }
+
+    this.width = model.width ?? null
+    this.height = model.height ?? null
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

@@ -10,6 +10,7 @@
 // MARK: - Imports
 
 import { TokenOrigin } from '../..'
+import { ElementDataViewRemoteModel } from '../../model/elements/SDKElementDataView'
 import {
   ElementProperty,
   ElementPropertyRemoteModel,
@@ -125,6 +126,7 @@ export class TokenResolver {
     data: Array<TokenRemoteModel>,
     tokenGroups: Array<TokenGroup>,
     properties: Array<ElementPropertyRemoteModel>,
+    views: Array<ElementDataViewRemoteModel>,
     values: Array<ElementPropertyValueRemoteModel>
   ): Array<Token> {
     let resolvedProperties = properties
