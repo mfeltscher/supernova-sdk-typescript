@@ -2,6 +2,19 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+
+## [1.8.23] - 2022-30-11
+### Component and Token Views
+
+We have added option to get component and token views internally. This will be used later for some upcoming features. Additionally:
+
+- Ordering of component properties was fixed
+- Ordering of token properties was fixed
+- Ordering of table columns was fixed
+- Width/height of assets was added to `Asset` object
+- Width/height of assets was added to `Frame` object (used in Figma frames, for example)
+
+
 ## [1.8.23] - 2022-30-11
 ### Option to invoke publication of the documentation from the command line
 
