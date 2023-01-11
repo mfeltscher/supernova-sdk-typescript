@@ -38,4 +38,9 @@ export class DocumentationPageBlockText extends DocumentationPageBlock {
     super(model, customBlocks, configuration)
     this.text = new DocumentationRichText(model.text)
   }
+
+  /** Convert block into plain text, omitting any formatting */
+  asPlainText(): string {
+    return this.text.asPlainText()
+  }
 }

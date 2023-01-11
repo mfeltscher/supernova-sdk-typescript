@@ -54,7 +54,6 @@ export class DocumentationPageBlockFrame {
 
   constructor(model: DocumentationPageBlockFrameModel, blockBackgroundColor: ColorTokenRemoteData | null) {
 
-    console.log(model)
     this.sourceFileId = model.sourceFileId
     this.sourceFrameId = model.sourceFrameId
     this.sourceFileName = model.origin.sourceFileName

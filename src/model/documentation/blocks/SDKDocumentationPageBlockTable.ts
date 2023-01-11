@@ -12,8 +12,10 @@
 import { ExporterCustomBlock } from "../../exporters/custom_blocks/SDKExporterCustomBlock"
 import { DocumentationConfiguration } from "../SDKDocumentationConfiguration"
 import { DocumentationPageBlockModel, DocumentationPageBlock } from "../SDKDocumentationPageBlock"
+import { DocumentationPageBlockTableCell } from "./SDKDocumentationPageBlockTableCell"
 import { DocumentationPageBlockTableColumn, DocumentationPageBlockTableColumnModel } from "./SDKDocumentationPageBlockTableColumn"
 import { DocumentationPageBlockTableRow, DocumentationPageBlockTableRowModel } from "./SDKDocumentationPageBlockTableRow"
+import { DocumentationPageBlockText } from "./SDKDocumentationPageBlockText"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -54,5 +56,17 @@ export class DocumentationPageBlockTable extends DocumentationPageBlock {
         showHeaderColumn: model.tableProperties.showHeaderColumn,
         columns: model.tableProperties.columns.map(c => new DocumentationPageBlockTableColumn(c))
     }
+
+    let order = new Map<string, number>()
+    let index = 0
+    for (let column of this.tableProperties.columns) {
+      order.set(column.id, index++)
+    }
+
+    for (let block of this.children) {
+      let row = block as DocumentationPageBlockTableRow
+      row.children = row.children.sort((a: DocumentationPageBlockTableCell, b: DocumentationPageBlockTableCell) => order.get(a.columnId) - order.get(b.columnId))
+    }
   }
 }
+

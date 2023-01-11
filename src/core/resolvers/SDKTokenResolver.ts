@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { TokenOrigin } from '../..'
-import { ElementDataViewRemoteModel } from '../../model/elements/SDKElementDataView'
+import { ElementDataView, ElementDataViewRemoteModel } from '../../model/elements/SDKElementDataView'
 import {
   ElementProperty,
   ElementPropertyRemoteModel,
@@ -133,6 +133,18 @@ export class TokenResolver {
       .map(p => new ElementProperty(p))
       .filter(p => p.targetElementType === ElementPropertyTargetElementType.token)
     let resolvedValues = values.map(v => new ElementPropertyValue(v))
+    let resolvedViews = views.map(v => new ElementDataView(v))
+
+    // Sort properties using views
+    let firstView = resolvedViews.filter(v => v.isDefault && v.targetElementType === ElementPropertyTargetElementType.token)[0]
+    let indexes = new Map<string, number>()
+    for (let column of firstView.columns) {
+      if (column.propertyDefinitionId) {
+        indexes.set(column.propertyDefinitionId, firstView.columns.indexOf(column))
+      }
+    }
+    
+    resolvedProperties = resolvedProperties.sort((a, b) => indexes.get(a.persistentId) - indexes.get(b.persistentId))
 
     for (let rawToken of data) {
       this.hashedTokens.set(rawToken.persistentId, rawToken)

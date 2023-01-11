@@ -39,7 +39,6 @@ export class Asset {
 
   constructor(model: DesignComponentRemoteModel, duplicates: number) {
     
-    console.log(model)
     this.id = model.persistentId
     this.brandId = model.brandId
     this.thumbnailUrl = model.thumbnailUrl ?? null

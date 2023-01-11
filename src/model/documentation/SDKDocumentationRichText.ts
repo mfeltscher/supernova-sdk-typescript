@@ -35,7 +35,7 @@ export class DocumentationRichText {
     this.spans = model.spans.map(s => new RichTextSpan(s))
   }
 
-  /** Convert block into plain text, omitting any formatting */
+  /** Convert rich text into plain text, omitting any formatting */
   asPlainText(): string {
     return this.spans.map(s => s.text).join("")
   }
