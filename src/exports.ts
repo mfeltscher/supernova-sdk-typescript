@@ -138,7 +138,10 @@ export { TokenThemeOverride } from './model/themes/SDKTokenThemeOverride'
 
 // Tooling
 export { TokenJSONBuilder, JSONBuilderNamingOption } from './tools/json-builder/SDKToolsJSONBuilder'
-export { SupernovaToolsDesignTokensPlugin } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
+export { DTProcessedTokenNode } from '../src/tools/design-tokens/utilities/SDKDTJSONConverter'
+export { DTTokenMergeDiff } from '../src/tools/design-tokens/utilities/SDKDTTokenMerger'
+export { DTPluginToSupernovaMap, DTPluginToSupernovaMapType } from '../src/tools/design-tokens/utilities/SDKDTMapLoader'
+export { SupernovaToolsDesignTokensPlugin, SupernovaToolsDesignTokensResult } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
 export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
 export { MarkdownTransform, MarkdownTransformType } from '../src/tools/markdown-transform/SDKToolsMarkdownTransform'
 export { TokenTransform } from '../src/tools/token-transform/SDKToolsTokenTransform'
