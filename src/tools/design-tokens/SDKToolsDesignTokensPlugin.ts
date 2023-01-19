@@ -17,12 +17,12 @@ import { DTJSONLoader, DTParsedNode, DTParsedTheme, DTParsedTokenSet } from './u
 import { DTJSONConverter, DTProcessedTokenNode } from './utilities/SDKDTJSONConverter'
 import { DTJSONGroupBuilder } from './utilities/SDKDTJSONGroupBuilder'
 import { DTTokenGroupTreeMerger } from './utilities/SDKDTTokenGroupTreeMerger'
-import { DTTokenMerger } from './utilities/SDKDTTokenMerger'
+import { DTTokenMergeDiff, DTTokenMerger } from './utilities/SDKDTTokenMerger'
 import { Brand } from '../../core/SDKBrand'
 import { DTMapResolver } from './utilities/SDKDTMapResolver'
 import { TokenTheme } from '../../model/themes/SDKTokenTheme'
 import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
-import { DTMapLoader, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
+import { DTMapLoader, DTPluginToSupernovaMap, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
 import { DTJSONParser } from './utilities/SDKDTJSONParser'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -32,6 +32,13 @@ export type SupernovaToolsDesignTokensLoadingResult = {
   processedNodes: Array<DTProcessedTokenNode>
   tokens: Array<Token>
   groups: Array<TokenGroup>
+}
+
+export type SupernovaToolsDesignTokensResult = {
+  map: Pick<DTPluginToSupernovaMap, 'bindToBrand' | 'bindToTheme' | 'pluginSets' | 'pluginTheme' | 'type'>
+  tokensCreated: Array<string>;
+  tokensUpdated: Array<string>;
+  tokensDeleted: Array<string>;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -84,6 +91,17 @@ export class SupernovaToolsDesignTokensPlugin {
     mapping: DTPluginToSupernovaMapPack,
     settings: DTPluginToSupernovaSettings
   ): Promise<boolean> {
+    await this.synchronizeTokensFromDataWithResults(data, mapping, settings)
+    return true
+  }
+
+  async synchronizeTokensFromDataWithResults(
+    data: object,
+    mapping: DTPluginToSupernovaMapPack,
+    settings: DTPluginToSupernovaSettings
+  ): Promise<SupernovaToolsDesignTokensResult[] > {
+    const results: SupernovaToolsDesignTokensResult[] = []
+
     // Fetch brand and themes
     let brands = await this.version.brands()
     let themes = await this.version.themes()
@@ -105,7 +123,13 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!brand) {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
-      await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
+      const mergeResult = await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
+      results.push({
+        map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
+        tokensCreated: mergeResult.diff.toCreate.map(t => t.token.id),
+        tokensUpdated: mergeResult.diff.toUpdate.map(t => t.token.id),
+        tokensDeleted: mergeResult.diff.toDelete.map(t => t.token.id)
+      });
       if (settings.verbose) {
         console.log(`✅ (task done) Synchronized base tokens for brand ${brand.name}`)
       }
@@ -126,7 +150,13 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!theme) {
         throw new Error(`Unknown theme ${map.bindToTheme} provided in binding.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
       }
-      await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
+      const mergeResult = await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
+      results.push({
+        map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
+        tokensCreated: [],
+        tokensUpdated: mergeResult.tokens.map(t => t.id),
+        tokensDeleted: []
+      })
       if (settings.verbose) {
         console.log(
           `✅ (task done) Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
@@ -134,7 +164,7 @@ export class SupernovaToolsDesignTokensPlugin {
       }
     }
 
-    return true
+    return results
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -312,6 +342,7 @@ export class SupernovaToolsDesignTokensPlugin {
   ): Promise<{
     tokens: Array<Token>
     groups: Array<TokenGroup>
+    diff: DTTokenMergeDiff
   }> {
     // Get remote token data
     let upstreamTokenGroups = await brand.tokenGroups()
@@ -369,7 +400,8 @@ export class SupernovaToolsDesignTokensPlugin {
 
     return {
       tokens: tokensToWrite,
-      groups: tokenGroupsToWrite
+      groups: tokenGroupsToWrite,
+      diff: tokenMergeResult
     }
   }
 
@@ -382,6 +414,7 @@ export class SupernovaToolsDesignTokensPlugin {
     verbose: boolean
   ): Promise<{
     theme: TokenTheme
+    tokens: Array<Token>
   }> {
     // Get remote token data
     let upstreamTokens = await brand.tokens()
@@ -404,7 +437,8 @@ export class SupernovaToolsDesignTokensPlugin {
     }
 
     return {
-      theme: theme
+      theme: theme,
+      tokens: themeMergerResult.overriddenTokens
     }
   }
 
