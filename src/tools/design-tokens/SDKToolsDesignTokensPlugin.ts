@@ -36,9 +36,9 @@ export type SupernovaToolsDesignTokensLoadingResult = {
 
 export type SupernovaToolsDesignTokensResult = {
   map: Pick<DTPluginToSupernovaMap, 'bindToBrand' | 'bindToTheme' | 'pluginSets' | 'pluginTheme' | 'type'>
-  tokens: Array<Token>
-  groups?: Array<TokenGroup>
-  diff?: DTTokenMergeDiff
+  tokensCreated: Array<string>;
+  tokensUpdated: Array<string>;
+  tokensDeleted: Array<string>;
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -124,7 +124,12 @@ export class SupernovaToolsDesignTokensPlugin {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
       const mergeResult = await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
-      results.push({ map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]), ...mergeResult });
+      results.push({
+        map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
+        tokensCreated: mergeResult.diff.toCreate.map(t => t.token.id),
+        tokensUpdated: mergeResult.diff.toUpdate.map(t => t.token.id),
+        tokensDeleted: mergeResult.diff.toDelete.map(t => t.token.id)
+      });
       if (settings.verbose) {
         console.log(`✅ (task done) Synchronized base tokens for brand ${brand.name}`)
       }
@@ -146,7 +151,12 @@ export class SupernovaToolsDesignTokensPlugin {
         throw new Error(`Unknown theme ${map.bindToTheme} provided in binding.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
       }
       const mergeResult = await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
-      results.push({ map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]), tokens: mergeResult.tokens })
+      results.push({
+        map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
+        tokensCreated: [],
+        tokensUpdated: mergeResult.tokens.map(t => t.id),
+        tokensDeleted: []
+      })
       if (settings.verbose) {
         console.log(
           `✅ (task done) Synchronized themed tokens for brand ${brand.name}, theme ${theme.name}`
