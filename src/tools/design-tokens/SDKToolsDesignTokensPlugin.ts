@@ -278,7 +278,7 @@ export class SupernovaToolsDesignTokensPlugin {
         node.token.origin = {
           name: node.token.name,
           sourceId,
-          id: node.key.toLowerCase(),
+          id: node.key,
         }
       }
     }
