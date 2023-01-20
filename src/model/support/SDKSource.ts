@@ -12,8 +12,10 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
+export type SourceType = "Figma" | "TokenStudio"
+
 export interface SourceRemoteModel {
-  type: 'Figma'
+  type: SourceType
   id: string
   fileName?: string
   linkType: 'Design' | 'Frames'
@@ -73,7 +75,7 @@ export class Source {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  type: 'Figma'
+  type: SourceType
   id: string
   fileName: string | null
   fileId: string | null

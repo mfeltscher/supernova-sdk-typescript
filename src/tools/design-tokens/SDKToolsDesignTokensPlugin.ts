@@ -112,6 +112,7 @@ export class SupernovaToolsDesignTokensPlugin {
 
     // Post process the data
     this.processTokenNodes(parsedData, mapping, brands, settings.verbose)
+    this.setTokensOrigin(mapping)
 
     for (let map of mapping) {
       // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
@@ -266,6 +267,21 @@ export class SupernovaToolsDesignTokensPlugin {
         console.log(`Processed groups: ${processedGroups.length}`)
       }
     }
+    return mapping
+  }
+
+  private setTokensOrigin(mapping: DTPluginToSupernovaMapPack): DTPluginToSupernovaMapPack {
+    const sourceId = this.version.designSystem.sources.find(s => s.type === "TokenStudio")?.id
+    for (let map of mapping) {
+      for (let node of map.processedNodes) {
+        node.token.origin = {
+          name: node.token.name,
+          sourceId,
+          id: node.key.toLowerCase(),
+        }
+      }
+    }
+    
     return mapping
   }
 

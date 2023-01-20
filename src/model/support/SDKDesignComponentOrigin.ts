@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Source } from './SDKSource'
+import { Source, SourceType } from './SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
@@ -31,7 +31,7 @@ export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  sourceType: "Figma"
+  sourceType: SourceType
   sourceId: string | null
   fileId: string | null
   fileName: string | null
