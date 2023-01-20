@@ -9,7 +9,8 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { Source, SourceType } from './SDKSource'
+import { SourceType } from '../enums/SDKSourceType'
+import { Source } from './SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions

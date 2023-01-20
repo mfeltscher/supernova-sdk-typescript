@@ -24,6 +24,7 @@ import { TokenTheme } from '../../model/themes/SDKTokenTheme'
 import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
 import { DTMapLoader, DTPluginToSupernovaMap, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
 import { DTJSONParser } from './utilities/SDKDTJSONParser'
+import { SourceType } from '../../model/enums/SDKSourceType'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -271,7 +272,7 @@ export class SupernovaToolsDesignTokensPlugin {
   }
 
   private setTokensOrigin(mapping: DTPluginToSupernovaMapPack): DTPluginToSupernovaMapPack {
-    const sourceId = this.version.designSystem.sources.find(s => s.type === "TokenStudio")?.id
+    const sourceId = this.version.designSystem.sources.find(s => s.type === SourceType.tokenStudio)?.id
     for (let map of mapping) {
       for (let node of map.processedNodes) {
         node.token.origin = {

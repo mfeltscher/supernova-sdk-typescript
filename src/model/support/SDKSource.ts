@@ -6,13 +6,13 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
+import { SourceType } from '../enums/SDKSourceType'
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
-
-export type SourceType = "Figma" | "TokenStudio"
 
 export interface SourceRemoteModel {
   type: SourceType
