@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { SourceType } from '../enums/SDKSourceType'
 import { Source } from './SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -31,7 +32,7 @@ export class DesignComponentOrigin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  sourceType: "Figma"
+  sourceType: SourceType
   sourceId: string | null
   fileId: string | null
   fileName: string | null

@@ -6,6 +6,8 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
+import { SourceType } from '../enums/SDKSourceType'
+
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
@@ -13,7 +15,7 @@
 // MARK: - Definitions
 
 export interface SourceRemoteModel {
-  type: 'Figma'
+  type: SourceType
   id: string
   fileName?: string
   linkType: 'Design' | 'Frames'
@@ -73,7 +75,7 @@ export class Source {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-  type: 'Figma'
+  type: SourceType
   id: string
   fileName: string | null
   fileId: string | null
