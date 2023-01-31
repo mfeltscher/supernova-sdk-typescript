@@ -127,6 +127,12 @@ export class DesignSystem {
       return source
     }
 
+    /** Fetches all sources that were created in the design system. */
+    async fetchSources(): Promise<Array<Source>> {
+
+      return this.engine.designSystemSources(this.id)
+    }
+
     /** Get Figma file from source id */
     figmaFileIdForSourceId(sourceId: string): string | undefined {
 

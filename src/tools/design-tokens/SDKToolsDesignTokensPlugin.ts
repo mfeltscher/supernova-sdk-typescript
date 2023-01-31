@@ -25,6 +25,7 @@ import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
 import { DTMapLoader, DTPluginToSupernovaMap, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
 import { DTJSONParser } from './utilities/SDKDTJSONParser'
 import { SourceType } from '../../model/enums/SDKSourceType'
+import { Source } from '../../model/support/SDKSource'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -106,6 +107,7 @@ export class SupernovaToolsDesignTokensPlugin {
     // Fetch brand and themes
     let brands = await this.version.brands()
     let themes = await this.version.themes()
+    let sources = await this.version.designSystem.fetchSources()
 
     // Parse data from object
     let parser = new DTJSONParser()
@@ -113,7 +115,6 @@ export class SupernovaToolsDesignTokensPlugin {
 
     // Post process the data
     this.processTokenNodes(parsedData, mapping, brands, settings.verbose)
-    this.setTokensOrigin(mapping)
 
     for (let map of mapping) {
       // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
@@ -125,6 +126,7 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!brand) {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
+      this.setTokensOrigin(map, brand, sources)
       const mergeResult = await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
       results.push({
         map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
@@ -152,6 +154,7 @@ export class SupernovaToolsDesignTokensPlugin {
       if (!theme) {
         throw new Error(`Unknown theme ${map.bindToTheme} provided in binding.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
       }
+      this.setTokensOrigin(map, brand, sources)
       const mergeResult = await this.mergeThemeWithRemoteSource(map.processedNodes, brand, theme, !settings.dryRun, settings.verbose)
       results.push({
         map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
@@ -271,19 +274,17 @@ export class SupernovaToolsDesignTokensPlugin {
     return mapping
   }
 
-  private setTokensOrigin(mapping: DTPluginToSupernovaMapPack): DTPluginToSupernovaMapPack {
-    const sourceId = this.version.designSystem.sources.find(s => s.type === SourceType.tokenStudio)?.id
-    for (let map of mapping) {
-      for (let node of map.processedNodes) {
-        node.token.origin = {
-          name: node.token.name,
-          sourceId,
-          id: node.key,
-        }
+  private setTokensOrigin(map: DTPluginToSupernovaMap, brand: Brand, sources: Source[]): DTPluginToSupernovaMap {
+    const sourceId = sources.find(s => s.type === SourceType.tokenStudio && s.brandId === brand.persistentId)?.id
+    for (let node of map.processedNodes) {
+      node.token.origin = {
+        name: node.token.name,
+        sourceId,
+        id: node.key,
       }
     }
-    
-    return mapping
+
+    return map
   }
 
 
