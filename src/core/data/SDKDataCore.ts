@@ -870,9 +870,10 @@ export class DataCore {
     // For now, transform all designComponents into designComponents
     let designComponents: Array<DesignComponent> = []
     let ds = version.designSystem
+    let sources = await ds.sources()
 
     for (let designComponent of data) {
-      designComponents.push(new DesignComponent(designComponent, ds.sources))
+      designComponents.push(new DesignComponent(designComponent, sources))
     }
 
     // For duplicates

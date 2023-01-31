@@ -57,9 +57,6 @@ export class DesignSystem {
     /** Design system description */
     description: string
 
-    /** Sources that are used to feed the design system with the data (design & code) */
-    sources: Array<Source>
-
     /** If enabled, parts of the design system can be accessed by public (for example, documentation site) */
     isPublic: boolean
 
@@ -96,12 +93,6 @@ export class DesignSystem {
       this.documentationExporterId = model.docExporterId
       this.documentationSlug = model.docSlug
       this.documentationUserSlug = model.docUserSlug ?? null
-      
-      if (model.sources) {
-        this.sources = model.sources.map(s => new Source(s))
-      } else {
-        this.sources = []
-      }
     }
   
 
@@ -121,31 +112,34 @@ export class DesignSystem {
     }
 
     /** Get source by source id */
-    sourceById(sourceId: string): Source | undefined {
+    async sourceById(sourceId: string): Promise<Source | undefined> {
 
-      let source = this.sources.filter(s => s.id === sourceId)[0]
+      let sources = await this.sources()
+      let source = sources.filter(s => s.id === sourceId)[0]
       return source
     }
 
-    /** Fetches all sources that were created in the design system. */
-    async fetchSources(): Promise<Array<Source>> {
+    /** Fetches all sources that were created in the design system. Used to feed the design system with the data (design & code). */
+    async sources(): Promise<Array<Source>> {
 
       return this.engine.designSystemSources(this.id)
     }
 
     /** Get Figma file from source id */
-    figmaFileIdForSourceId(sourceId: string): string | undefined {
+    async figmaFileIdForSourceId(sourceId: string): Promise<string | undefined> {
 
-      let source = this.sources.filter(s => s.id === sourceId)[0]
+      let sources = await this.sources()
+      let source = sources.filter(s => s.id === sourceId)[0]
       if (source) {
         return source.fileId
       }
     }
 
     /** Get Figma file name from source id */
-    figmaFileNameForSourceId(sourceId: string): string | undefined {
+    async figmaFileNameForSourceId(sourceId: string): Promise<string | undefined> {
 
-      let source = this.sources.filter(s => s.id === sourceId)[0]
+      let sources = await this.sources()
+      let source = sources.filter(s => s.id === sourceId)[0]
       if (source) {
         return source.fileName
       }

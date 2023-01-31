@@ -107,7 +107,7 @@ export class SupernovaToolsDesignTokensPlugin {
     // Fetch brand and themes
     let brands = await this.version.brands()
     let themes = await this.version.themes()
-    let sources = await this.version.designSystem.fetchSources()
+    let sources = await this.version.designSystem.sources()
 
     // Parse data from object
     let parser = new DTJSONParser()
