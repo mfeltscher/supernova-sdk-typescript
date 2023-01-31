@@ -3,6 +3,19 @@
 All notable changes to this SDK are mentioned here in this changelog.
 
 
+## [1.8.42] - 2023-26-01
+### Design System Switcher
+
+We've added data model to support upcoming design system switcher. The data is available on every design system model:
+
+```typescript
+designSystemSwitcher: {
+  isEnabled: boolean 
+  designSystemIds: Array<string>
+}
+```
+
+
 ## [1.8.23] - 2022-30-11
 ### Component and Token Views
 

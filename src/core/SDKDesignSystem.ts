@@ -34,6 +34,10 @@ export interface DesignSystemRemoteModel {
     docSlug: string
     docUserSlug?: string
     docExporterId: string
+    designSystemSwitcher: {
+      isEnabled: boolean 
+      designSystemIds: Array<string>
+    }
   }
 
 
@@ -75,6 +79,12 @@ export class DesignSystem {
     /** Internal: Engine */
     engine: Supernova
 
+    /** Binding multiple design systems together */
+    designSystemSwitcher: {
+      isEnabled: boolean 
+      designSystemIds: Array<string>
+    }
+
     
     // --- --- --- --- --- --- --- --- --- --- 
     // MARK: - Constructor
@@ -93,6 +103,10 @@ export class DesignSystem {
       this.documentationExporterId = model.docExporterId
       this.documentationSlug = model.docSlug
       this.documentationUserSlug = model.docUserSlug ?? null
+      this.designSystemSwitcher = model.designSystemSwitcher ?? {
+        isEnabled: false,
+        designSystemIds: []
+      }
     }
   
 
