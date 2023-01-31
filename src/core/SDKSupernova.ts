@@ -18,6 +18,7 @@ import { DesignSystemVersion } from "./SDKDesignSystemVersion"
 import { Workspace } from "./SDKWorkspace"
 import { SupernovaError } from "./errors/SDKSupernovaError"
 import { Exporter } from "../model/exporters/SDKExporter"
+import { Source } from "../model/support/SDKSource"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -191,6 +192,19 @@ export class Supernova {
 
       return new DesignSystemVersion(this, ds, versionData)
   }
+
+  /** Fetches design system sources */
+  async designSystemSources(designSystemId: string): Promise<Array<Source>> {
+
+    // Fetch all sources belonging to one specific design system
+    const sourcesEndpoint = `design-systems/${designSystemId}/sources`
+    let sourcesData = (await this.dataBridge.getDSMGenericDataFromEndpoint(sourcesEndpoint)).sources
+    if (!sourcesData) {
+      throw SupernovaError.fromSDKError(`Unable to retrieve design system sources for id ${designSystemId}`)
+    }
+
+    return sourcesData.map(s => new Source(s))
+}
 
   /** Fetches exporters belonging to workspace by id */
   async exporters(workspaceId: string): Promise<Array<Exporter>> {
