@@ -204,7 +204,8 @@ export class DTThemeMerger {
   }
 
   buildKey(path: Array<string>, name: string): string {
-    return [...path, name].join('/')
+    
+    return [...path, name].join('/').toLowerCase().replace(" ", "-").replace("(", "").replace(")", "")
   }
 
   buildPath(token: Token): Array<string> {
