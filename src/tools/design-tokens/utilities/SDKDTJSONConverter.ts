@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { BorderToken } from '../../..'
 import { Brand } from '../../../core/SDKBrand'
 import { DesignSystemVersion } from '../../../core/SDKDesignSystemVersion'
 import { TokenType } from '../../../model/enums/SDKTokenType'
@@ -96,6 +97,9 @@ export class DTJSONConverter {
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
 
+    // Border tokens
+    this.convertNodesToTokensForSupportedNodeTypes(['border'], nodes, brand)
+
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
     this.remapRootNodeKeys(processedNodes)
@@ -128,6 +132,9 @@ export class DTJSONConverter {
           break
         case TokenType.generic:
           firstSegment = 'Generic'
+          break
+        case TokenType.border:
+          firstSegment = 'Border'
           break
         default:
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
@@ -245,6 +252,8 @@ export class DTJSONConverter {
         return this.convertRadiusAtomicNode(node, brand)
       case TokenType.shadow:
         return this.convertShadowAtomicNode(node, brand)
+      case TokenType.border:
+        return this.convertBorderAtomicNode(node, brand)
       case TokenType.typography:
         return this.convertTypographyAtomicNode(node, brand)
       case TokenType.generic:
@@ -313,6 +322,26 @@ export class DTJSONConverter {
 
   private convertShadowAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
     let constructedToken = ShadowToken.create(
+      this.version,
+      brand,
+      node.name,
+      node.description,
+      node.value,
+      undefined,
+      this.referenceResolver,
+      [],
+      []
+    )
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
+  private convertBorderAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
+    let constructedToken = BorderToken.create(
       this.version,
       brand,
       node.name,
@@ -518,6 +547,8 @@ export class DTJSONConverter {
         return TokenType.shadow
       case 'typography':
         return TokenType.typography
+      case 'border':
+        return TokenType.border
       case 'borderWidth':
       case 'sizing':
       case 'opacity':
