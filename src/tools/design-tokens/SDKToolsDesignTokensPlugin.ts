@@ -276,6 +276,10 @@ export class SupernovaToolsDesignTokensPlugin {
 
   private setTokensOrigin(map: DTPluginToSupernovaMap, brand: Brand, sources: Source[]): DTPluginToSupernovaMap {
     const sourceId = sources.find(s => s.type === SourceType.tokenStudio && s.brandId === brand.persistentId)?.id
+    if (!sourceId) {
+      return map
+    }
+    
     for (let node of map.processedNodes) {
       node.token.origin = {
         name: node.token.name,
