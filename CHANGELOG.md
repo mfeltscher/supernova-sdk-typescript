@@ -2,6 +2,20 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.45] - 2023-02-02
+### CLI Improvements
+
+We have fixed lot of issues with parsing and have added support for some additional features that Token Studio can now do:
+
+- `preciseCopy` now works as intended. When `preciseCopy: true`, all tokens not included inside the current token definition file will be removed. However, with `preciseCopy: false`, existing tokens will be merged together with provided tokens from the definition file.
+- RGB, RGBA, HSL, HSLA and also named colors (red, blue etc.) are now supported by color parser.
+- Parsing of colors is now stricter and have much better error logging to tell you what went wrong.
+- Token parser will now handle references with percentages properly and won't treat them as numbers anymore. This means that situations like `hsl(255, 70%, {opacity-10})` will no longer fail when opacity-10 is defined as `10%` and not a number.
+- We have added support for newly introduced Token Studio Dimension tokens (will map to `Measures/Dimensions`).
+- We have added support for newly introduce Token Studio Border tokens (will map to `Border`).
+
+We are aware of few outstanding issues like complications when importing Typography, those will be released shortly in separate batch of fixes. Thank you for your patience!
+
 
 ## [1.8.42] - 2023-26-01
 ### Design System Switcher

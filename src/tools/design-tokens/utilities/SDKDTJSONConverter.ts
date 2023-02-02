@@ -473,6 +473,19 @@ export class DTJSONConverter {
             []
           )
           break
+        case TokenType.border:
+          constructedToken = BorderToken.create(
+            this.version,
+            brand,
+            node.name,
+            node.description,
+            undefined,
+            resolvedToken as BorderToken,
+            this.referenceResolver,
+            [],
+            []
+          )
+          break
         case TokenType.typography:
           constructedToken = TypographyToken.create(
             this.version,

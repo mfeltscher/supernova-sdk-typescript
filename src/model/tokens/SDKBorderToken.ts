@@ -75,7 +75,7 @@ export class BorderToken extends Token {
 
     if (value) {
       // Raw value
-      let tokenValue = this.shadowValueFromDefinition(value, referenceResolver)
+      let tokenValue = this.borderValueFromDefinition(value, referenceResolver)
       return new BorderToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
@@ -90,7 +90,7 @@ export class BorderToken extends Token {
     }
   }
 
-  static shadowValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): BorderTokenValue {
+  static borderValueFromDefinition(definition: object, referenceResolver: DTTokenReferenceResolver): BorderTokenValue {
     // For now, handle only one shadow in multiple shadow layers
     if (definition instanceof Array) {
       if (definition.length > 0) {
@@ -123,6 +123,16 @@ export class BorderToken extends Token {
     value.position = BorderPosition.outside
     value.width = MeasureToken.measureValueFromDefinitionOrReference(definition['width'], referenceResolver)
     // TODO: Position, style
+
+    if (value.color === undefined) {
+      throw new Error(`Unable to resolve value 'color' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.position === undefined) {
+      throw new Error(`Unable to resolve value 'position' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.width === undefined) {
+      throw new Error(`Unable to resolve value 'width' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
 
     return value
   }
@@ -157,7 +167,6 @@ export class BorderToken extends Token {
         isEnabled: true
       }
     : undefined
-
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject
