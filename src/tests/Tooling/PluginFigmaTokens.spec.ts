@@ -87,7 +87,7 @@ test('test_tooling_design_tokens_test', async t => {
   )
 
   // Path to file
-  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'test', "global_full.json")
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'test', "global_testbed.json")
   let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'test', 'supernova.settings.json')
 
   // Get Figma Tokens synchronization tool

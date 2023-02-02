@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ColorToken, GenericToken, MeasureToken, RadiusToken, TextToken, TokenType } from '../../..'
+import { ColorToken, GenericToken, MeasureToken, RadiusToken, TextToken, TokenType, Unit } from '../../..'
 import { Token } from '../../../model/tokens/SDKToken'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 
@@ -136,8 +136,14 @@ export class DTTokenReferenceResolver {
     switch (token.tokenType) {
       case TokenType.color:
         return (token as ColorToken).value.hex
-      case TokenType.measure:
-        return (token as MeasureToken).value.measure.toString()
+      case TokenType.measure: {
+        let measure = token as MeasureToken
+        if (measure.value.unit === Unit.percent) {
+          return (token as MeasureToken).value.measure.toString() + "%"
+        } else {
+          return (token as MeasureToken).value.measure.toString()
+        }
+      }
       case TokenType.radius:
         return (token as RadiusToken).value.radius.toString()
       case TokenType.generic:

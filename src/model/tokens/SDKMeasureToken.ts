@@ -137,8 +137,8 @@ export class MeasureToken extends Token {
       unit = Unit.points
     }
 
-    // For now, everything is pixels. Remove pixels when SN supports more units
-    unit = Unit.pixels
+    // Experimental: Units can now be everything, not just pixels. Enable this line to only use pixels
+    // unit = Unit.pixels
 
     // Parse
     let parsedMeasure = parseFloat(measure)

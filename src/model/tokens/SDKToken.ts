@@ -103,6 +103,7 @@ export class Token implements TokenValue {
   }
 
   toBaseWriteObject(): TokenRemoteModel {
+
     return {
       id: this.versionedId,
       brandId: this.brandId,

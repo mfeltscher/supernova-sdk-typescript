@@ -144,6 +144,25 @@ export class ShadowToken extends Token {
     value.opacity = 1
     value.type = definition['type'] === 'innerShadow' ? ShadowType.inner : ShadowType.drop
 
+    if (value.x === undefined) {
+      throw new Error(`Unable to resolve value 'x' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.y === undefined) {
+      throw new Error(`Unable to resolve value 'y' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.radius === undefined) {
+      throw new Error(`Unable to resolve value 'radius' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.spread === undefined) {
+      throw new Error(`Unable to resolve value 'spread' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.color === undefined) {
+      throw new Error(`Unable to resolve value 'color' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+    if (value.type === undefined) {
+      throw new Error(`Unable to resolve value 'type' for shadow token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+    }
+
     return value
   }
 

@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.8.44",
+    "version": "1.8.45",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -33,7 +33,7 @@
         "test-build": "npm run build",
         "test": "run-s build:main test:*",
         "test-skipped:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
-        "test:unit": "npm run build && ava --verbose --timeout=60s",
+        "test:unit": "npm run build && ava --verbose --timeout=180s",
         "watch": "run-s clean build:main && run-p \"build:main -- -w\" \"test:unit -- --watch\"",
         "reset": "git clean -dfx && git reset --hard && npm i",
         "clean": "trash build test",

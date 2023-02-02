@@ -41,7 +41,7 @@ export class DTTokenMerger {
 
   static buildKey(path: Array<string>, name: string): string {
 
-    return [...path, name].join('/').toLowerCase()
+    return [...path, name].join('/').toLowerCase().replace(" ", "-").replace("(", "").replace(")", "")
   }
 
   buildPath(token: Token): Array<string> {

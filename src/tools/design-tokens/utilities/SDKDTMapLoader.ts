@@ -186,7 +186,7 @@ export class DTMapLoader {
     let settings: DTPluginToSupernovaSettings = {
       dryRun: mapping.settings?.dryRun ?? false,
       verbose: mapping.settings?.verbose ?? false,
-      preciseCopy: mapping.settings?.verbose ?? false
+      preciseCopy: mapping.settings?.preciseCopy ?? false
     }
 
     return {
