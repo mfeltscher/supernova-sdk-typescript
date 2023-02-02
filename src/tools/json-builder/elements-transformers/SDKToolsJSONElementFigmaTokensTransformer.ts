@@ -361,6 +361,7 @@ export class TokenJSONElementFigmaTokensTransformer extends TokenJSONElementTran
             case "Letter Spacing": return "letterSpacing";
             case "Spacing": return "spacing";
             case "Opacity": return "opacity";
+            case "Dimension": return "dimension";
           }
         }
         return 'sizing';
@@ -424,7 +425,7 @@ export class TokenJSONElementFigmaTokensTransformer extends TokenJSONElementTran
     let dropFirstSegment: boolean = false
     switch (token.tokenType) {
       case TokenType.measure:
-        if (["Border Radius", "Border Width", "Sizing", "Font Size", "Paragraph Spacing", "Line Height", "Letter Spacing", "Spacing", "Opacity"].includes(groupParts[0])) {
+        if (["Border Radius", "Border Width", "Sizing", "Font Size", "Paragraph Spacing", "Line Height", "Letter Spacing", "Spacing", "Opacity", "Dimension"].includes(groupParts[0])) {
           dropFirstSegment = true; 
         }
         break;

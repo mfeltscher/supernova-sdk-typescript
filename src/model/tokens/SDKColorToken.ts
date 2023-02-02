@@ -161,7 +161,7 @@ export class ColorToken extends Token {
           })
         }
       } catch (e) {
-        throw new Error(`Unable to parse provided color ${color}. Supported formats are: \nrgb(r <number>, g <number>, b <number>)\nrgba(r <number>, g <number>, b <number>, a <number | percentage>\nhsl(h <number>, s <percentage>, l <percentage>>\nhsla(h <number>, s <percentage>, l <percentage>, a <number | percentage>\nred | blue | black ...)`)
+        throw new Error(`Unable to parse provided color '${color}'. Supported formats are: \nrgb(r <number>, g <number>, b <number>)\nrgba(r <number>, g <number>, b <number>, a <number | percentage>\nhsl(h <number>, s <percentage>, l <percentage>>\nhsla(h <number>, s <percentage>, l <percentage>, a <number | percentage>\nred | blue | black ...)`)
       }
       return returnedColor
     } catch (e) {

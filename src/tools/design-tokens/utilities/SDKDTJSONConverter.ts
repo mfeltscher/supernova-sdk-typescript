@@ -75,7 +75,8 @@ export class DTJSONConverter {
         'paragraphSpacing',
         'lineHeights',
         'letterSpacing',
-        'other'
+        'other',
+        'dimension',
       ],
       nodes,
       brand
@@ -160,6 +161,9 @@ export class DTJSONConverter {
           break
         case 'opacity':
           secondSegment = 'Opacity'
+          break
+        case 'dimension':
+          secondSegment = 'Dimension'
           break
         default:
           // Other types than listed should be ignored
@@ -523,6 +527,7 @@ export class DTJSONConverter {
       case 'letterSpacing':
       case 'lineHeights':
       case 'other':
+      case 'dimension':
         return TokenType.measure
       default:
         throw new Error('Unsupported token type ' + type)

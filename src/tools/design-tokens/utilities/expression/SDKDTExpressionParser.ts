@@ -39,7 +39,7 @@ export class DTExpressionParser {
       }
 
       const evaluatedExpression = parser.evaluate(unitlessExpr)
-      if (unit) {
+      if (!unit) {
         return Number.parseFloat(evaluatedExpression.toFixed(3))
       } else {
         return `${evaluatedExpression}${unit}`
