@@ -103,6 +103,27 @@ export class Token implements TokenValue {
   }
 
   toBaseWriteObject(): TokenRemoteModel {
+
+    console.log({
+      id: this.versionedId,
+      brandId: this.brandId,
+      designSystemVersionId: this.designSystemVersionId,
+      persistentId: this.id,
+      type: this.tokenType,
+      meta: {
+        name: this.name,
+        description: this.description ?? ''
+      },
+      originStyle: this.origin
+        ? {
+            id: this.origin.id ?? undefined,
+            name: this.origin.name ?? undefined,
+            sourceId: this.origin.sourceId ?? undefined
+          }
+        : undefined,
+      customPropertyOverrides: [],
+      data: undefined
+    })
     return {
       id: this.versionedId,
       brandId: this.brandId,
