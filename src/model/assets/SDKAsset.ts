@@ -11,6 +11,8 @@
 // MARK: - Imports
 
 import { DesignComponentRemoteModel } from "../components/SDKDesignComponent"
+import { DesignComponentOrigin } from "../support/SDKDesignComponentOrigin"
+import { Source } from "../support/SDKSource"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -30,6 +32,7 @@ export class Asset {
   componentId: string | null
   previouslyDuplicatedNames: number
   
+  origin: DesignComponentOrigin | null
   createdAt: Date | null
   updatedAt: Date | null
 
@@ -37,7 +40,7 @@ export class Asset {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DesignComponentRemoteModel, duplicates: number) {
+  constructor(model: DesignComponentRemoteModel, duplicates: number, sources: Array<Source>) {
     
     this.id = model.persistentId
     this.brandId = model.brandId
@@ -48,6 +51,8 @@ export class Asset {
     this.description = model.meta.description
     
     this.componentId = model.id
+    
+    this.origin = new DesignComponentOrigin(model.originComponent, sources)
 
     this.createdAt = model.createdAt ? new Date(model.createdAt) : null
     this.updatedAt = model.updatedAt ? new Date(model.updatedAt) : null

@@ -889,7 +889,7 @@ export class DataCore {
     for (let asset of data) {
       let lowercasedName = asset.meta.name.toLowerCase()
       if (asset.exportProperties.isAsset) {
-        assets.push(new Asset(asset, assetNames.get(lowercasedName)))
+        assets.push(new Asset(asset, assetNames.get(lowercasedName), sources))
         // Increase number of duplicates
         assetNames.set(lowercasedName, assetNames.get(lowercasedName) + 1)
       }

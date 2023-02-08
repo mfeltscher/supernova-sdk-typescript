@@ -7,6 +7,7 @@
 //
 
 import { ColorTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
+import { FrameOrigin, FrameOriginModel } from "../../support/SDKFrameOrigin"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -17,19 +18,14 @@ import { ColorTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteToke
 
 export interface DocumentationPageBlockFrameModel {
 
-    sourceFileId: string,
+    sourceId: string,
     sourceFrameId: string,
 
     title?: string
     description?: string
     backgroundColor?: ColorTokenRemoteData
 
-    origin: {
-        sourceFileName: string
-        title: string
-        previewUrl: string
-        valid: boolean
-    }
+    origin: FrameOriginModel
 }
 
 
@@ -40,27 +36,23 @@ export class DocumentationPageBlockFrame {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Public properties
 
-    sourceFileId: string
-    sourceFrameId: string
-    sourceFileName: string
-
     title: string | null
     description: string | null
     previewUrl: string
     backgroundColor: ColorTokenRemoteData | null
+    origin: FrameOrigin | null
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
   constructor(model: DocumentationPageBlockFrameModel, blockBackgroundColor: ColorTokenRemoteData | null) {
 
-    this.sourceFileId = model.sourceFileId
-    this.sourceFrameId = model.sourceFrameId
-    this.sourceFileName = model.origin.sourceFileName
-
     this.title = model.title.length > 0 ? model.title : model.origin.title ?? null
     this.description = model.description.length > 0 ? model.description : null
     this.previewUrl = model.origin.previewUrl
     this.backgroundColor = model.backgroundColor ?? blockBackgroundColor ?? null
+    this.origin = model.origin ? new FrameOrigin(model.origin, model.sourceId, model.sourceFrameId) : null
+
+    console.log(this)
   }
 }
