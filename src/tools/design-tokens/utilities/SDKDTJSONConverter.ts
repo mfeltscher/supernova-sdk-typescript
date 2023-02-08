@@ -82,8 +82,8 @@ export class DTJSONConverter {
       nodes,
       brand
     )
-    // Other tokens
-    // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
+    // Compute other category. Currently used for tokens that won't be directly referenced (because they can't)
+    this.convertNodesToTokensForSupportedNodeTypes(['fontFamilies', 'fontWeights'], nodes, brand)
 
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
@@ -136,6 +136,7 @@ export class DTJSONConverter {
         case TokenType.border:
           firstSegment = 'Border'
           break
+          break
         default:
           throw new Error(`Unsupported type ${firstSegment} in remapping of nodes`)
       }
@@ -171,6 +172,12 @@ export class DTJSONConverter {
           break
         case 'dimension':
           secondSegment = 'Dimension'
+          break
+        case 'fontFamilies':
+          secondSegment = 'Font Family'
+          break
+        case 'fontWeights':
+          secondSegment = 'Font Weight'
           break
         default:
           // Other types than listed should be ignored
@@ -573,6 +580,9 @@ export class DTJSONConverter {
       case 'other':
       case 'dimension':
         return TokenType.measure
+      case 'fontFamilies':
+      case 'fontWeights':
+        return TokenType.generic
       default:
         throw new Error('Unsupported token type ' + type)
     }

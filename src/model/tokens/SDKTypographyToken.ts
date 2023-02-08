@@ -10,7 +10,7 @@
 // MARK: - Imports
 
 import { v4 as uuidv4 } from 'uuid'
-import { Brand, ElementProperty, MeasureToken, TextCase, TextDecoration, TokenType } from '../..'
+import { Brand, ElementProperty, GenericToken, MeasureToken, TextCase, TextDecoration, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
@@ -104,9 +104,17 @@ export class TypographyToken extends Token {
 
     let value = {} as TypographyTokenValue // Empty container
 
+    // Note: This will get changed eventually
+    let fontFamily = definition['fontFamily']
+      ? GenericToken.genericValueFromDefinitionOrReference(definition['fontFamily'], referenceResolver)
+      : GenericToken.genericValueFromDefinition('Roboto')
+    let fontWeight = definition['fontWeight']
+      ? GenericToken.genericValueFromDefinitionOrReference(definition['fontWeight'], referenceResolver)
+      : GenericToken.genericValueFromDefinition('Regular')
+
     value.font = {
-      family: definition['fontFamily'] ? definition['fontFamily'] : 'Roboto',
-      subfamily: definition['fontWeight'] ? definition['fontWeight'] : 'Regular',
+      family: fontFamily.text,
+      subfamily: fontWeight.text,
       referencedToken: undefined
     }
 

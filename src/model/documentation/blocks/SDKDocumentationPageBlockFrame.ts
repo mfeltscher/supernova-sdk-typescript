@@ -52,7 +52,5 @@ export class DocumentationPageBlockFrame {
     this.previewUrl = model.origin.previewUrl
     this.backgroundColor = model.backgroundColor ?? blockBackgroundColor ?? null
     this.origin = model.origin ? new FrameOrigin(model.origin, model.sourceId, model.sourceFrameId) : null
-
-    console.log(this)
   }
 }
