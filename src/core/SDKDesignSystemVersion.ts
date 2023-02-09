@@ -141,8 +141,10 @@ export class DesignSystemVersion {
         
       // Fetch both tokens and themes
       let allTokens = await this.tokens()
+      
       // Filter tokens based on provided tokens
-      let tokens = allTokens.filter(t => tokenIds.includes(t.id))
+      const tokenIdSet = new Set(tokenIds);
+      let tokens = allTokens.filter(t => tokenIdSet.has(t.id))
       if (tokenIds.length !== tokens.length) {
         throw new Error(`Can't apply themes to selected tokens: Some token ids that were requesting don't exist in the current design system version`)
       }
