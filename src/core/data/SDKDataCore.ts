@@ -126,7 +126,7 @@ export class DataCore {
     // Download workspace details
     // Get remote data
     const endpoint = `workspaces/${workspaceId}`
-    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).workspace as WorkspaceRemoteModel
+    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.workspace as WorkspaceRemoteModel
 
     // Extend with information coming from pulsar
     return remoteWorkspace.profile.handle
@@ -136,7 +136,7 @@ export class DataCore {
   private async currentDeployedDocumentationUrl(workspaceId: string, versionId: string): Promise<string | undefined> {
     // Download detail of the last build that successfully deployed docs
     const endpoint = `codegen/workspaces/${workspaceId}/jobs?designSystemVersionId=${versionId}&destinations[]=documentation&offset=0&limit=1`
-    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
+    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
     if (remoteJob[0]) {
       // Note: So far, there is no build functionality in SDK, so we are not doing this properly. This will change going forward as we introduce build CLI/SDK
       return remoteJob[0]?.result?.documentation?.url ?? undefined
@@ -232,7 +232,7 @@ export class DataCore {
     const endpoint = `components/assets/download-list`
     const items = (
       await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, configuration)
-    ).items as Array<RenderedAssetModel>
+    ).result.items as Array<RenderedAssetModel>
 
     // Create rendered items index
     const renderedItemsMap = new Map<string, RenderedAssetModel>()
@@ -460,7 +460,7 @@ export class DataCore {
       // Download NPM registry from the API, if exists
       const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
       let registry = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint))
-        .npmRegistrySettings as WorkspaceNPMRegistryModel
+        .result.npmRegistrySettings as WorkspaceNPMRegistryModel
 
       if (registry) {
         return new WorkspaceNPMRegistry(registry)
@@ -537,7 +537,7 @@ export class DataCore {
   ): Promise<Array<{ key: string; value: any }>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = `design-systems/${designSystemId}/exporter-properties/${exporterId}`
-    let result: Array<{ key: string; value: any }> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).items
+    let result: Array<{ key: string; value: any }> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.items
     return result
   }
 
@@ -558,7 +558,7 @@ export class DataCore {
   private async getExporterData(workspaceId: string, exporterId: string): Promise<ExporterModel> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = `codegen/workspaces/${workspaceId}/exporters/${exporterId}`
-    let result: ExporterModel = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).exporter
+    let result: ExporterModel = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.exporter
     return result
   }
 
@@ -1095,7 +1095,7 @@ export class DataCore {
     exporterId: string | null
   }>> {
     const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs?designSystemVersionId=${version.id}&destinations[]=documentation&offset=0&limit=${limit}`
-    let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
+    let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
     return jobs
   }
 

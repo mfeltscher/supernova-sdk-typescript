@@ -64,14 +64,14 @@ export class Supernova {
     // Fetch the authenticated user
     const userEndpoint = `users/me`
 
-    let user = (await this.dataBridge.getDSMGenericDataFromEndpoint(userEndpoint)).user
+    let user = (await this.dataBridge.getDSMGenericDataFromEndpoint(userEndpoint)).result.user
     if (!user) {
       throw SupernovaError.fromSDKError("Unable to retrieve current sdk user")
     }
 
     // Fetch the workspaces from the memberships
     const workspaceEndpoint = `users/${user.id}/workspaces`
-    let memberships = (await this.dataBridge.getDSMGenericDataFromEndpoint(workspaceEndpoint)).membership
+    let memberships = (await this.dataBridge.getDSMGenericDataFromEndpoint(workspaceEndpoint)).result.membership
 
     if (!memberships) {
       throw SupernovaError.fromSDKError("Unable to retrieve available workspaces")
@@ -91,7 +91,7 @@ export class Supernova {
 
     // Fetch the authenticated user
     const userEndpoint = `workspaces/${workspaceId}`
-    let workspaceData = (await this.dataBridge.getDSMGenericDataFromEndpoint(userEndpoint)).workspace
+    let workspaceData = (await this.dataBridge.getDSMGenericDataFromEndpoint(userEndpoint)).result.workspace
     if (!workspaceData) {
       throw SupernovaError.fromSDKError(`Unable to retrieve workspace with id ${workspaceId}`)
     }
@@ -104,7 +104,7 @@ export class Supernova {
 
       // Fetch the authenticated user
       const dsEndpoint = `workspaces/${workspaceId}/design-systems`
-      let dsData = (await this.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).designSystems
+      let dsData = (await this.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).result.designSystems
       if (!dsData) {
         throw SupernovaError.fromSDKError(`Unable to retrieve design systems for workspace id ${workspaceId}`)
       }
@@ -123,7 +123,7 @@ export class Supernova {
 
     // Fetch the authenticated user
     const dsEndpoint = `design-systems/${designSystemId}`
-    let dsData = (await this.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).designSystem
+    let dsData = (await this.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).result.designSystem
     if (!dsData) {
       throw SupernovaError.fromSDKError(`Unable to retrieve design system for id ${designSystemId}`)
     }
@@ -139,7 +139,7 @@ export class Supernova {
 
     // Fetch the authenticated user
     const versionEndpoint = `design-systems/${designSystemId}/versions`
-    let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).designSystemVersions
+    let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).result.designSystemVersions
     if (!versionData) {
       throw SupernovaError.fromSDKError(`Unable to retrieve active version for design system id ${designSystemId}`)
     }
@@ -163,7 +163,7 @@ export class Supernova {
 
       // Fetch all versions belonging to one specific design system
       const versionEndpoint = `design-systems/${designSystemId}/versions`
-      let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).designSystemVersions
+      let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).result.designSystemVersions
       if (!versionData) {
         throw SupernovaError.fromSDKError(`Unable to retrieve active version for design system id ${designSystemId}`)
       }
@@ -185,7 +185,7 @@ export class Supernova {
 
       // Fetch all versions belonging to one specific design system
       const versionEndpoint = `design-systems/${designSystemId}/versions/${versionId}`
-      let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).designSystemVersion
+      let versionData = (await this.dataBridge.getDSMGenericDataFromEndpoint(versionEndpoint)).result.designSystemVersion
       if (!versionData) {
         throw SupernovaError.fromSDKError(`Unable to retrieve design system version for id ${versionId}`)
       }
@@ -198,7 +198,7 @@ export class Supernova {
 
     // Fetch all sources belonging to one specific design system
     const sourcesEndpoint = `design-systems/${designSystemId}/sources`
-    let sourcesData = (await this.dataBridge.getDSMGenericDataFromEndpoint(sourcesEndpoint)).sources
+    let sourcesData = (await this.dataBridge.getDSMGenericDataFromEndpoint(sourcesEndpoint)).result.sources
     if (!sourcesData) {
       throw SupernovaError.fromSDKError(`Unable to retrieve design system sources for id ${designSystemId}`)
     }
@@ -211,7 +211,7 @@ export class Supernova {
 
       // Fetch all versions belonging to one specific design system
       const exporterEndpoint = `codegen/workspaces/${workspaceId}/exporters`
-      let exporterData = (await this.dataBridge.getDSMGenericDataFromEndpoint(exporterEndpoint)).exporters
+      let exporterData = (await this.dataBridge.getDSMGenericDataFromEndpoint(exporterEndpoint)).result.exporters
       if (!exporterData) {
         throw SupernovaError.fromSDKError(`Unable to retrieve exporters for workspace id ${workspaceId}`)
       }

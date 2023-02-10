@@ -9,14 +9,13 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import axios, { AxiosRequestConfig, Method } from 'axios'
-import { request } from 'http'
 import { SupernovaError } from '../errors/SDKSupernovaError'
 import { DataCore } from './SDKDataCore'
+import fetch from 'node-fetch';
 
 type DataBridgeRequestHookResult = { skipDefaultAuth?: boolean }
 export type DataBridgeRequestHook = (
-  request: AxiosRequestConfig
+  request: any
 ) => void | DataBridgeRequestHookResult | Promise<void | DataBridgeRequestHookResult>
 
 export type DebugResponseObserver = (info: {
@@ -41,8 +40,6 @@ export interface DataBridgeConfiguration {
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
-
-let axiosInterceptorSet = false
 
 export class DataBridge {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -71,50 +68,6 @@ export class DataBridge {
     this.requestHook = conf.requestHook
     this.debugRequestObserver = conf.debugRequestObserver ?? null
     this.debugResponseObserver = conf.debugResponseObserver ?? null
-
-    // Add performance interceptors once
-    if (!axiosInterceptorSet) {
-      axios.interceptors.request.use(r => {
-        let c: any = r
-        c.meta = c.meta || {}
-        c.meta.requestStartedAt = new Date().getTime()
-        return r
-      })
-
-      const responseObserver = this.debugResponseObserver
-
-      axios.interceptors.response.use(
-        successResponse => {
-          if (responseObserver) {
-            let timing = new Date().getTime() - (successResponse.config as any).meta.requestStartedAt
-            let url = successResponse.config.url
-            responseObserver({
-              requestUrl: url,
-              response: successResponse,
-              executionTime: timing,
-              error: null
-            })
-          }
-          return successResponse
-        },
-        // Handle 4xx & 5xx responses
-        errorResponse => {
-          if (responseObserver) {
-            let timing = new Date().getTime() - (errorResponse.config as any).meta.requestStartedAt
-            let url = errorResponse.config.url
-            responseObserver({
-              requestUrl: url,
-              response: errorResponse,
-              executionTime: timing,
-              error: errorResponse
-            })
-          }
-          throw errorResponse
-        }
-      )
-
-      axiosInterceptorSet = true
-    }
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -130,15 +83,16 @@ export class DataBridge {
     return this.getDataForAuthenticatedEndpoint(url)
   }
 
-  private async buildRequestConfig(url: string, method: Method, data?: any) {
-    const config: AxiosRequestConfig = {
+  private async buildRequestConfig(url: string, method: "GET" | "POST" | "PUT" | "DELETE", data?: any) {
+    const config = {
       url,
       method,
       timeout: 120000,
-      headers: {}
+      headers: {},
+      body: undefined
     }
     if (data) {
-      config.data = data
+      config.body = data
     }
 
     let skipAuth = false
@@ -157,6 +111,8 @@ export class DataBridge {
 
   private async getDataForAuthenticatedEndpoint(requestURL: string): Promise<any> {
 
+    console.log("GET request - begin")
+
     const method = 'GET'
     const config = await this.buildRequestConfig(requestURL, method)
     if (this.debugRequestObserver) {
@@ -169,26 +125,17 @@ export class DataBridge {
     return new Promise((resolve, reject) => {
       // Fetch the data
       try {
-        axios
-          .request(config)
-          .then(result => {
-
-            // Filter the data from the API, if needed (if we only need a certain part of the retrieved tree)
-            let data = result.data.result
-
-            // Map the data
-            resolve(data)
-          })
-          .catch(error => {
-            // Throw different error based on the type of recieved response
-            if (error.response) {
-              reject(SupernovaError.fromAxiosResponseError(error.response))
-            } else if (error.request) {
-              reject(SupernovaError.fromAxiosRequestError(error.request))
-            } else {
-              reject(SupernovaError.fromSDKError(error.message))
-            }
-          })
+        fetch(requestURL, {
+          method: 'GET',
+          headers: config.headers
+        }).then(response => {
+          if (!response.ok) {
+            throw Error(`HTTP error: ${response.status}`)
+          }
+          resolve(response.json())
+        }).catch(error => {
+          reject(error)
+        })
       } catch (error) {
         reject(error)
       }
@@ -212,6 +159,9 @@ export class DataBridge {
   }
 
   private async postDataForAuthenticatedEndpoint(requestURL: string, data: any, put: boolean = false): Promise<any> {
+
+    console.log("POST request - begin")
+
     const method = put ? 'PUT' : 'POST'
     const config = await this.buildRequestConfig(requestURL, method, data)
     if (this.debugRequestObserver) {
@@ -223,26 +173,22 @@ export class DataBridge {
 
     // Make authorized ds request
     return new Promise((resolve, reject) => {
-      // Fetch the data
-      axios
-        .request(config)
-        .then(result => {
-          // Filter the data from the API, if needed (if we only need a certain part of the retrieved tree)
-          let data = result.data.result
-
-          // Map the data
-          resolve(data)
-        })
-        .catch(error => {
-          // Throw different error based on the type of recieved response
-          if (error.response) {
-            reject(SupernovaError.fromAxiosResponseError(error.response))
-          } else if (error.request) {
-            reject(SupernovaError.fromAxiosRequestError(error.request))
-          } else {
-            reject(SupernovaError.fromSDKError(error.message))
+      try {
+        fetch(requestURL, {
+          method: method,
+          headers: config.headers,
+          body: config.body
+        }).then(response => {
+          if (!response.ok) {
+            throw Error(`HTTP error: ${response.status}`)
           }
+          resolve(response.json())
+        }).catch(error => {
+          reject(error)
         })
+      } catch (error) {
+        reject(error)
+      }
     })
   }
 

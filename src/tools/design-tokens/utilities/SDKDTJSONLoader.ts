@@ -10,8 +10,6 @@
 // MARK: - Imports
 
 import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
-import * as fs from 'fs'
-import * as path from 'path'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -69,6 +67,7 @@ export class DTJSONLoader {
   // MARK: - Loader
 
   /** Load token definitions from path */
+  /*
   async loadDSObjectsFromTokenFile(pathToFile: string): Promise<object> {
     try {
       if (!(fs.existsSync(pathToFile) && fs.lstatSync(pathToFile).isFile())) {
@@ -84,7 +83,9 @@ export class DTJSONLoader {
       throw SupernovaError.fromProcessingError('Unable to load JSON definition file: ' + error)
     }
   }
+  */
 
+  /*
   async loadDSObjectsFromTokenFileDirectory(pathToDirectory: string, settingsPath: string): Promise<object> {
     try {
       let fullStructuredObject = {}
@@ -125,8 +126,9 @@ export class DTJSONLoader {
     } catch (error) {
       throw SupernovaError.fromProcessingError('Unable to load JSON definition file: ' + error)
     }
-  }
+  }*/
 
+  /*
   getAllJSONFiles(dir: string): string[] {
     const files = fs.readdirSync(dir)
     const jsonFiles = []
@@ -156,9 +158,8 @@ export class DTJSONLoader {
   }
 
   getSetKey(jsonFilePath: string, loadedDirectory: string): string {
-
     return jsonFilePath.substring(loadedDirectory.length + 1, jsonFilePath.length - 5)
-  }
+  }*/
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - File Parser

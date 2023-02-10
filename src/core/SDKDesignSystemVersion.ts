@@ -110,7 +110,7 @@ export class DesignSystemVersion {
 
         // Fetch the authenticated user
         const dsEndpoint = `design-systems/${this.designSystem.id}/versions/${this.id}/brands`
-        let dsData = (await this.engine.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).brands
+        let dsData = (await this.engine.dataBridge.getDSMGenericDataFromEndpoint(dsEndpoint)).result.brands
         if (!dsData) {
             throw SupernovaError.fromSDKError(`Unable to retrieve brands for design system version id ${this.id}`)
         }
