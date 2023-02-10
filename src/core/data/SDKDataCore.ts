@@ -444,7 +444,7 @@ export class DataCore {
     const endpoint = `documentation`
     let remoteDocumentation = (
       await this.bridge.getDSMDataFromEndpoint(designSystem.id, designSystemVersion.id, endpoint)
-    ).documentation as DocumentationModel
+    ).result.documentation as DocumentationModel
     let registry = await this.getNPMRegistry(designSystem, designSystemVersion)
 
     // Extend with information coming from pulsar
@@ -502,7 +502,7 @@ export class DataCore {
     const endpoint = 'documentation/custom-blocks'
     let result: Array<ExporterCustomBlockModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).customBlocks
+    ).result.customBlocks
     return result
   }
 
@@ -611,7 +611,7 @@ export class DataCore {
     const endpoint = 'tokens'
     let result: Array<TokenRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).tokens
+    ).result.tokens
     return result
   }
 
@@ -658,7 +658,7 @@ export class DataCore {
     const endpoint = 'token-groups'
     let result: Array<TokenGroupRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).groups
+    ).result.groups
     return result
   }
 
@@ -702,7 +702,7 @@ export class DataCore {
     const endpoint = 'themes'
     let result: Array<TokenThemeRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).themes
+    ).result.themes
     return result
   }
 
@@ -768,7 +768,7 @@ export class DataCore {
     const endpoint = 'design-system-components'
     let result: Array<ComponentRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).designSystemComponents
+    ).result.designSystemComponents
     return result
   }
 
@@ -783,13 +783,13 @@ export class DataCore {
     const endpoint = 'element-properties/definitions'
     let result: Array<ElementPropertyRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).definitions
+    ).result.definitions
 
     // Download data views (columns)
     const dvEndpoint = 'element-data-views'
     let dvResult: Array<ElementDataViewRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, dvEndpoint)
-    ).elementDataViews
+    ).result.elementDataViews
 
     return {
       properties: result,
@@ -805,7 +805,7 @@ export class DataCore {
     const endpoint = 'element-properties/values'
     let result: Array<ElementPropertyValueRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).values
+    ).result.values
     return result
   }
 
@@ -856,7 +856,7 @@ export class DataCore {
     const endpoint = 'components'
     let result: Array<DesignComponentRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).components
+    ).result.components
     return result
   }
 
@@ -947,7 +947,7 @@ export class DataCore {
     const endpoint = 'component-groups'
     let result: Array<DesignComponentGroupRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).groups
+    ).result.groups
     return result
   }
 
@@ -1027,7 +1027,7 @@ export class DataCore {
     let detailResult: {
       groups: Array<DocumentationGroupModel>
       pages: Array<DocumentationPageModel>
-    } = await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpointDetails)
+    } = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpointDetails)).result
 
     return {
       pageDetails: detailResult.pages,

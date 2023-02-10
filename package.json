@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.8.54",
+    "version": "1.8.56",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -60,7 +60,6 @@
     "dependencies": {
         "abab": "^2.0.5",
         "async-mutex": "^0.3.1",
-        "axios": "1.2.1",
         "color2k": "^2.0.0",
         "expr-eval": "^2.0.2",
         "fuse.js": "^6.6.2",

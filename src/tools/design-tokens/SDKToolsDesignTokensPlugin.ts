@@ -84,9 +84,6 @@ export class SupernovaToolsDesignTokensPlugin {
     let brands = await this.version.brands()
     let themes = await this.version.themes()
     let sources = await this.version.designSystem.sources()
-    console.log(brands)
-    console.log(themes)
-    console.log(sources)
 
     // Parse data from object
     let parser = new DTJSONParser()
@@ -94,8 +91,6 @@ export class SupernovaToolsDesignTokensPlugin {
 
     // Post process the data
     this.processTokenNodes(parsedData, mapping, brands, settings.verbose)
-
-    // console.log(sources)
 
     for (let map of mapping) {
       // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
@@ -108,7 +103,6 @@ export class SupernovaToolsDesignTokensPlugin {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
       this.setTokensOrigin(map, brand, sources)
-      console.log(settings)
       const mergeResult = await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
       results.push({
         map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),

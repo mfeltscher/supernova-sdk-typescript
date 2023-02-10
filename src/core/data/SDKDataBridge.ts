@@ -9,9 +9,9 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { SupernovaError } from '../errors/SDKSupernovaError'
 import { DataCore } from './SDKDataCore'
-import fetch from 'node-fetch';
+import remoteFetch from 'node-fetch';
+const fetch = remoteFetch;
 
 type DataBridgeRequestHookResult = { skipDefaultAuth?: boolean }
 export type DataBridgeRequestHook = (
@@ -111,8 +111,6 @@ export class DataBridge {
 
   private async getDataForAuthenticatedEndpoint(requestURL: string): Promise<any> {
 
-    console.log("GET request - begin")
-
     const method = 'GET'
     const config = await this.buildRequestConfig(requestURL, method)
     if (this.debugRequestObserver) {
@@ -132,7 +130,9 @@ export class DataBridge {
           if (!response.ok) {
             throw Error(`HTTP error: ${response.status}`)
           }
-          resolve(response.json())
+          return response.json()
+        }).then((jsonResponse) => {
+          resolve(jsonResponse)
         }).catch(error => {
           reject(error)
         })
@@ -159,8 +159,6 @@ export class DataBridge {
   }
 
   private async postDataForAuthenticatedEndpoint(requestURL: string, data: any, put: boolean = false): Promise<any> {
-
-    console.log("POST request - begin")
 
     const method = put ? 'PUT' : 'POST'
     const config = await this.buildRequestConfig(requestURL, method, data)
