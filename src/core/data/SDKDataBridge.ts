@@ -88,7 +88,9 @@ export class DataBridge {
       url,
       method,
       timeout: 120000,
-      headers: {},
+      headers: {
+        "Content-Type": 'application/json'
+      },
       body: undefined
     }
     if (data) {
@@ -126,9 +128,14 @@ export class DataBridge {
         fetch(requestURL, {
           method: 'GET',
           headers: config.headers
-        }).then(response => {
+        }).then(async response => {
           if (!response.ok) {
-            throw Error(`HTTP error: ${response.status}`)
+            let errorResponse = await response.json()
+            if (errorResponse) {
+              throw new Error(JSON.stringify(errorResponse))
+            } else {
+              throw new Error(response)
+            }
           }
           return response.json()
         }).then((jsonResponse) => {
@@ -173,14 +180,22 @@ export class DataBridge {
     return new Promise((resolve, reject) => {
       try {
         fetch(requestURL, {
+          mode: 'cors',
           method: method,
           headers: config.headers,
-          body: config.body
-        }).then(response => {
+          body: JSON.stringify(config.body)
+        }).then(async response => {
           if (!response.ok) {
-            throw Error(`HTTP error: ${response.status}`)
+            let errorResponse = await response.json()
+            if (errorResponse) {
+              throw new Error(JSON.stringify(errorResponse))
+            } else {
+              throw new Error(response)
+            }
           }
-          resolve(response.json())
+          return response.json()
+        }).then((jsonResponse) => {
+          resolve(jsonResponse)
         }).catch(error => {
           reject(error)
         })
