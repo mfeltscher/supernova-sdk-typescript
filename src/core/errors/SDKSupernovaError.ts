@@ -49,24 +49,6 @@ export class SupernovaError extends Error {
     this.type = type
   }
 
-  static fromAxiosResponseError(response: any) {
-
-    let error = new SupernovaError(response.data.message, SupernovaErrorType.responseError)
-    error.status = response.data.code
-    error.label = response.data.label
-    
-    // SN server responded with error so we can provide details
-    return error
-  }
-
-  static fromAxiosRequestError(response: any) {
-
-    // Request was made but there was no response, so we will notify user that server was unreachable
-    let error = new SupernovaError("Data Store Unreachable. This is likely client-side problem (no internet access, blocked by proxy or similar)", SupernovaErrorType.requestError)
-    error.label = "DATA_STORE_UNREACHABLE"
-    return error
-  }
-
   static fromSDKError(message: string) {
     
     // Error was thrown outside of the network, so reason must be provided

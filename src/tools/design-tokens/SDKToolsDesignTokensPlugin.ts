@@ -13,7 +13,7 @@ import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
 import { TokenGroup } from '../../model/groups/SDKTokenGroup'
 import { Token } from '../../model/tokens/SDKToken'
 import _ from 'lodash'
-import { DTJSONLoader, DTParsedNode, DTParsedTheme, DTParsedTokenSet } from './utilities/SDKDTJSONLoader'
+import { DTParsedNode, DTParsedTheme, DTParsedTokenSet } from './utilities/SDKDTJSONLoader'
 import { DTJSONConverter, DTProcessedTokenNode } from './utilities/SDKDTJSONConverter'
 import { DTJSONGroupBuilder } from './utilities/SDKDTJSONGroupBuilder'
 import { DTTokenGroupTreeMerger } from './utilities/SDKDTTokenGroupTreeMerger'
@@ -22,7 +22,7 @@ import { Brand } from '../../core/SDKBrand'
 import { DTMapResolver } from './utilities/SDKDTMapResolver'
 import { TokenTheme } from '../../model/themes/SDKTokenTheme'
 import { DTThemeMerger } from './utilities/SDKDTThemeMerger'
-import { DTMapLoader, DTPluginToSupernovaMap, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
+import { DTPluginToSupernovaMap, DTPluginToSupernovaMapPack, DTPluginToSupernovaSettings } from './utilities/SDKDTMapLoader'
 import { DTJSONParser } from './utilities/SDKDTJSONParser'
 import { SourceType } from '../../model/enums/SDKSourceType'
 import { Source } from '../../model/support/SDKSource'
@@ -64,30 +64,6 @@ export class SupernovaToolsDesignTokensPlugin {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Primary synchronization
 
-  /** Synchronizes tokens with specified version of design system using all JSONs in a specific directory. Will load mapping configuration from the provided mapping file path as well. */
-  async synchronizeTokensFromDirectory(directoryPath: string, mappingPath: string): Promise<boolean> {
-    // Load mapping from file
-    let mapLoader = new DTMapLoader()
-    let configuration = await mapLoader.loadFromPath(mappingPath)
-
-    // Load data from path, and construct the final object
-    let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath, mappingPath)
-    return this.synchronizeTokensFromData(data, configuration.mapping, configuration.settings)
-  }
-
-  /** Synchronizes tokens with specified version of design system from the tokens file provided. Will load mapping configuration from the provided mapping file path as well. */
-  async synchronizeTokensFromFile(filePath: string, mappingPath: string): Promise<boolean> {
-    // Load mapping from file
-    let mapLoader = new DTMapLoader()
-    let configuration = await mapLoader.loadFromPath(mappingPath)
-
-    // Load data from provided file and retrieve the data
-    let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFile(filePath)
-    return this.synchronizeTokensFromData(data, configuration.mapping, configuration.settings)
-  }
-
   async synchronizeTokensFromData(
     data: object,
     mapping: DTPluginToSupernovaMapPack,
@@ -116,8 +92,6 @@ export class SupernovaToolsDesignTokensPlugin {
     // Post process the data
     this.processTokenNodes(parsedData, mapping, brands, settings.verbose)
 
-    // console.log(sources)
-
     for (let map of mapping) {
       // First, process default values for tokens, for each brand, separately, skipping themes as they need to be created later
       if (map.bindToTheme) {
@@ -129,7 +103,6 @@ export class SupernovaToolsDesignTokensPlugin {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
       this.setTokensOrigin(map, brand, sources)
-      console.log(settings)
       const mergeResult = await this.mergeWithRemoteSource(map.processedNodes, brand, !settings.dryRun, settings.verbose, settings.preciseCopy)
       results.push({
         map: _.pick(map, ["bindToBrand", "bindToTheme", "pluginSets", "pluginTheme", "type"]),
@@ -173,61 +146,6 @@ export class SupernovaToolsDesignTokensPlugin {
     }
 
     return results
-  }
-
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Primary validation
-
-  /** Loads the token tree as if it was being synchronized from the provided token directory - however, it doesn't ask server for data and constructs it the same as if data were written to empty design system.
-   * 
-   * Note: This method will additionally validate the integrity of the data, and allows for offline validation as well. */
-  async validateLoadingFromDirectory(directoryPath: string, settingsPath: string, mappingSettings: {
-    pluginTheme: string | null,
-    pluginSets: Array<string> | null,
-  }): Promise<boolean> {
-
-    // Load data from path, and construct the final object
-    let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFileDirectory(directoryPath, settingsPath)
-    return this.validateLoadingFromData(data, mappingSettings)
-  }
-
-  /** Loads the token tree as if it was being synchronized from the provided token file - however, it doesn't ask server for data and constructs it the same as if data were written to empty design system.
-   * 
-   * Note: This method will additionally validate the integrity of the data, and allows for offline validation as well. */
-  async validateLoadingFromPath(filePath: string, mappingSettings: {
-    pluginTheme: string | null,
-    pluginSets: Array<string> | null,
-  }): Promise<boolean> {
-    // Load data from provided file and retrieve the data
-    let jsonLoader = new DTJSONLoader()
-    let data = await jsonLoader.loadDSObjectsFromTokenFile(filePath)
-    return this.validateLoadingFromData(data, mappingSettings)
-  }
-
-  async validateLoadingFromData(
-    data: object,
-    mappingSettings: {
-      pluginTheme: string | null,
-      pluginSets: Array<string> | null,
-    }
-  ): Promise<boolean> {
-
-    // Parse data from object
-    let parser = new DTJSONParser()
-    let parsedData = await parser.processPluginDataRepresentation(data)
-
-    // Build tree depending on settings
-    if (mappingSettings.pluginTheme) {
-
-    } else if (mappingSettings.pluginSets) {
-
-    }
-
-    // Post process the data
-    // this.createPureTokenTree(parsedData, mappingSettings)
-
-    return true
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

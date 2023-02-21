@@ -126,7 +126,7 @@ export class DataCore {
     // Download workspace details
     // Get remote data
     const endpoint = `workspaces/${workspaceId}`
-    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).workspace as WorkspaceRemoteModel
+    let remoteWorkspace = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.workspace as WorkspaceRemoteModel
 
     // Extend with information coming from pulsar
     return remoteWorkspace.profile.handle
@@ -136,7 +136,7 @@ export class DataCore {
   private async currentDeployedDocumentationUrl(workspaceId: string, versionId: string): Promise<string | undefined> {
     // Download detail of the last build that successfully deployed docs
     const endpoint = `codegen/workspaces/${workspaceId}/jobs?designSystemVersionId=${versionId}&destinations[]=documentation&offset=0&limit=1`
-    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
+    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
     if (remoteJob[0]) {
       // Note: So far, there is no build functionality in SDK, so we are not doing this properly. This will change going forward as we introduce build CLI/SDK
       return remoteJob[0]?.result?.documentation?.url ?? undefined
@@ -232,7 +232,7 @@ export class DataCore {
     const endpoint = `components/assets/download-list`
     const items = (
       await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, configuration)
-    ).items as Array<RenderedAssetModel>
+    ).result.items as Array<RenderedAssetModel>
 
     // Create rendered items index
     const renderedItemsMap = new Map<string, RenderedAssetModel>()
@@ -444,7 +444,7 @@ export class DataCore {
     const endpoint = `documentation`
     let remoteDocumentation = (
       await this.bridge.getDSMDataFromEndpoint(designSystem.id, designSystemVersion.id, endpoint)
-    ).documentation as DocumentationModel
+    ).result.documentation as DocumentationModel
     let registry = await this.getNPMRegistry(designSystem, designSystemVersion)
 
     // Extend with information coming from pulsar
@@ -460,7 +460,7 @@ export class DataCore {
       // Download NPM registry from the API, if exists
       const endpoint = `workspaces/${designSystem.workspaceId}/npm-registry`
       let registry = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint))
-        .npmRegistrySettings as WorkspaceNPMRegistryModel
+        .result.npmRegistrySettings as WorkspaceNPMRegistryModel
 
       if (registry) {
         return new WorkspaceNPMRegistry(registry)
@@ -502,7 +502,7 @@ export class DataCore {
     const endpoint = 'documentation/custom-blocks'
     let result: Array<ExporterCustomBlockModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).customBlocks
+    ).result.customBlocks
     return result
   }
 
@@ -537,7 +537,7 @@ export class DataCore {
   ): Promise<Array<{ key: string; value: any }>> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = `design-systems/${designSystemId}/exporter-properties/${exporterId}`
-    let result: Array<{ key: string; value: any }> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).items
+    let result: Array<{ key: string; value: any }> = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.items
     return result
   }
 
@@ -558,7 +558,7 @@ export class DataCore {
   private async getExporterData(workspaceId: string, exporterId: string): Promise<ExporterModel> {
     // Download token data from the design system endpoint. This downloads tokens of all types
     const endpoint = `codegen/workspaces/${workspaceId}/exporters/${exporterId}`
-    let result: ExporterModel = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).exporter
+    let result: ExporterModel = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.exporter
     return result
   }
 
@@ -611,7 +611,7 @@ export class DataCore {
     const endpoint = 'tokens'
     let result: Array<TokenRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).tokens
+    ).result.tokens
     return result
   }
 
@@ -658,7 +658,7 @@ export class DataCore {
     const endpoint = 'token-groups'
     let result: Array<TokenGroupRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).groups
+    ).result.groups
     return result
   }
 
@@ -702,7 +702,7 @@ export class DataCore {
     const endpoint = 'themes'
     let result: Array<TokenThemeRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).themes
+    ).result.themes
     return result
   }
 
@@ -768,7 +768,7 @@ export class DataCore {
     const endpoint = 'design-system-components'
     let result: Array<ComponentRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).designSystemComponents
+    ).result.designSystemComponents
     return result
   }
 
@@ -783,13 +783,13 @@ export class DataCore {
     const endpoint = 'element-properties/definitions'
     let result: Array<ElementPropertyRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).definitions
+    ).result.definitions
 
     // Download data views (columns)
     const dvEndpoint = 'element-data-views'
     let dvResult: Array<ElementDataViewRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, dvEndpoint)
-    ).elementDataViews
+    ).result.elementDataViews
 
     return {
       properties: result,
@@ -805,7 +805,7 @@ export class DataCore {
     const endpoint = 'element-properties/values'
     let result: Array<ElementPropertyValueRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).values
+    ).result.values
     return result
   }
 
@@ -856,7 +856,7 @@ export class DataCore {
     const endpoint = 'components'
     let result: Array<DesignComponentRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).components
+    ).result.components
     return result
   }
 
@@ -947,7 +947,7 @@ export class DataCore {
     const endpoint = 'component-groups'
     let result: Array<DesignComponentGroupRemoteModel> = (
       await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
-    ).groups
+    ).result.groups
     return result
   }
 
@@ -1027,7 +1027,7 @@ export class DataCore {
     let detailResult: {
       groups: Array<DocumentationGroupModel>
       pages: Array<DocumentationPageModel>
-    } = await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpointDetails)
+    } = (await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpointDetails)).result
 
     return {
       pageDetails: detailResult.pages,
@@ -1095,7 +1095,7 @@ export class DataCore {
     exporterId: string | null
   }>> {
     const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs?designSystemVersionId=${version.id}&destinations[]=documentation&offset=0&limit=${limit}`
-    let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).jobs as any
+    let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
     return jobs
   }
 
