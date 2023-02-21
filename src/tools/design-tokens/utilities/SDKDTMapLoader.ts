@@ -10,7 +10,6 @@
 // MARK: - Imports
 
 import { TokenGroup } from '../../..'
-import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
 import { DTParsedNode } from './SDKDTJSONLoader'
 
@@ -56,45 +55,4 @@ export type DTPluginToSupernovaSettings = {
   verbose: boolean
   dryRun: boolean
   preciseCopy: boolean
-}
-
-// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-// MARK: - Tool implementation
-
-/** Utility to load token maps */
-export class DTMapLoader {
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Properties
-
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Constructor
-
-  constructor() {}
-
-  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  // MARK: - Mapping Conversion
-
-  /*
-  loadFromPath(
-    pathToFile: string
-  ): {
-    mapping: DTPluginToSupernovaMapPack
-    settings: DTPluginToSupernovaSettings
-  } {
-    try {
-      if (!(fs.existsSync(pathToFile) && fs.lstatSync(pathToFile).isFile())) {
-        throw SupernovaError.fromProcessingError(
-          `Provided configuration file directory ${pathToFile} is not a file or doesn't exist`
-        )
-      }
-
-      let definition = fs.readFileSync(pathToFile, 'utf8')
-      let parsedDefinition = this.parseDefinition(definition) as DTPluginToSupernovaMappingFile
-      this.weakValidateMapping(parsedDefinition)
-      return this.processFileToMapping(parsedDefinition)
-    } catch (error) {
-      throw SupernovaError.fromProcessingError('Unable to load JSON definition file: ' + error)
-    }
-  }*/
-
 }
