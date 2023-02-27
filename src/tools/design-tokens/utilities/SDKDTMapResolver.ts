@@ -50,7 +50,10 @@ export class DTMapResolver {
 
     // Resolve which sets we need to use
     let tokenSetToUse = new Array<DTParsedTokenSet>()
-    if (map.pluginSets) {
+    if ((map.pluginSets && map.pluginTheme) || (!map.pluginSets && !map.pluginTheme)) {
+      throw new Error(`Either token theme or token set should be defined in the mapping`)
+    }
+    else if (map.pluginSets) {
       for (let pluginSet of map.pluginSets) {
         let set = setMap.get(pluginSet)
         if (!set) {
