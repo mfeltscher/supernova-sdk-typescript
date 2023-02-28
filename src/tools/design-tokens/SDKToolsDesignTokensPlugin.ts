@@ -361,7 +361,7 @@ export class SupernovaToolsDesignTokensPlugin {
     tokens: Array<Token>
   }> {
     // Get remote token data
-    let upstreamTokens = await brand.tokens()
+    let upstreamTokens = await brand.tokens(true)
     let upstreamTheme = theme
 
     let themeMerger = new DTThemeMerger(this.version)

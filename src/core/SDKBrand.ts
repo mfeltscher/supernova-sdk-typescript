@@ -97,10 +97,11 @@ export class Brand {
   // MARK: - Methods
 
   /** Fetches all tokens available in this design system version belonging to this specific brand */
-  async tokens(): Promise<Array<Token>> {
+  async tokens(forceRefreshCache?: boolean): Promise<Array<Token>> {
     let tokens = await this.dataCore.currentDesignSystemTokens(
       this.designSystemVersion.designSystem.id,
-      this.designSystemVersion
+      this.designSystemVersion,
+      forceRefreshCache
     )
     let brandedTokens = tokens.filter(t => t.brandId === this.persistentId)
     return brandedTokens
