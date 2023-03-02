@@ -163,9 +163,10 @@ export class DataCore {
 
   async currentDesignSystemTokens(
     designSystemId: string,
-    designSystemVersion: DesignSystemVersion
+    designSystemVersion: DesignSystemVersion,
+    forceRefreshCache?: boolean
   ): Promise<Array<Token>> {
-    if (!this.tokensSynced) {
+    if (!this.tokensSynced || forceRefreshCache) {
       await this.updateTokenData(designSystemId, designSystemVersion)
     }
     return this.tokens
