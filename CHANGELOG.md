@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.45] - 2023-03-03
+### User object
+
+We have added new function to the core `Supernova` object - `.me()` - which retrieves user profile associated with the provided API key.
+
 ## [1.8.45] - 2023-02-02
 ### CLI Improvements
 

@@ -15,6 +15,17 @@ import { testInstance } from '../helpers'
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
 
+test('test_Supernova_me', async t => {
+
+    // Test fetch all workspaces
+    let me = await testInstance.me()
+    t.true(me !== undefined && me !== null)
+    t.true(me.email.length > 0)
+    t.true(me.id.length > 0)
+    t.true(me.name.length > 0)
+})
+
+
 test('test_Supernova_workspaces', async t => {
 
     // Test fetch all workspaces
