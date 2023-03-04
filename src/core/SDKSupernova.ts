@@ -19,6 +19,7 @@ import { Workspace } from "./SDKWorkspace"
 import { SupernovaError } from "./errors/SDKSupernovaError"
 import { Exporter } from "../model/exporters/SDKExporter"
 import { Source } from "../model/support/SDKSource"
+import { User } from "../model/users/SDKUser"
 
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -57,6 +58,20 @@ export class Supernova {
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Methods
+
+  /** Fetches current user profile based on the API key provided to Supernova instance. */
+  async me(): Promise<User> {
+
+    // Fetch the authenticated user
+    const userEndpoint = `users/me`
+
+    let user = (await this.dataBridge.getDSMGenericDataFromEndpoint(userEndpoint)).result.user
+    if (!user) {
+      throw SupernovaError.fromSDKError("Unable to retrieve current sdk user")
+    }
+
+    return new User(user)
+  }
 
   /** Fetches all workspaces available under provided API key. Each workspace contains specific design systems, which contain versions, which contain all the design system data. */
   async workspaces(): Promise<Array<Workspace>> {

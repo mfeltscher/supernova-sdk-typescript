@@ -8,6 +8,7 @@ export { Brand } from '../src/core/SDKBrand'
 export { DesignSystem } from '../src/core/SDKDesignSystem'
 export { DesignSystemVersion } from '../src/core/SDKDesignSystemVersion'
 export { Workspace } from '../src/core/SDKWorkspace'
+export { User } from '../src/model/users/SDKUser'
 
 // Exporters
 export { Exporter } from '../src/model/exporters/SDKExporter'
