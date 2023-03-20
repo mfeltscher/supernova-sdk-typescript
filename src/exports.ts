@@ -1,5 +1,3 @@
-
-
 // Export main Supernova object
 export { Supernova } from '../src/core/SDKSupernova'
 
@@ -73,13 +71,13 @@ export { DocumentationPageBlockTableColumn } from '../src/model/documentation/bl
 export { DocumentationItemHeader } from '../src/model/documentation/configuration/SDKDocumentationItemHeader'
 export { DocumentationItemConfiguration } from '../src/model/documentation/configuration/SDKDocumentationItemConfiguration'
 
-
 // Documentation / Main
 export { DocumentationConfiguration } from '../src/model/documentation/SDKDocumentationConfiguration'
 export { DocumentationGroup } from '../src/model/documentation/SDKDocumentationGroup'
 export { DocumentationItem } from '../src/model/documentation/SDKDocumentationItem'
 export { DocumentationPage } from '../src/model/documentation/SDKDocumentationPage'
 export { DocumentationPageBlock } from '../src/model/documentation/SDKDocumentationPageBlock'
+export { DocumentationPageAsset } from '../src/model/documentation/SDKDocumentationPageAsset'
 export { DocumentationRichText } from '../src/model/documentation/SDKDocumentationRichText'
 export { RichTextSpan } from '../src/model/documentation/SDKDocumentationRichTextSpan'
 export { RichTextSpanAttribute } from '../src/model/documentation/SDKDocumentationRichTextSpanAttribute'
@@ -100,6 +98,7 @@ export { DocumentationCalloutType } from '../src/model/enums/SDKDocumentationCal
 export { DocumentationGroupBehavior } from '../src/model/enums/SDKDocumentationGroupBehavior'
 export { DocumentationHeadingType } from '../src/model/enums/SDKDocumentationHeadingType'
 export { DocumentationItemType } from '../src/model/enums/SDKDocumentationItemType'
+export { DocumentationPageAssetType } from '../src/model/enums/SDKDocumentationPageAssetType'
 export { DocumentationPageBlockType } from '../src/model/enums/SDKDocumentationPageBlockType'
 export { DocumentationPageBlockThemeType } from './model/enums/SDKDocumentationPageBlockThemeType'
 export { FrameAlignment } from '../src/model/enums/SDKFrameAlignment'

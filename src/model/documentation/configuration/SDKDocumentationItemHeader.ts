@@ -6,26 +6,28 @@
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { ColorTokenRemoteData } from "../../../model/tokens/remote/SDKRemoteTokenData"
-import { Alignment } from "../../../model/enums/SDKAlignment"
-import { AssetScaleType } from "../../../model/enums/SDKAssetScaleType"
-
+import { ColorTokenRemoteData } from '../../../model/tokens/remote/SDKRemoteTokenData'
+import { Alignment } from '../../../model/enums/SDKAlignment'
+import { AssetScaleType } from '../../../model/enums/SDKAssetScaleType'
+import { DocumentationPageAssetModel } from '../SDKDocumentationPageAsset'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
 export interface DocumentationItemHeaderModel {
-  backgroundImageAssetUrl?: string
   description: string
   alignment: Alignment
   foregroundColor?: ColorTokenRemoteData
   backgroundColor?: ColorTokenRemoteData
+  backgroundImageAsset?: DocumentationPageAssetModel
+  // Deprecated. Was replaced with `backgroundImageAsset.url`
+  backgroundImageAssetUrl?: string
+  // Deprecated. Was replaced with `backgroundImageAsset.id`
   backgroundImageAssetId?: string
-  backgroundImageScaleType:  AssetScaleType
+  backgroundImageScaleType: AssetScaleType
   showBackgroundOverlay: boolean
   showCoverText: boolean
   minHeight: number
@@ -40,7 +42,7 @@ export class DocumentationItemHeader {
 
   backgroundImageAssetUrl: string | null
   backgroundImageAssetId: string | null
-  backgroundImageScaleType:  AssetScaleType
+  backgroundImageScaleType: AssetScaleType
 
   description: string
 
@@ -55,9 +57,8 @@ export class DocumentationItemHeader {
   // MARK: - Constructor
 
   constructor(model: DocumentationItemHeaderModel) {
-
-    this.backgroundImageAssetUrl = model.backgroundImageAssetUrl ?? null
-    this.backgroundImageAssetId = model.backgroundImageAssetId ?? null
+    this.backgroundImageAssetUrl = model.backgroundImageAssetUrl ?? model.backgroundImageAsset?.url ?? null
+    this.backgroundImageAssetId = model.backgroundImageAssetId ?? model.backgroundImageAsset?.id ?? null
     this.backgroundImageScaleType = model.backgroundImageScaleType
 
     this.description = model.description

@@ -12,10 +12,15 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
+import { DocumentationPageAssetModel } from "../SDKDocumentationPageAsset"
+
 export interface DocumentationPageBlockShortcutModel {
   title?: string
   description?: string
+  asset?: DocumentationPageAssetModel
+  // Deprecated. Was replaced with `asset.id`
   assetId?: string
+  // Deprecated. Was replaced with `asset.id`
   assetUrl?: string
   documentationItemId?: string
   url?: string
@@ -133,6 +138,6 @@ export class DocumentationPageBlockShortcut {
     model: DocumentationPageBlockShortcutModel,
     type: DocumentationPageBlockShortcutType
   ): string | null {
-    return model.assetUrl ?? model.urlPreview?.thumbnailUrl ?? null
+    return model.assetUrl ?? model.asset?.url ?? model.urlPreview?.thumbnailUrl ?? null
   }
 }
