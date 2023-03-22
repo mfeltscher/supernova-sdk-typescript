@@ -156,9 +156,6 @@ export class TypographyToken extends Token {
       value.textCase = TextCase.original
     }
 
-    console.log(this.name)
-    console.log(value.fontSize)
-
     return value
   }
 
