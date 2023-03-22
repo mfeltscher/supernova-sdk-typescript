@@ -72,7 +72,7 @@ export class RadiusToken extends Token {
       customPropertyOverrides: []
     }
 
-    if (value) {
+    if (value !== undefined && value !== null) {
       // Raw value
       let tokenValue = this.radiusValueFromDefinition(value)
       return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
@@ -118,7 +118,18 @@ export class RadiusToken extends Token {
     }
   }
 
-  static radiusValueFromDefinition(definition: string): RadiusTokenValue {
+  static radiusValueFromDefinition(definition: string | number): RadiusTokenValue {
+    if (typeof definition === "number") {
+      return {
+        radius: MeasureToken.measureValueFromDefinition(definition),
+        topLeft: null,
+        topRight: null,
+        bottomLeft: null,
+        bottomRight: null,
+        referencedToken: null
+      }
+    }
+
     let corners = definition.split(',')
     if (corners.length === 1) {
       // Uniform corner description

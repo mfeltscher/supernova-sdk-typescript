@@ -56,7 +56,7 @@ export class MeasureToken extends Token {
     brand: Brand,
     name: string,
     description: string,
-    value: string,
+    value: string | number,
     alias: MeasureToken | null,
     properties: Array<ElementProperty>,
     propertyValues: Array<ElementPropertyValue>
@@ -75,7 +75,7 @@ export class MeasureToken extends Token {
       customPropertyOverrides: []
     }
 
-    if (value) {
+    if (value !== null && value !== undefined) {
       let tokenValue = this.measureValueFromDefinition(value)
       return new MeasureToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
@@ -89,7 +89,15 @@ export class MeasureToken extends Token {
     }
   }
 
-  static measureValueFromDefinition(definition: string): MeasureTokenValue {
+  static measureValueFromDefinition(definition: string | number): MeasureTokenValue {
+    if (typeof definition === "number") {
+      return {
+        measure: definition,
+        unit: Unit.pixels,
+        referencedToken: null
+      }
+    }
+
     let result = this.parseMeasure(definition)
     return {
       measure: result.measure,

@@ -164,7 +164,7 @@ export class DTTokenReferenceResolver {
     return this.hasSameNumberOfCharacters(syntax, '{', '}')
   }
 
-  valueHasReference(value: string | object): boolean {
+  valueHasReference(value: string | object | number): boolean {
     if (typeof value !== 'string') {
       return false
     }

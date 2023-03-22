@@ -180,7 +180,6 @@ export class SupernovaToolsDesignTokensPlugin {
       }
       let converter = new DTJSONConverter(this.version, mapping)
       let groupBuilder = new DTJSONGroupBuilder(this.version, mapping)
-
       let processedNodes = converter.convertNodesToTokens(map.nodes, brand)
       let processedGroups = groupBuilder.constructAllDefinableGroupsTrees(processedNodes, brand)
       map.processedNodes = processedNodes

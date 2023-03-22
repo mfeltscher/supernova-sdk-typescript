@@ -72,7 +72,6 @@ export class BorderToken extends Token {
       data: {},
       customPropertyOverrides: []
     }
-
     if (value) {
       // Raw value
       let tokenValue = this.borderValueFromDefinition(value, referenceResolver)

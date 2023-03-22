@@ -82,6 +82,7 @@ export class DTJSONConverter {
       nodes,
       brand
     )
+    
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
@@ -227,7 +228,6 @@ export class DTJSONConverter {
       }
       unprocessedTokens = unprocessedDepthTokens
       depth += 1
-
       if (depth > maximumDepth) {
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
