@@ -84,22 +84,16 @@ export class DTJSONConverter {
     )
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
-
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
-
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(['borderRadius'], nodes, brand)
-
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
-
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
-
     // Border tokens
     this.convertNodesToTokensForSupportedNodeTypes(['border'], nodes, brand)
-
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
     this.remapRootNodeKeys(processedNodes)
@@ -227,7 +221,6 @@ export class DTJSONConverter {
       }
       unprocessedTokens = unprocessedDepthTokens
       depth += 1
-
       if (depth > maximumDepth) {
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens

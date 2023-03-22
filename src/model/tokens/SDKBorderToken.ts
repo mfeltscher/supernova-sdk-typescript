@@ -72,12 +72,14 @@ export class BorderToken extends Token {
       data: {},
       customPropertyOverrides: []
     }
-
+    console.log("creating  border token value")
     if (value) {
       // Raw value
+      console.log("creating raw token")
       let tokenValue = this.borderValueFromDefinition(value, referenceResolver)
       return new BorderToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
+      console.log("creating aliased token")
       // Aliased value - copy and create raw from reference
       let tokenValue: BorderTokenValue = {
         color: alias.value.color,
