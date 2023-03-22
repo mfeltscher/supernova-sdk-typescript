@@ -82,18 +82,25 @@ export class DTJSONConverter {
       nodes,
       brand
     )
+    
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
+
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
+
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(['borderRadius'], nodes, brand)
+
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
+
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
+
     // Border tokens
     this.convertNodesToTokensForSupportedNodeTypes(['border'], nodes, brand)
+
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
     this.remapRootNodeKeys(processedNodes)
