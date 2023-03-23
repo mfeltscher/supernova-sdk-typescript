@@ -167,12 +167,12 @@ test('test_tooling_design_tokens_order', async t => {
 
   const validateToken = (tokens: Token[], description: string, hex: string, name: string) => {
     const token = tokens.filter(t => t.description === description)[0] as ColorToken
-    t.assert(!!token)
+    t.true(!!token)
     const ref = tokens.filter(t => t.id === token.value.referencedToken.id)[0] as ColorToken
-    t.assert(!!ref)
-    t.assert(token.value.hex === hex)
-    t.assert(ref.value.hex === hex)
-    t.assert(ref.name === name)
+    t.true(!!ref)
+    t.is(token.value.hex, hex)
+    t.is(ref.value.hex, hex)
+    t.is(ref.name, name)
   }
 
   const tokens = await version.tokens()
