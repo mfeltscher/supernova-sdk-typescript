@@ -25,7 +25,7 @@ export class DTTokenReferenceResolver {
   // MARK: - Properties
 
   private mappedTokens: Map<string, Token> = new Map<string, Token>()
-  private nodes: Array<DTProcessedTokenNode> = []
+  private nodes: Map<string,DTProcessedTokenNode> = new Map<string, DTProcessedTokenNode>()
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -37,10 +37,11 @@ export class DTTokenReferenceResolver {
 
   addAtomicToken(token: DTProcessedTokenNode) {
     let nodePath = this.tokenReferenceKey(token.path, token.token.name)
-    if (!this.mappedTokens.get(nodePath)) {
-      this.mappedTokens.set(nodePath, token.token)
-      this.nodes.push(token)
-    }
+    // Always update tokens, as we process them in order from $metadata.json
+    // And Plugin using `last one wins` strategy
+    // See `test_tooling_design_tokens_order` test 
+    this.mappedTokens.set(nodePath, token.token)
+    this.nodes.set(nodePath, token)
   }
 
   addAtomicTokens(tokens: Array<DTProcessedTokenNode>) {
@@ -50,7 +51,7 @@ export class DTTokenReferenceResolver {
   }
 
   unmappedValues(): Array<DTProcessedTokenNode> {
-    return this.nodes
+    return [...this.nodes.values()]
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "079b44a8b28ed46aff5be1542d750aaa12222222",
+    "name": "Forest",
+    "selectedTokenSets": {
+      "global": "enabled",
+      "forest": "enabled",
+      "base": "enabled"
+    }
+  },
+  {
+    "id": "079b44a8b28ed46aff5be1542d750aaa13333333",
+    "name": "Ocean",
+    "selectedTokenSets": {
+      "base": "enabled",
+      "global": "enabled",
+      "ocean": "enabled"
+    },
+    "$figmaStyleReferences": {}
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "ds": {
+    "sys": {
+      "color": {
+        "primary": {
+          "default": {
+            "value": "{ds.base.color.snow}",
+            "type": "color",
+            "description": "global-primary-default"
+          }
+        }
+      }
+    }
+  }
+}
