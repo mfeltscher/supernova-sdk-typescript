@@ -127,7 +127,7 @@ export class DTJSONParser {
         }
 
         // Process token sets
-        let pairedSets = new Array<any>()
+        let pairedSets = new Array<{ name: string, pair: any }>()
         for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
           let setName = tokenSetName
           let setPriority = unknownPriority
@@ -136,11 +136,16 @@ export class DTJSONParser {
             priority: setPriority as DTParsedThemeSetPriority,
             set: fetchedSet
           }
-          pairedSets.push(pair)
+          pairedSets.push({ name: setName, pair })
+        }
+
+        // Respect $metadata.json -> tokenSetOrder
+        if (order.length) {
+          pairedSets.sort((a,b) => order.indexOf(a.name) - order.indexOf(b.name))
         }
 
         let theme: DTParsedTheme = {
-          selectedTokenSets: pairedSets,
+          selectedTokenSets: pairedSets.map(o => o.pair),
           name: name,
           id: id
         }

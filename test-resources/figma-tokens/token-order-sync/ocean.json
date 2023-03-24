@@ -1,0 +1,15 @@
+{
+  "ds": {
+    "sys": {
+      "color": {
+        "primary": {
+          "default": {
+            "value": "{ds.base.color.blue}",
+            "type": "color",
+            "description": "ocean-primary-default"
+          }
+        }
+      }
+    }
+  }
+}

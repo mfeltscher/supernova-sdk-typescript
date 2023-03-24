@@ -24,6 +24,8 @@ import {
   DTPluginToSupernovaMapType,
   DTPluginToSupernovaSettings
 } from '../../tools/design-tokens/utilities/SDKDTMapLoader'
+import { Token } from '../../model/tokens/SDKToken'
+import { ColorToken } from 'index'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -137,6 +139,47 @@ test('test_tooling_design_tokens_test', async t => {
 })
 
 
+test('test_tooling_design_tokens_order', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'token-order-sync')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'token-order-sync',
+    'supernova.settings.json'
+  )
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+
+  const validateToken = (tokens: Token[], description: string, hex: string, name: string) => {
+    const token = tokens.filter(t => t.description === description)[0] as ColorToken
+    t.true(!!token)
+    const ref = tokens.filter(t => t.id === token.value.referencedToken.id)[0] as ColorToken
+    t.true(!!ref)
+    t.is(token.value.hex, hex)
+    t.is(ref.value.hex, hex)
+    t.is(ref.name, name)
+  }
+
+  const tokens = await version.tokens()
+  validateToken(tokens, 'ocean-primary-default', '0000ffff', 'blue')
+  validateToken(tokens, 'forest-primary-default', '00ff00ff', 'green')
+})
+
 export class FigmaTokensDataLoader {
 
   /** Load token definitions from path */
@@ -188,7 +231,7 @@ export class FigmaTokensDataLoader {
       // Try to load metadata, if any
       let metadataPath = pathToDirectory + '/' + '$metadata.json'
       if (fs.existsSync(metadataPath)) {
-        let metadata = await this.loadObjectFile(themePath)
+        let metadata = await this.loadObjectFile(metadataPath)
         fullStructuredObject['$metadata'] = metadata
       }
 
