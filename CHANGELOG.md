@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.65] - 2023-26-03
+### Data Views & Element properties
+
+Added data views and properties to tokens, components and documentation pages. All objects are available on `Version` object. More information coming soon!
+
 ## [1.8.46] - 2023-03-03
 ### User object
 
