@@ -25,7 +25,7 @@ import {
   DTPluginToSupernovaSettings
 } from '../../tools/design-tokens/utilities/SDKDTMapLoader'
 import { Token } from '../../model/tokens/SDKToken'
-import { ColorToken } from 'index'
+import { ColorToken } from './../../index'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -178,6 +178,75 @@ test('test_tooling_design_tokens_order', async t => {
   const tokens = await version.tokens()
   validateToken(tokens, 'ocean-primary-default', '0000ffff', 'blue')
   validateToken(tokens, 'forest-primary-default', '00ff00ff', 'green')
+})
+
+
+// EPDA-167
+test('test_tooling_design_tokens_same_path_and_value', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'same-path-and-value', 'data')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'same-path-and-value',
+    'supernova-1.settings.json'
+  )
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+
+  const validateToken = (tokens: Token[], name: string, hex: string) => {
+    const token = tokens.filter(t => t.name === name)[0] as ColorToken
+    t.true(!!token)
+    t.is(token.value.hex, hex)
+  }
+  
+  const tokens = await version.tokens()
+  const themes = await version.themes()
+  const theme = themes[0]
+
+  // Validate base
+  validateToken(tokens, 'fg', '00ff00ff')
+  validateToken(tokens, 'bg', '0000ffff')
+  
+  // Validate theme
+  validateToken(theme.overriddenTokens, 'bg', '00ff00ff')
+
+  let mappingFilePath2 = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'same-path-and-value',
+    'supernova-2.settings.json'
+  )
+  let tokenDefinition2 = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath2)
+  let configDefinition2 = dataLoader.loadConfigFromPath(mappingFilePath2)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings))
+  const tokens2 = await version.tokens()
+  const themes2 = await version.themes()
+  const theme2 = themes2[0]
+
+// Validate base
+  validateToken(tokens2, 'fg', '00ff00ff')
+  validateToken(tokens2, 'bg', '0000ffff')
+  
+  // Validate theme
+  validateToken(theme2.overriddenTokens, 'bg', '0000ffff')
 })
 
 export class FigmaTokensDataLoader {
