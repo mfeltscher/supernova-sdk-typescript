@@ -93,13 +93,13 @@ export class DTThemeMerger {
             let incomingThemeDiffersFromBase = !TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)
             let incomingThemeDiffersFromUpstreamTheme =
                 currentThemeOverride && !TokenComparator.isEqualTokenValue(currentThemeOverride, incomingThemeOverride.token)
-            // For any defined override, use the new token, and align its id with the original token, if
-            // (1) the token has different value
-            // (2) new theme override has value same as base, but different from last theme override
-            if (incomingThemeDiffersFromBase || incomingThemeDiffersFromUpstreamTheme) {
+            // For any defined override, use the new token, and align its id with the original token, if the token has different value
+            if (incomingThemeDiffersFromBase) {
                 // console.log(`value is not the same for token ${key}, using override`)
                 incomingThemeOverride.token.id = token.id
                 themeReplica.overriddenTokens.push(incomingThemeOverride.token)
+            } else if (incomingThemeDiffersFromUpstreamTheme) {
+                // base same as incoming theme, but differs from existing theme => we should remove override completely
             } else {
                 // console.log(`skipping override`)
                 // Otherwise use override that already exists without modifications

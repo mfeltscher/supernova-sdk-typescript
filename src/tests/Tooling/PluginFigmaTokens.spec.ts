@@ -213,6 +213,11 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
     t.true(!!token)
     t.is(token.value.hex, hex)
   }
+
+  const validateNoToken = (tokens: Token[], name: string) => {
+    const token = tokens.filter(t => t.name === name)[0] as ColorToken
+    t.true(!token)
+  }
   
   const tokens = await version.tokens()
   const themes = await version.themes()
@@ -224,6 +229,7 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   
   // Validate theme
   validateToken(theme.overriddenTokens, 'bg', '00ff00ff')
+  validateNoToken(theme.overriddenTokens, 'fg')
 
   let mappingFilePath2 = path.join(
     process.cwd(),
@@ -246,7 +252,8 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   validateToken(tokens2, 'bg', '0000ffff')
   
   // Validate theme
-  validateToken(theme2.overriddenTokens, 'bg', '0000ffff')
+  validateNoToken(theme2.overriddenTokens, 'bg')
+  validateToken(theme2.overriddenTokens, 'fg', '0000ffff')
 })
 
 export class FigmaTokensDataLoader {
