@@ -145,6 +145,23 @@ export class SupernovaToolsDesignTokensPlugin {
       }
     }
 
+    // If preciseCopy = true we should remove all themes' overrides, that are not in source
+    if (settings.preciseCopy) {
+      const mapInSource = mapping.filter(m => !!m.bindToTheme).map(m => ({ brand: m.bindToBrand, theme: m.bindToTheme.toLowerCase().trim()}))
+      const themesInSource = mapInSource.map(m => m.theme)
+      const themesToRemove = themes.filter(t => !themesInSource.includes(t.id.toLowerCase().trim()) || themesInSource.includes(t.name.toLowerCase().trim()))
+      for (const themeToRemove of themesToRemove) {
+        let brand = brands.find(b => b.persistentId === themeToRemove.brandId)
+        await this.mergeThemeWithRemoteSource([], brand, themeToRemove, !settings.dryRun, settings.verbose, settings.preciseCopy)
+        if (settings.verbose) {
+          console.log(
+            `✅ (task done) Removed themes' overrides for brand ${brand.name}, theme ${themeToRemove.name}`
+          )
+        }
+      }
+
+    }
+
     return results
   }
 
@@ -354,7 +371,8 @@ export class SupernovaToolsDesignTokensPlugin {
     brand: Brand,
     theme: TokenTheme,
     write: boolean,
-    verbose: boolean
+    verbose: boolean,
+    preciseCopy: boolean = false
   ): Promise<{
     theme: TokenTheme
     tokens: Array<Token>
@@ -364,7 +382,7 @@ export class SupernovaToolsDesignTokensPlugin {
     let upstreamTheme = theme
 
     let themeMerger = new DTThemeMerger(this.version)
-    let themeMergerResult = themeMerger.makeTheme(upstreamTokens, upstreamTheme, processedNodes)
+    let themeMergerResult = themeMerger.makeTheme(upstreamTokens, upstreamTheme, processedNodes, preciseCopy)
 
     if (write) {
       let writer = brand.writer()

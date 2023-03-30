@@ -47,7 +47,12 @@ export class DTThemeMerger {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merger
 
-  makeTheme(upstreamTokens: Array<Token>, upstreamTheme: TokenTheme, processedNodes: Array<DTProcessedTokenNode>): TokenTheme {
+  makeTheme(
+    upstreamTokens: Array<Token>,
+    upstreamTheme: TokenTheme,
+    processedNodes: Array<DTProcessedTokenNode>,
+    preciseCopy: boolean = false
+  ): TokenTheme {
 
     // Build map of existing tokens using path keys
     let existingOverrides = new Map<string, Token>()
@@ -112,7 +117,8 @@ export class DTThemeMerger {
             }
         } else {
             // Otherwise use override that already exists without modifications
-            if (currentThemeOverride) {
+            // Unless preciseCopy = true and we need to remove currentThemeOverride
+            if (currentThemeOverride && !preciseCopy) {
                 // console.log(`overriding token from existing overrides ${key}`)
                 themeReplica.overriddenTokens.push(currentThemeOverride)
             } else {
