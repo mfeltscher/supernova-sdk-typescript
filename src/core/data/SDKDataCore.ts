@@ -149,7 +149,7 @@ export class DataCore {
     versionId: string
   ): Promise<string | undefined> {
     // Download detail of the last build that successfully deployed docs
-    const endpoint = `design-systems/${designSystemId}/version/${versionId}/documentation/url`
+    const endpoint = `design-systems/${designSystemId}/versions/${versionId}/documentation/url`
     let deployedUrl = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.url as string
     return deployedUrl ?? undefined
   }
