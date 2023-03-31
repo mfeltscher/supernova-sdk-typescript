@@ -191,3 +191,19 @@ test('test_documentation_pageDataViews', async t => {
   let views = await documentation.pageDataViews()
   t.true(views.length === 0) // Concept not implemented yet
 })
+
+test('test_documentation_page_links', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+  let documentation = await version.documentation()
+  // Check items exist
+  let pages = await documentation.pages()
+  for (let page of pages) {
+    t.true(page.deployedPageUrl().length > 0)
+    t.true(page.editorPageUrl().length > 0)
+    t.true(page.relativePageUrl().length > 0)
+  }
+})
