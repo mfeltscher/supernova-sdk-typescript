@@ -207,29 +207,18 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
 
   // Run sync
   await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
-
-  const validateToken = (tokens: Token[], name: string, hex: string) => {
-    const token = tokens.filter(t => t.name === name)[0] as ColorToken
-    t.true(!!token)
-    t.is(token.value.hex, hex)
-  }
-
-  const validateNoToken = (tokens: Token[], name: string) => {
-    const token = tokens.filter(t => t.name === name)[0] as ColorToken
-    t.true(!token)
-  }
   
   const tokens = await version.tokens()
   const themes = await version.themes()
   const theme = themes[0]
 
   // Validate base
-  validateToken(tokens, 'fg', '00ff00ff')
-  validateToken(tokens, 'bg', '0000ffff')
+  validateToken(t, tokens, 'fg', '00ff00ff')
+  validateToken(t, tokens, 'bg', '0000ffff')
   
   // Validate theme
-  validateToken(theme.overriddenTokens, 'bg', '00ff00ff')
-  validateNoToken(theme.overriddenTokens, 'fg')
+  validateToken(t, theme.overriddenTokens, 'bg', '00ff00ff')
+  validateNoToken(t, theme.overriddenTokens, 'fg')
 
   let mappingFilePath2 = path.join(
     process.cwd(),
@@ -248,13 +237,92 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   const theme2 = themes2[0]
 
 // Validate base
-  validateToken(tokens2, 'fg', '00ff00ff')
-  validateToken(tokens2, 'bg', '0000ffff')
+  validateToken(t, tokens2, 'fg', '00ff00ff')
+  validateToken(t, tokens2, 'bg', '0000ffff')
   
   // Validate theme
-  validateNoToken(theme2.overriddenTokens, 'bg')
-  validateToken(theme2.overriddenTokens, 'fg', '0000ffff')
+  validateNoToken(t, theme2.overriddenTokens, 'bg')
+  validateToken(t, theme2.overriddenTokens, 'fg', '0000ffff')
 })
+
+// EPDA-168
+test('test_tooling_design_tokens_precise_with_override', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'same-path-and-value', 'data')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'same-path-and-value',
+    'supernova-1.settings.json'
+  )
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+
+  const tokens = await version.tokens()
+  const themes = await version.themes()
+  const theme = themes[0]
+
+  // Validate base
+  validateToken(t, tokens, 'fg', '00ff00ff')
+  validateToken(t, tokens, 'bg', '0000ffff')
+
+  // Validate theme
+  t.is(theme.overriddenTokens.length, 1)
+  validateToken(t, theme.overriddenTokens, 'bg', '00ff00ff')
+  validateNoToken(t, theme.overriddenTokens, 'fg')
+
+  let mappingFilePath2 = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'same-path-and-value',
+    'supernova-precise.settings.json'
+  )
+  let tokenDefinition2 = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath2)
+  let configDefinition2 = dataLoader.loadConfigFromPath(mappingFilePath2)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings))
+  const tokens2 = await version.tokens()
+  const themes2 = await version.themes()
+  const theme2 = themes2[0]
+
+  // Validate base
+  validateToken(t, tokens2, 'bg', '0000ffff')
+  validateToken(t, tokens2, 'fg', '00ff00ff')
+  validateToken(t, tokens2, 'primary', 'ffffffff')
+
+  // Validate theme
+  t.is(theme2.overriddenTokens.length, 0)
+  validateNoToken(t, theme2.overriddenTokens, 'bg')
+  validateNoToken(t, theme2.overriddenTokens, 'fg')
+  validateNoToken(t, theme2.overriddenTokens, 'primary')
+})
+
+const validateToken = (t: any, tokens: Token[], name: string, hex: string) => {
+  const token = tokens.filter(t => t.name === name)[0] as ColorToken
+  t.true(!!token)
+  t.is(token.value.hex, hex)
+}
+
+const validateNoToken = (t: any, tokens: Token[], name: string) => {
+  const token = tokens.filter(t => t.name === name)[0] as ColorToken
+  t.true(!token)
+}
 
 export class FigmaTokensDataLoader {
 

@@ -1,4 +1,8 @@
 {
+  "primary": {
+    "value": "#FFFFFF",
+    "type": "color"
+  },
   "ds": {
     "base": {
       "color": {
