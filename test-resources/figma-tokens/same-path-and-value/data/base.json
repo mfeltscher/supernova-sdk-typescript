@@ -1,0 +1,22 @@
+{
+  "primary": {
+    "value": "#FFFFFF",
+    "type": "color"
+  },
+  "ds": {
+    "base": {
+      "color": {
+        "bg": {
+          "value": "#0000FF",
+          "type": "color",
+          "description": "blue"
+        },
+        "fg": {
+          "value": "#00FF00",
+          "type": "color",
+          "description": "green"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ds": {
+    "base": {
+      "color": {
+        "bg": {
+          "value": "#00FF00",
+          "type": "color",
+          "description": "forest-is-green"
+        },
+        "fg": {
+          "value": "#00FF00",
+          "type": "color",
+          "description": "green"
+        }
+      }
+    }
+  }
+}

@@ -47,7 +47,12 @@ export class DTThemeMerger {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merger
 
-  makeTheme(upstreamTokens: Array<Token>, upstreamTheme: TokenTheme, processedNodes: Array<DTProcessedTokenNode>): TokenTheme {
+  makeTheme(
+    upstreamTokens: Array<Token>,
+    upstreamTheme: TokenTheme,
+    processedNodes: Array<DTProcessedTokenNode>,
+    preciseCopy: boolean = false
+  ): TokenTheme {
 
     // Build map of existing tokens using path keys
     let existingOverrides = new Map<string, Token>()
@@ -85,18 +90,24 @@ export class DTThemeMerger {
         let key = this.buildKey(this.buildPath(token), token.name)
 
         let incomingThemeOverride = newTokenSet.get(key)
+        let currentThemeOverride = existingOverrides.get(key)
+
         if (incomingThemeOverride) {
             this.replaceIdAcrossAllPossibleReferences(incomingThemeOverride, token.id, processedNodes)
             // console.log(`overriding token from FT for key ${key}`)
+            let incomingThemeDiffersFromBase = !TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)
+            let incomingThemeDiffersFromUpstreamTheme =
+                currentThemeOverride && !TokenComparator.isEqualTokenValue(currentThemeOverride, incomingThemeOverride.token)
             // For any defined override, use the new token, and align its id with the original token, if the token has different value
-            if (!TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)) {
+            if (incomingThemeDiffersFromBase) {
                 // console.log(`value is not the same for token ${key}, using override`)
                 incomingThemeOverride.token.id = token.id
                 themeReplica.overriddenTokens.push(incomingThemeOverride.token)
+            } else if (incomingThemeDiffersFromUpstreamTheme) {
+                // base same as incoming theme, but differs from existing theme => we should remove override completely
             } else {
                 // console.log(`skipping override`)
                 // Otherwise use override that already exists without modifications
-                let currentThemeOverride = existingOverrides.get(key)
                 if (currentThemeOverride) {
                     // console.log(`overriding token from existing overrides ${key}`)
                     themeReplica.overriddenTokens.push(currentThemeOverride)
@@ -106,8 +117,8 @@ export class DTThemeMerger {
             }
         } else {
             // Otherwise use override that already exists without modifications
-            let currentThemeOverride = existingOverrides.get(key)
-            if (currentThemeOverride) {
+            // Unless preciseCopy = true and we need to remove currentThemeOverride
+            if (currentThemeOverride && !preciseCopy) {
                 // console.log(`overriding token from existing overrides ${key}`)
                 themeReplica.overriddenTokens.push(currentThemeOverride)
             } else {

@@ -1,0 +1,18 @@
+{
+  "ds": {
+    "base": {
+      "color": {
+        "bg": {
+          "value": "#0000FF",
+          "type": "color",
+          "description": "ocean-is-blue"
+        },
+        "fg": {
+          "value": "#0000FF",
+          "type": "color",
+          "description": "ocean-is-blue"
+        }
+      }
+    }
+  }
+}
