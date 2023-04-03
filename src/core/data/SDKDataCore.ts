@@ -1210,10 +1210,10 @@ export class DataCore {
         scheduledId: string
         exporterId: string
       }
-    } = await this.bridge.postDSMDataToGenericEndpoint(endpoint, payload, false)
+    } = (await this.bridge.postDSMDataToGenericEndpoint(endpoint, payload, false)).result;
 
     // Check status
-    let resultingStatus: 'Queued' | 'InProgress' | 'Failure'
+    let resultingStatus: 'Queued' | 'InProgress' | 'Failure';
     if (result.job.status === 'InProgress' || result.job.status === 'Success') {
       resultingStatus = 'Queued'
     } else if (result.job.status === 'Failed') {
