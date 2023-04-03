@@ -33,7 +33,7 @@
         "test-build": "npm run build",
         "test": "run-s build:main test:*",
         "test-skipped:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
-        "test:unit": "npm run build && ava --verbose --timeout=180s",
+        "test:unit": "npm run build && ava --verbose --timeout=180s --serial",
         "watch": "run-s clean build:main && run-p \"build:main -- -w\" \"test:unit -- --watch\"",
         "reset": "git clean -dfx && git reset --hard && npm i",
         "clean": "trash build test",
