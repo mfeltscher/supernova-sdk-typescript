@@ -138,6 +138,28 @@ test('test_tooling_design_tokens_test', async t => {
   await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
 })
 
+// ENG-870 - deep links in references combined with order
+test('test_tooling_design_tokens_chakra', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'chakra-min')
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'chakra-min', 'supernova.settings.json')
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+})
+
 
 test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version

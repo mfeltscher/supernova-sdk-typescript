@@ -1,0 +1,10 @@
+{
+  "radio": {
+    "unselected": {
+      "border-width": {
+        "value": "{default.border-width.inputs}",
+        "type": "borderWidth"
+      }
+    }
+  }
+}

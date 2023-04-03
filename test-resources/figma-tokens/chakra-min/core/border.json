@@ -1,0 +1,12 @@
+{
+  "border-width": {
+    "0": {
+      "value": "0",
+      "type": "borderWidth"
+    },
+    "1": {
+      "value": "1",
+      "type": "borderWidth"
+    }
+  }
+}
