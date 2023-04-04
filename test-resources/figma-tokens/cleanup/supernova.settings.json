@@ -1,14 +1,9 @@
 {
     "mode": "single-file",
     "mapping": [{
-            "tokensTheme": "Light",
+            "tokensTheme": "079b44a8b28ed46aff5be1542d750aaa10811111",
             "supernovaBrand": "Default",
             "supernovaTheme": null
-        },
-        {
-            "tokensTheme": "Dark",
-            "supernovaBrand": "Default",
-            "supernovaTheme": "Dark theme"
         }
     ],
     "settings": {

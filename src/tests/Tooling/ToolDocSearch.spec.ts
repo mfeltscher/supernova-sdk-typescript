@@ -32,5 +32,5 @@ test('test_tooling_doc_search', async t => {
 
     // Search for keyword
     await t.true(searchEngine.search("introduction").length > 0)
-    await t.true(searchEngine.search("ordered").length > 0)
+    await t.true(searchEngine.search("color").length > 0)
 })
