@@ -9,6 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
+import { AnyToken } from '../../../model/tokens/SDKTokenValue'
 import { ColorToken, GenericToken, MeasureToken, RadiusToken, TextToken, TokenType, Unit } from '../../..'
 import { Token } from '../../../model/tokens/SDKToken'
 import { DTProcessedTokenNode } from './SDKDTJSONConverter'
@@ -35,11 +36,27 @@ export class DTTokenReferenceResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Utilities
 
+  replaceRefs(existingToken: AnyToken, newToken: AnyToken) {
+    for (const [path, token] of this.mappedTokens) {
+      if ((token as AnyToken)?.value?.referencedToken?.id === existingToken.id) {
+        (token as AnyToken).value.referencedToken = newToken
+      }
+    }
+  }
+
   addAtomicToken(token: DTProcessedTokenNode) {
     let nodePath = this.tokenReferenceKey(token.path, token.token.name)
     // Always update tokens, as we process them in order from $metadata.json
     // And Plugin using `last one wins` strategy
     // See `test_tooling_design_tokens_order` test 
+    const existingNode = this.mappedTokens.get(nodePath)
+    if (!!existingNode) {
+      // We might have built refs for this node already
+      // So need to replace existing refs to existingNode with token.token
+      // Another option might be to update all the data inside existingNode inplace for any token type
+      this.replaceRefs(existingNode as AnyToken, token.token as AnyToken)
+    }
+
     this.mappedTokens.set(nodePath, token.token)
     this.nodes.set(nodePath, token)
   }
