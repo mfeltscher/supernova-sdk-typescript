@@ -144,16 +144,14 @@ export class DataCore {
   }
 
   /** Get deisgn system documentation url from server */
-  private async currentDeployedDocumentationUrl(workspaceId: string, versionId: string): Promise<string | undefined> {
+  private async currentDeployedDocumentationUrl(
+    designSystemId: string,
+    versionId: string
+  ): Promise<string | undefined> {
     // Download detail of the last build that successfully deployed docs
-    const endpoint = `codegen/workspaces/${workspaceId}/jobs?designSystemVersionId=${versionId}&destinations[]=documentation&offset=0&limit=1`
-    let remoteJob = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
-    if (remoteJob[0]) {
-      // Note: So far, there is no build functionality in SDK, so we are not doing this properly. This will change going forward as we introduce build CLI/SDK
-      return remoteJob[0]?.result?.documentation?.url ?? undefined
-    }
-
-    return undefined
+    const endpoint = `design-systems/${designSystemId}/versions/${versionId}/documentation/url`
+    let deployedUrl = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.url as string
+    return deployedUrl ?? undefined
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -1086,7 +1084,7 @@ export class DataCore {
     let rawData = await this.getRawDocumentationItemData(designSystemId, designSystemVersion)
     let workspaceHandle = await this.currentWorkspaceHandle(designSystemVersion.designSystem.workspaceId)
     const deployedVersionUrl = await this.currentDeployedDocumentationUrl(
-      designSystemVersion.designSystem.workspaceId,
+      designSystemVersion.designSystem.id,
       designSystemVersion.id
     )
     let resolvedItems = await this.resolveDocumentationItemData(
