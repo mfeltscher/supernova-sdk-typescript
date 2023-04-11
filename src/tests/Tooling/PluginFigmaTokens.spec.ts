@@ -60,7 +60,13 @@ test('test_tooling_design_tokens_load_and_retrieve_stored_json', async t => {
   )
 
   // Path to file
-  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'single-file-sync', 'tokens.json')
+  let dataFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'single-file-sync-using-names',
+    'tokens.json'
+  )
   let mappingFilePath = path.join(
     process.cwd(),
     'test-resources',
@@ -89,8 +95,6 @@ test('test_tooling_design_tokens_load_and_retrieve_stored_json', async t => {
     }),
     payload: tokenDefinition
   }
-
-  console.log(object)
 
   let writer = version.writer()
   await t.notThrowsAsync(writer.writeTokenStudioData(object))
