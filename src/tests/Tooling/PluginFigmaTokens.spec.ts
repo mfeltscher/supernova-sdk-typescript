@@ -29,7 +29,7 @@ import { ColorToken } from './../../index'
 
 test.serial.beforeEach(setup)
 
-async function setup (t) {
+async function setup(t) {
   let version = await testInstance.designSystemVersion(
     process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
     process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
@@ -37,13 +37,7 @@ async function setup (t) {
 
   // Path to file
   let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'cleanup', 'tokens.json')
-  let mappingFilePath = path.join(
-    process.cwd(),
-    'test-resources',
-    'figma-tokens',
-    'cleanup',
-    'supernova.settings.json'
-  )
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'cleanup', 'supernova.settings.json')
 
   // Get Figma Tokens synchronization tool
   let syncTool = new SupernovaToolsDesignTokensPlugin(version)
@@ -54,6 +48,55 @@ async function setup (t) {
   // Run sync
   await syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
 }
+
+// --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+// MARK: - Figma data retrieval
+
+test('test_tooling_design_tokens_load_and_retrieve_stored_json', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'single-file-sync', 'tokens.json')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'single-file-sync',
+    'supernova.settings.json'
+  )
+
+  // Load data for write and comparison
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromPath(dataFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  let object = {
+    connection: {
+      name: 'name'
+    },
+    settings: configDefinition.settings,
+    mapping: configDefinition.mapping.map((item: DTPluginToSupernovaMap) => {
+      return {
+        supernovaBrand: item.bindToBrand,
+        supernovaTheme: item.bindToTheme ?? null,
+        tokensTheme: item.pluginTheme ?? null,
+        tokenSets: item.pluginSets && item.pluginSets.length > 0 ? item.pluginSets : null
+      }
+    }),
+    payload: tokenDefinition
+  }
+
+  console.log(object)
+
+  let writer = version.writer()
+  await t.notThrowsAsync(writer.writeTokenStudioData(object))
+  let retrievedObject = await version.getTokenStudioData()
+  t.true(_.isEqual(object, retrievedObject))
+})
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -82,7 +125,9 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
 
 test('test_tooling_design_tokens_load_and_merge_from_file_using_names', async t => {
@@ -115,7 +160,9 @@ test('test_tooling_design_tokens_load_and_merge_from_file_using_names', async t 
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
 
 test('test_tooling_design_tokens_load_and_merge_from_directory', async t => {
@@ -142,7 +189,9 @@ test('test_tooling_design_tokens_load_and_merge_from_directory', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
 
 test.failing('test_tooling_design_tokens_test', async t => {
@@ -163,7 +212,9 @@ test.failing('test_tooling_design_tokens_test', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
 
 // ENG-870 - deep links in references combined with order
@@ -176,7 +227,13 @@ test('test_tooling_design_tokens_chakra', async t => {
 
   // Path to file
   let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'chakra-min')
-  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'chakra-min', 'supernova.settings.json')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'chakra-min',
+    'supernova.settings.json'
+  )
 
   // Get Figma Tokens synchronization tool
   let syncTool = new SupernovaToolsDesignTokensPlugin(version)
@@ -185,9 +242,10 @@ test('test_tooling_design_tokens_chakra', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
-
 
 test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version
@@ -213,7 +271,9 @@ test('test_tooling_design_tokens_order', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 
   const validateToken = (tokens: Token[], description: string, hex: string, name: string) => {
     const token = tokens.filter(t => t.description === description)[0] as ColorToken
@@ -229,7 +289,6 @@ test('test_tooling_design_tokens_order', async t => {
   validateToken(tokens, 'ocean-primary-default', '0000ffff', 'blue')
   validateToken(tokens, 'forest-primary-default', '00ff00ff', 'green')
 })
-
 
 // EPDA-167
 test('test_tooling_design_tokens_same_path_and_value', async t => {
@@ -256,8 +315,10 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
-  
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
+
   const tokens = await version.tokens()
   const themes = await version.themes()
   const theme = themes[0]
@@ -265,7 +326,7 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   // Validate base
   validateToken(t, tokens, 'fg', '00ff00ff')
   validateToken(t, tokens, 'bg', '0000ffff')
-  
+
   // Validate theme
   validateToken(t, theme.overriddenTokens, 'bg', '00ff00ff')
   validateNoToken(t, theme.overriddenTokens, 'fg')
@@ -281,15 +342,17 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   let configDefinition2 = dataLoader.loadConfigFromPath(mappingFilePath2)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings)
+  )
   const tokens2 = await version.tokens()
   const themes2 = await version.themes()
   const theme2 = themes2[0]
 
-// Validate base
+  // Validate base
   validateToken(t, tokens2, 'fg', '00ff00ff')
   validateToken(t, tokens2, 'bg', '0000ffff')
-  
+
   // Validate theme
   validateNoToken(t, theme2.overriddenTokens, 'bg')
   validateToken(t, theme2.overriddenTokens, 'fg', '0000ffff')
@@ -320,7 +383,9 @@ test('test_tooling_design_tokens_precise_with_override', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 
   const tokens = await version.tokens()
   const themes = await version.themes()
@@ -346,7 +411,9 @@ test('test_tooling_design_tokens_precise_with_override', async t => {
   let configDefinition2 = dataLoader.loadConfigFromPath(mappingFilePath2)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition2, configDefinition2.mapping, configDefinition2.settings)
+  )
   const tokens2 = await version.tokens()
   const themes2 = await version.themes()
   const theme2 = themes2[0]
@@ -375,7 +442,6 @@ const validateNoToken = (t: any, tokens: Token[], name: string) => {
 }
 
 export class FigmaTokensDataLoader {
-
   /** Load token definitions from path */
   async loadTokensFromPath(pathToFile: string): Promise<object> {
     try {
@@ -605,7 +671,6 @@ export class FigmaTokensDataLoader {
       )
     }
   }
-
 
   private async loadObjectFile(pathToFile: string): Promise<object> {
     try {

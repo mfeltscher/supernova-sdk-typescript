@@ -1134,6 +1134,19 @@ export class DataCore {
   }
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  // MARK: - TS Data
+
+  async getTokenStudioData(designSystemId: string, designSystemVersion: DesignSystemVersion): Promise<object> {
+    // Download component data from the design system endpoint. This downloads components of all types
+    const endpoint = 'bff/token-studio'
+    let result: Array<ElementPropertyRemoteModel> = (
+      await this.bridge.getDSMDataFromEndpoint(designSystemId, designSystemVersion.id, endpoint)
+    ).result
+
+    return result
+  }
+
+  // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Writing
 
   async writeTokenData(
@@ -1173,6 +1186,16 @@ export class DataCore {
     return result.theme
   }
 
+  async writeTokenStudioJSONData(
+    designSystemId: string,
+    designSystemVersion: DesignSystemVersion,
+    data: object
+  ): Promise<boolean> {
+    const endpoint = `bff/token-studio`
+    await this.bridge.postDSMDataToEndpoint(designSystemId, designSystemVersion.id, endpoint, data)
+    return true
+  }
+
   async documetationJobs(
     version: DesignSystemVersion,
     limit: number = 10
@@ -1208,10 +1231,10 @@ export class DataCore {
         scheduledId: string
         exporterId: string
       }
-    } = (await this.bridge.postDSMDataToGenericEndpoint(endpoint, payload, false)).result;
+    } = (await this.bridge.postDSMDataToGenericEndpoint(endpoint, payload, false)).result
 
     // Check status
-    let resultingStatus: 'Queued' | 'InProgress' | 'Failure';
+    let resultingStatus: 'Queued' | 'InProgress' | 'Failure'
     if (result.job.status === 'InProgress' || result.job.status === 'Success') {
       resultingStatus = 'Queued'
     } else if (result.job.status === 'Failed') {
