@@ -1,0 +1,18 @@
+{
+  "color": {
+    "tokens": {
+      "black": {
+        "value": "#191919",
+        "type": "color"
+      }
+    },
+    "semantics": {
+      "background": {
+        "primaryInverted": {
+          "value": "{color.tokens.black}",
+          "type": "color"
+        }
+      }
+    }
+  }
+}

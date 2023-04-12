@@ -29,7 +29,7 @@ import { ColorToken } from './../../index'
 
 test.serial.beforeEach(setup)
 
-async function setup (t) {
+async function setup(t) {
   let version = await testInstance.designSystemVersion(
     process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
     process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
@@ -188,6 +188,28 @@ test('test_tooling_design_tokens_chakra', async t => {
   await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
 })
 
+// Tokens that were not in upstream, but are referenced in this theme
+test('test_tooling_design_tokens_prism', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min')
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min', 'supernova.settings.json')
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+})
+
 
 test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version
@@ -257,7 +279,7 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
 
   // Run sync
   await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
-  
+
   const tokens = await version.tokens()
   const themes = await version.themes()
   const theme = themes[0]
@@ -265,7 +287,7 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   // Validate base
   validateToken(t, tokens, 'fg', '00ff00ff')
   validateToken(t, tokens, 'bg', '0000ffff')
-  
+
   // Validate theme
   validateToken(t, theme.overriddenTokens, 'bg', '00ff00ff')
   validateNoToken(t, theme.overriddenTokens, 'fg')
@@ -286,10 +308,10 @@ test('test_tooling_design_tokens_same_path_and_value', async t => {
   const themes2 = await version.themes()
   const theme2 = themes2[0]
 
-// Validate base
+  // Validate base
   validateToken(t, tokens2, 'fg', '00ff00ff')
   validateToken(t, tokens2, 'bg', '0000ffff')
-  
+
   // Validate theme
   validateNoToken(t, theme2.overriddenTokens, 'bg')
   validateToken(t, theme2.overriddenTokens, 'fg', '0000ffff')
