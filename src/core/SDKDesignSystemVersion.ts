@@ -31,6 +31,7 @@ import { DataCore } from './data/SDKDataCore'
 import { SupernovaError } from './errors/SDKSupernovaError'
 import { Brand } from './SDKBrand'
 import { DesignSystem } from './SDKDesignSystem'
+import { VersionWriter } from './SDKDesignSystemVersionWriter'
 import { Documentation } from './SDKDocumentation'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -101,6 +102,14 @@ export class DesignSystemVersion {
     this.isReadOnly = model.isReadonly
 
     this.dataCore = this.engine.newDataCore()
+  }
+
+  // --- --- --- --- --- --- --- --- --- ---
+  // MARK: - Writer
+
+  /** Retrieve write object for this version */
+  writer(): VersionWriter {
+    return new VersionWriter(this.engine, this)
   }
 
   // --- --- --- --- --- --- --- --- --- ---
@@ -306,5 +315,10 @@ export class DesignSystemVersion {
   async componentDataViews(): Promise<Array<ElementDataView>> {
     let views = await this.dataCore.currentDesignSystemElementDataViews(this.designSystem.id, this)
     return views.filter(v => v.targetElementType === ElementPropertyTargetElementType.component)
+  }
+
+  async getTokenStudioData(): Promise<object> {
+    let data = await this.dataCore.getTokenStudioData(this.designSystem.id, this)
+    return data
   }
 }

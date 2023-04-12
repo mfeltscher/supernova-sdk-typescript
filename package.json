@@ -1,6 +1,6 @@
 {
     "name": "@supernovaio/supernova-sdk",
-    "version": "1.8.68",
+    "version": "1.8.69",
     "description": "Supernova.io Developer SDK",
     "main": "build/supernova-sdk-typescript.js",
     "typings": "build/Typescript/src/index.d.ts",
@@ -85,7 +85,7 @@
         "prettier": "^1.18.2",
         "trash-cli": "^5.0.0",
         "ts-loader": "^9.2.6",
-        "ts-node": "^10.9.1",
+        "ts-node": "10.9.1",
         "tsconfig-paths-webpack-plugin": "^3.5.2",
         "tslint": "^5.18.0",
         "tslint-config-prettier": "^1.18.0",
