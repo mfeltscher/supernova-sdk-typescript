@@ -1,0 +1,11 @@
+[
+  {
+    "id": "1fd744ac7c6455f88851e44cc9425a120eef9458",
+    "name": "Caviar",
+    "selectedTokenSets": {
+      "Default": "enabled",
+      "Caviar": "enabled"
+    },
+    "$figmaStyleReferences": {}
+  }
+]
