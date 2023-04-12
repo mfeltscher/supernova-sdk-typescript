@@ -67,6 +67,8 @@ export class DTThemeMerger {
         newTokenSet.set(key, token)
     } 
 
+    let tokensInThemeButNotInUpstream = new Map<string, DTProcessedTokenNode>(newTokenSet)
+
     // Create theme replica to fill with tokens
     let themeReplica = new TokenTheme({
         persistentId: upstreamTheme.id,
@@ -91,6 +93,7 @@ export class DTThemeMerger {
 
         let incomingThemeOverride = newTokenSet.get(key)
         let currentThemeOverride = existingOverrides.get(key)
+        tokensInThemeButNotInUpstream.delete(key)
 
         if (incomingThemeOverride) {
             this.replaceIdAcrossAllPossibleReferences(incomingThemeOverride, token.id, processedNodes)
@@ -127,8 +130,29 @@ export class DTThemeMerger {
         }
     }
 
+    // Process tokens that were not in upstream, but are referenced in this theme
+    this.inlineTokens(themeReplica, tokensInThemeButNotInUpstream)
+
     return themeReplica
   }
+
+  inlineTokens(themeReplica: TokenTheme, tokensInThemeButNotInUpstream: Map<string, DTProcessedTokenNode>) {
+    let idsCandidates = [...tokensInThemeButNotInUpstream.values()]
+    let themeOverrideRefs = themeReplica.overriddenTokens
+        .map(t => (t as AnyToken).value?.referencedToken?.id)
+        .filter(Boolean)
+    let candidates = idsCandidates.filter(c => themeOverrideRefs.includes(c.token.id))
+
+    for (let candidate of candidates) {
+        for (let override of themeReplica.overriddenTokens) {
+            let token = (override as AnyToken)
+            if (token && token.value.referencedToken?.id === candidate.token.id) {
+                // Do we need to copy something else apart from value?
+                token.value = (candidate.token as AnyToken).value
+            }
+        }
+    }
+}
 
   replaceIdAcrossAllPossibleReferences(override: DTProcessedTokenNode, newId: string, allTokens: Array<DTProcessedTokenNode>) {
 

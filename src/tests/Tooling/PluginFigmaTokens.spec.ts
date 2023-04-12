@@ -251,6 +251,28 @@ test('test_tooling_design_tokens_chakra', async t => {
   )
 })
 
+// Tokens that were not in upstream, but are referenced in this theme
+test('test_tooling_design_tokens_prism', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min')
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min', 'supernova.settings.json')
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+})
+
 test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version
   let version = await testInstance.designSystemVersion(

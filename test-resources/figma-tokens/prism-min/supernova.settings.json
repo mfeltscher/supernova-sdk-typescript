@@ -1,0 +1,20 @@
+{
+  "mode": "multi-file",
+  "mapping": [
+    {
+      "tokenSets": ["Default"],
+      "supernovaBrand": "Default",
+      "supernovaTheme": null
+    },
+    {
+      "tokenSets": ["Default", "Caviar"],
+      "supernovaBrand": "Default",
+      "supernovaTheme": "Caviar"
+    }
+  ],
+  "settings": {
+    "dryRun": false,
+    "verbose": true,
+    "preciseCopy": false
+  }
+}
