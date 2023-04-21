@@ -18,7 +18,7 @@
         },
         "quaternary": {
           "default": {
-            "value": "{ds.base.color.green}",
+            "value": "#BBBBBB",
             "type": "color",
             "description": "ocean-quaternary-default"
           }

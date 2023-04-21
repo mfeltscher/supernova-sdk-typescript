@@ -315,7 +315,7 @@ test('test_tooling_design_tokens_elli', async t => {
   validateDeepTokenRef(tokens, 'Should be #00ff99ff', '00ff99ff', '300')
 })
 
-test('otest_tooling_design_tokens_order', async t => {
+test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version
   let version = await testInstance.designSystemVersion(
     process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
@@ -343,7 +343,7 @@ test('otest_tooling_design_tokens_order', async t => {
     syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
   )
 
-  const validateToken = (tokens: Token[], description: string, hex: string, refDescription: string) => {
+  const validateTokenWithRef = (tokens: Token[], description: string, hex: string, refDescription: string) => {
     const token = tokens.filter(t => t.description === description)[0] as ColorToken
     t.true(!!token, `Can't find ${description}`)
     const ref = tokens.filter(t => t.id === token.value.referencedToken.id)[0] as ColorToken
@@ -354,10 +354,10 @@ test('otest_tooling_design_tokens_order', async t => {
   }
 
   const tokens = await version.tokens()
-  validateToken(tokens, 'ocean-primary-default', '0000ffff', 'blue')
-  validateToken(tokens, 'forest-primary-default', '00ff00ff', 'green')
-  validateToken(tokens, 'ocean-secondary-default', '00ff00ff', 'global-tertiary-default')
-  validateToken(tokens, 'ocean-quaternary-default', '00ff00ff', 'green')
+  validateTokenWithRef(tokens, 'ocean-primary-default', '0000ffff', 'blue')
+  validateTokenWithRef(tokens, 'forest-primary-default', '00ff00ff', 'green')
+  validateTokenWithRef(tokens, 'ocean-secondary-default', '00ff00ff', 'global-tertiary-default')
+  validateToken(t, tokens, 'ocean-quaternary-default', 'bbbbbbff')
 })
 
 // EPDA-167
@@ -501,7 +501,7 @@ test('test_tooling_design_tokens_precise_with_override', async t => {
 })
 
 const validateToken = (t: any, tokens: Token[], name: string, hex: string) => {
-  const token = tokens.filter(t => t.name === name)[0] as ColorToken
+  const token = tokens.filter(t => t.name === name || t.description === name)[0] as ColorToken
   t.true(!!token)
   t.is(token.value.hex, hex)
 }

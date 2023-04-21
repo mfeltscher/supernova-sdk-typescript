@@ -25,7 +25,7 @@
         },
         "quaternary": {
           "default": {
-            "value": "#BBBBBB",
+            "value": "{ds.base.color.green}",
             "type": "color",
             "description": "global-quaternary-default"
           }
