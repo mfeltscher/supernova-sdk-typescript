@@ -8,6 +8,27 @@
             "type": "color",
             "description": "global-primary-default"
           }
+        },
+        "secondary": {
+          "default": {
+            "value": "{ds.base.color.green}",
+            "type": "color",
+            "description": "global-secondary-default"
+          }
+        },
+        "tertiary": {
+          "default": {
+            "value": "{ds.base.color.green}",
+            "type": "color",
+            "description": "global-tertiary-default"
+          }
+        },
+        "quaternary": {
+          "default": {
+            "value": "#BBBBBB",
+            "type": "color",
+            "description": "global-quaternary-default"
+          }
         }
       }
     }

@@ -25,7 +25,9 @@ export class DTTokenReferenceResolver {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Properties
 
-  private mappedTokens: Map<string, Token> = new Map<string, Token>()
+  // Keep original index of Token, so we can ignore updating token with same path but lower priority
+  // if during processing it is resolved later, than token with higher priority
+  private mappedTokens: Map<string, [Token, number]> = new Map<string, [Token, number]>()
   private nodes: Map<string,DTProcessedTokenNode> = new Map<string, DTProcessedTokenNode>()
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -37,19 +39,30 @@ export class DTTokenReferenceResolver {
   // MARK: - Utilities
 
   replaceRefs(existingToken: AnyToken, newToken: AnyToken) {
-    for (const [path, token] of this.mappedTokens) {
+    for (const [path, [token, index]] of this.mappedTokens) {
       if ((token as AnyToken)?.value?.referencedToken?.id === existingToken.id) {
         (token as AnyToken).value.referencedToken = newToken
       }
     }
+
+    for (const [path, token] of this.nodes) {
+      if ((token.token as AnyToken)?.value?.referencedToken?.id === existingToken.id) {
+        (token.token as AnyToken).value.referencedToken = newToken
+      }
+    }
   }
 
-  addAtomicToken(token: DTProcessedTokenNode) {
+  addAtomicToken(token: DTProcessedTokenNode, indexOfNewNode: number) {
     let nodePath = this.tokenReferenceKey(token.path, token.token.name)
-    // Always update tokens, as we process them in order from $metadata.json
-    // And Plugin using `last one wins` strategy
+    // Plugin using `last one wins` strategy.
+    // We process tokens in order from $metadata.json, keeping theirs original index.
+    // We should update tokens of same path that have higher priority only.
+    // And any priority token could be resolved first.
     // See `test_tooling_design_tokens_order` test 
-    const existingNode = this.mappedTokens.get(nodePath)
+    const [existingNode,indexOfExistingNode] = this.mappedTokens.get(nodePath) ?? []
+    if (!!existingNode && Number.isInteger(indexOfNewNode) && indexOfExistingNode > indexOfNewNode) {
+      return
+    }
     if (!!existingNode) {
       // We might have built refs for this node already
       // So need to replace existing refs to existingNode with token.token
@@ -57,13 +70,13 @@ export class DTTokenReferenceResolver {
       this.replaceRefs(existingNode as AnyToken, token.token as AnyToken)
     }
 
-    this.mappedTokens.set(nodePath, token.token)
+    this.mappedTokens.set(nodePath, [token.token, indexOfNewNode])
     this.nodes.set(nodePath, token)
   }
 
   addAtomicTokens(tokens: Array<DTProcessedTokenNode>) {
     for (let token of tokens) {
-      this.addAtomicToken(token)
+      this.addAtomicToken(token, Number.NaN)
     }
   }
 
@@ -76,7 +89,7 @@ export class DTTokenReferenceResolver {
 
   lookupReferencedToken(reference: string): Token | undefined {
     // Find single token reference
-    return this.mappedTokens.get(reference)
+    return this.mappedTokens.get(reference)?.[0]
   }
 
   lookupAllReferencedTokens(
@@ -96,10 +109,10 @@ export class DTTokenReferenceResolver {
     }> = []
     for (let finding of findings) {
       let fullkey = `{${finding.value}}`
-      if (this.mappedTokens.get(fullkey)) {
+      if (this.mappedTokens.get(fullkey)?.[0]) {
         // Found referenced token
         result.push({
-          token: this.mappedTokens.get(fullkey),
+          token: this.mappedTokens.get(fullkey)?.[0],
           key: finding.value,
           location: finding.index
         })

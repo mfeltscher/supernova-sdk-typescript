@@ -8,6 +8,20 @@
             "type": "color",
             "description": "ocean-primary-default"
           }
+        },
+        "secondary": {
+          "default": {
+            "value": "{ds.sys.color.tertiary.default}",
+            "type": "color",
+            "description": "ocean-secondary-default"
+          }
+        },
+        "quaternary": {
+          "default": {
+            "value": "{ds.base.color.green}",
+            "type": "color",
+            "description": "ocean-quaternary-default"
+          }
         }
       }
     }
