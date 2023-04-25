@@ -273,6 +273,48 @@ test('test_tooling_design_tokens_prism', async t => {
   await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
 })
 
+// TODO: Add minimal test case data to reproduce
+test('test_tooling_design_tokens_elli', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
+  )
+
+  // Path to file
+  let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'elli-full', 'tokens')
+  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'elli-full', 'supernova.settings.json')
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromDirectory(dataFilePath, mappingFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+
+  const validateDeepTokenRef = (tokens: Token[], description: string, hex: string, name: string) => {
+    const token = tokens.filter(t => t.description === description)[0] as ColorToken
+    t.true(!!token)
+    const ref = token.value.referencedToken as ColorToken;
+    t.true(!!ref)
+    t.is(token.value.hex, hex)
+    t.is(ref.value.hex, hex)
+
+    let d = 50
+    let c = token, r = ref
+    while (d-- > 0 && c && r) {
+      c = r
+      r = c?.value?.referencedToken as ColorToken
+    }
+
+    t.is(c.name, name)
+  }
+  const tokens = await version.tokens()
+  validateDeepTokenRef(tokens, 'Should be #00ff99ff', '00ff99ff', '300')
+})
+
 test('test_tooling_design_tokens_order', async t => {
   // Fetch specific design system version
   let version = await testInstance.designSystemVersion(
@@ -301,19 +343,21 @@ test('test_tooling_design_tokens_order', async t => {
     syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
   )
 
-  const validateToken = (tokens: Token[], description: string, hex: string, name: string) => {
+  const validateTokenWithRef = (tokens: Token[], description: string, hex: string, refDescription: string) => {
     const token = tokens.filter(t => t.description === description)[0] as ColorToken
-    t.true(!!token)
+    t.true(!!token, `Can't find ${description}`)
     const ref = tokens.filter(t => t.id === token.value.referencedToken.id)[0] as ColorToken
     t.true(!!ref)
     t.is(token.value.hex, hex)
     t.is(ref.value.hex, hex)
-    t.is(ref.name, name)
+    t.is(ref.description, refDescription)
   }
 
   const tokens = await version.tokens()
-  validateToken(tokens, 'ocean-primary-default', '0000ffff', 'blue')
-  validateToken(tokens, 'forest-primary-default', '00ff00ff', 'green')
+  validateTokenWithRef(tokens, 'ocean-primary-default', '0000ffff', 'blue')
+  validateTokenWithRef(tokens, 'forest-primary-default', '00ff00ff', 'green')
+  validateTokenWithRef(tokens, 'ocean-secondary-default', '00ff00ff', 'global-tertiary-default')
+  validateToken(t, tokens, 'ocean-quaternary-default', 'bbbbbbff')
 })
 
 // EPDA-167
@@ -457,7 +501,7 @@ test('test_tooling_design_tokens_precise_with_override', async t => {
 })
 
 const validateToken = (t: any, tokens: Token[], name: string, hex: string) => {
-  const token = tokens.filter(t => t.name === name)[0] as ColorToken
+  const token = tokens.filter(t => t.name === name || t.description === name)[0] as ColorToken
   t.true(!!token)
   t.is(token.value.hex, hex)
 }

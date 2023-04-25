@@ -141,6 +141,9 @@ export class DTJSONParser {
 
         // Respect $metadata.json -> tokenSetOrder
         if (order.length) {
+          // We could have process tokens in reverse orders here, and do not replace tokens at all:
+          // i.e. trying to resolve higher priority tokens first and add them in DTTokenReferenceResolver
+          // but lower priority tokens still could be resolved earlier, so reverse sort order would not help.
           pairedSets.sort((a,b) => order.indexOf(a.name) - order.indexOf(b.name))
         }
 

@@ -196,14 +196,16 @@ export class DTJSONConverter {
   private convertNodesToTokensForSupportedNodeTypes(types: Array<string>, nodes: Array<DTParsedNode>, brand: Brand) {
     // Filter out only nodes that we want to be resolving - we can't be resolving everything at once
     nodes = nodes.filter(n => types.includes(n.type))
-    let unprocessedTokens = new Array<DTParsedNode>()
+    let unprocessedTokens = new Array<[DTParsedNode, number]>()
+    let originalNodeIndex = -1
     // Convert atomic tokens, ie. tokens without references
     for (let node of nodes) {
+      originalNodeIndex++
       if (!this.referenceResolver.valueHasReference(node.value)) {
         let token = this.convertAtomicNode(node, brand)
-        this.referenceResolver.addAtomicToken(token)
+        this.referenceResolver.addAtomicToken(token, originalNodeIndex)
       } else {
-        unprocessedTokens.push(node)
+        unprocessedTokens.push([node, originalNodeIndex])
       }
     }
 
@@ -214,13 +216,22 @@ export class DTJSONConverter {
     let maximumDepth = 100
 
     while (unprocessedTokens.length !== 0) {
-      let unprocessedDepthTokens = new Array<DTParsedNode>()
-      for (let node of unprocessedTokens) {
+      let unprocessedDepthTokens = new Array<[DTParsedNode, number]>()
+      for (let [node, index] of unprocessedTokens) {
+        // NOTE: Self-reference now works with original-index logic in addAtomicNode
+        // Keep it commented meanwhile to ensure it works on bigger data set
+        // let nodeKey = `{${node.path.slice(1).join('.')}.${node.name}}`
+        // // We might want to skip more complex self reference (in formula)
+        // if (node.value === nodeKey) {
+        //   console.log(`Skip self reference ${node.value}`)
+        //   continue
+        // }
+
         let token = this.convertReferencedNode(node, brand)
         if (token) {
-          this.referenceResolver.addAtomicToken(token)
+          this.referenceResolver.addAtomicToken(token, index)
         } else {
-          unprocessedDepthTokens.push(node)
+          unprocessedDepthTokens.push([node, index])
         }
       }
       if (unprocessedDepthTokens.length === 0) {
@@ -231,7 +242,7 @@ export class DTJSONConverter {
       if (depth > maximumDepth) {
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
-            .map(t => DTTokenMerger.buildKey(t.path, t.name))
+            .map(([t,i]) => DTTokenMerger.buildKey(t.path, t.name))
             .join('\n')}\n\nThis can be caused by few things:\n\n- Not including all token sets you wanted to reference in the mapping file\n- Reference pointing to the token that doesn't exist\nCircular reference where two tokens reference each other\nUsing (other) token for defining strings, instead of numbers (current limitation)\n\nIf you are sure this is not the case, please report the bug on our Discord (https://community.supernova.io) and we'll help you solve it :)`
         )
       }
