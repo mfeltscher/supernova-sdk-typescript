@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { BorderToken } from '../../..'
+import { BorderToken, GradientToken } from '../../..'
 import { Brand } from '../../../core/SDKBrand'
 import { DesignSystemVersion } from '../../../core/SDKDesignSystemVersion'
 import { TokenType } from '../../../model/enums/SDKTokenType'
@@ -97,6 +97,9 @@ export class DTJSONConverter {
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
 
+    // Gradient tokens
+    this.convertNodesToTokensForSupportedNodeTypes(['gradient'], nodes, brand)
+
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
 
@@ -120,6 +123,9 @@ export class DTJSONConverter {
       switch (node.token.tokenType) {
         case TokenType.color:
           firstSegment = 'Color'
+          break
+        case TokenType.gradient:
+          firstSegment = 'Gradient'
           break
         case TokenType.measure:
           firstSegment = 'Measure'
@@ -276,6 +282,8 @@ export class DTJSONConverter {
         return this.convertShadowAtomicNode(node, brand)
       case TokenType.border:
         return this.convertBorderAtomicNode(node, brand)
+      case TokenType.gradient:
+        return this.convertGradientAtomicNode(node, brand)
       case TokenType.typography:
         return this.convertTypographyAtomicNode(node, brand)
       case TokenType.generic:
@@ -364,6 +372,26 @@ export class DTJSONConverter {
 
   private convertBorderAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
     let constructedToken = BorderToken.create(
+      this.version,
+      brand,
+      node.name,
+      node.description,
+      node.value,
+      undefined,
+      this.referenceResolver,
+      [],
+      []
+    )
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
+  private convertGradientAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
+    let constructedToken = GradientToken.create(
       this.version,
       brand,
       node.name,
@@ -508,6 +536,19 @@ export class DTJSONConverter {
             []
           )
           break
+        case TokenType.gradient:
+          constructedToken = GradientToken.create(
+            this.version,
+            brand,
+            node.name,
+            node.description,
+            undefined,
+            resolvedToken as GradientToken,
+            this.referenceResolver,
+            [],
+            []
+          )
+          break
         case TokenType.typography:
           constructedToken = TypographyToken.create(
             this.version,
@@ -580,6 +621,8 @@ export class DTJSONConverter {
         return TokenType.radius
       case 'boxShadow':
         return TokenType.shadow
+      case 'gradient':
+        return TokenType.gradient
       case 'typography':
         return TokenType.typography
       case 'border':

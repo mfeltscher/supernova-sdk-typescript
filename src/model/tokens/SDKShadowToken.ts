@@ -217,11 +217,7 @@ export class ShadowToken extends Token {
       ? {
           color: {
             aliasTo: value.color.referencedToken ? value.color.referencedToken.id : undefined,
-            value: value.color.referencedToken
-              ? null
-              : value.color.hex.startsWith('#')
-              ? value.color.hex
-              : `#${value.color.hex}`
+            value: value.color.referencedToken ? null : ColorToken.normalizedHex(value.color.hex)
           },
           isEnabled: true,
           x: {
