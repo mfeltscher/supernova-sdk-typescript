@@ -9,7 +9,7 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { BorderToken } from '../../..'
+import { BorderToken, GradientToken } from '../../..'
 import { Brand } from '../../../core/SDKBrand'
 import { DesignSystemVersion } from '../../../core/SDKDesignSystemVersion'
 import { TokenType } from '../../../model/enums/SDKTokenType'
@@ -77,12 +77,12 @@ export class DTJSONConverter {
         'lineHeights',
         'letterSpacing',
         'other',
-        'dimension',
+        'dimension'
       ],
       nodes,
       brand
     )
-    
+
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
@@ -94,6 +94,9 @@ export class DTJSONConverter {
 
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
+
+    // Gradient tokens
+    this.convertNodesToTokensForSupportedNodeTypes(['gradient'], nodes, brand)
 
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
@@ -118,6 +121,9 @@ export class DTJSONConverter {
       switch (node.token.tokenType) {
         case TokenType.color:
           firstSegment = 'Color'
+          break
+        case TokenType.gradient:
+          firstSegment = 'Gradient'
           break
         case TokenType.measure:
           firstSegment = 'Measure'
@@ -240,10 +246,13 @@ export class DTJSONConverter {
       unprocessedTokens = unprocessedDepthTokens
       depth += 1
       if (depth > maximumDepth) {
+        console.log(unprocessedTokens)
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
-            .map(([t,i]) => DTTokenMerger.buildKey(t.path, t.name))
-            .join('\n')}\n\nThis can be caused by few things:\n\n- Not including all token sets you wanted to reference in the mapping file\n- Reference pointing to the token that doesn't exist\nCircular reference where two tokens reference each other\nUsing (other) token for defining strings, instead of numbers (current limitation)\n\nIf you are sure this is not the case, please report the bug on our Discord (https://community.supernova.io) and we'll help you solve it :)`
+            .map(([t, i]) => DTTokenMerger.buildKey(t.path, t.name))
+            .join(
+              '\n'
+            )}\n\nThis can be caused by few things:\n\n- Not including all token sets you wanted to reference in the mapping file\n- Reference pointing to the token that doesn't exist\nCircular reference where two tokens reference each other\nUsing (other) token for defining strings, instead of numbers (current limitation)\n\nIf you are sure this is not the case, please report the bug on our Discord (https://community.supernova.io) and we'll help you solve it :)`
         )
       }
     }
@@ -265,6 +274,8 @@ export class DTJSONConverter {
         return this.convertShadowAtomicNode(node, brand)
       case TokenType.border:
         return this.convertBorderAtomicNode(node, brand)
+      case TokenType.gradient:
+        return this.convertGradientAtomicNode(node, brand)
       case TokenType.typography:
         return this.convertTypographyAtomicNode(node, brand)
       case TokenType.generic:
@@ -353,6 +364,26 @@ export class DTJSONConverter {
 
   private convertBorderAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
     let constructedToken = BorderToken.create(
+      this.version,
+      brand,
+      node.name,
+      node.description,
+      node.value,
+      undefined,
+      this.referenceResolver,
+      [],
+      []
+    )
+    return {
+      token: constructedToken,
+      originalType: node.type,
+      path: node.path,
+      key: DTTokenMerger.buildKey(node.path, node.name)
+    }
+  }
+
+  private convertGradientAtomicNode(node: DTParsedNode, brand: Brand): DTProcessedTokenNode {
+    let constructedToken = GradientToken.create(
       this.version,
       brand,
       node.name,
@@ -497,6 +528,19 @@ export class DTJSONConverter {
             []
           )
           break
+        case TokenType.gradient:
+          constructedToken = GradientToken.create(
+            this.version,
+            brand,
+            node.name,
+            node.description,
+            undefined,
+            resolvedToken as GradientToken,
+            this.referenceResolver,
+            [],
+            []
+          )
+          break
         case TokenType.typography:
           constructedToken = TypographyToken.create(
             this.version,
@@ -569,6 +613,8 @@ export class DTJSONConverter {
         return TokenType.radius
       case 'boxShadow':
         return TokenType.shadow
+      case 'gradient':
+        return TokenType.gradient
       case 'typography':
         return TokenType.typography
       case 'border':

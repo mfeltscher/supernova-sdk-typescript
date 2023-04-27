@@ -47,7 +47,6 @@ export class BorderToken extends Token {
     }
   }
 
-
   static create(
     version: DesignSystemVersion,
     brand: Brand,
@@ -97,22 +96,17 @@ export class BorderToken extends Token {
       } else {
         // Empty definition needs to fallback to proper SN definition - make it transparent shadow with 0 0 0 0 values
         definition = {
-          color: "rgba(0,0,0,0)",
-          position: "outside", 
+          color: 'rgba(0,0,0,0)',
+          position: 'outside',
           width: 0,
-          type: "border"
+          type: 'border'
         }
       }
     }
 
-    if (
-      !definition.hasOwnProperty('color') ||
-      !definition.hasOwnProperty('width')
-    ) {
+    if (!definition.hasOwnProperty('color') || !definition.hasOwnProperty('width')) {
       throw SupernovaError.fromSDKError(
-        `Border definition is missing one of required properties (color, width), was ${JSON.stringify(
-          definition
-        )}`
+        `Border definition is missing one of required properties (color, width), was ${JSON.stringify(definition)}`
       )
     }
 
@@ -124,13 +118,31 @@ export class BorderToken extends Token {
     // TODO: Position, style
 
     if (value.color === undefined) {
-      throw new Error(`Unable to resolve value 'color' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+      throw new Error(
+        `Unable to resolve value 'color' for border token definition \n${JSON.stringify(
+          definition,
+          null,
+          2
+        )}\n Did you possibly use incorrect reference?`
+      )
     }
     if (value.position === undefined) {
-      throw new Error(`Unable to resolve value 'position' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+      throw new Error(
+        `Unable to resolve value 'position' for border token definition \n${JSON.stringify(
+          definition,
+          null,
+          2
+        )}\n Did you possibly use incorrect reference?`
+      )
     }
     if (value.width === undefined) {
-      throw new Error(`Unable to resolve value 'width' for border token definition \n${JSON.stringify(definition, null, 2)}\n Did you possibly use incorrect reference?`)
+      throw new Error(
+        `Unable to resolve value 'width' for border token definition \n${JSON.stringify(
+          definition,
+          null,
+          2
+        )}\n Did you possibly use incorrect reference?`
+      )
     }
 
     return value
@@ -148,24 +160,24 @@ export class BorderToken extends Token {
 
   static valueToWriteObject(value: BorderTokenValue): { aliasTo: string | undefined; value: BorderTokenRemoteValue } {
     let valueObject = !value.referencedToken
-    ? {
-        color: {
-          aliasTo: value.color.referencedToken ? value.color.referencedToken.id : undefined,
-          value: value.color.referencedToken ? null : value.color.hex
-        },
-        width: {
-          aliasTo: value.width.referencedToken ? value.width.referencedToken.id : undefined,
-          value: value.width.referencedToken
-            ? null
-            : {
-                measure: value.width.measure,
-                unit: value.width.unit
-              }
-        },
-        position: value.position,
-        isEnabled: true
-      }
-    : undefined
+      ? {
+          color: {
+            aliasTo: value.color.referencedToken ? value.color.referencedToken.id : undefined,
+            value: value.color.referencedToken ? null : ColorToken.normalizedHex(value.color.hex)
+          },
+          width: {
+            aliasTo: value.width.referencedToken ? value.width.referencedToken.id : undefined,
+            value: value.width.referencedToken
+              ? null
+              : {
+                  measure: value.width.measure,
+                  unit: value.width.unit
+                }
+          },
+          position: value.position,
+          isEnabled: true
+        }
+      : undefined
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject
