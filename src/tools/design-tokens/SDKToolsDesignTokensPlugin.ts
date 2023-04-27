@@ -149,7 +149,7 @@ export class SupernovaToolsDesignTokensPlugin {
     if (settings.preciseCopy) {
       const mapInSource = mapping.filter(m => !!m.bindToTheme).map(m => ({ brand: m.bindToBrand, theme: m.bindToTheme.toLowerCase().trim()}))
       const themesInSource = mapInSource.map(m => m.theme)
-      const themesToRemove = themes.filter(t => !themesInSource.includes(t.id.toLowerCase().trim()) || themesInSource.includes(t.name.toLowerCase().trim()))
+      const themesToRemove = themes.filter(t => !(themesInSource.includes(t.id.toLowerCase().trim()) || themesInSource.includes(t.name.toLowerCase().trim())))
       for (const themeToRemove of themesToRemove) {
         let brand = brands.find(b => b.persistentId === themeToRemove.brandId)
         await this.mergeThemeWithRemoteSource([], brand, themeToRemove, !settings.dryRun, settings.verbose, settings.preciseCopy)
