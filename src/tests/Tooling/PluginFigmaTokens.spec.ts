@@ -313,6 +313,10 @@ test('test_tooling_design_tokens_elli', async t => {
   }
   const tokens = await version.tokens()
   validateDeepTokenRef(tokens, 'Should be #00ff99ff', '00ff99ff', '300')
+
+  const themes = await version.themes()
+  const theme = themes.find(t => t.name === 'Elli Dark')
+  validateToken(t, theme.overriddenTokens, 'Should be #00ff99ff', '84ffb9ff')
 })
 
 test('test_tooling_design_tokens_order', async t => {
