@@ -54,7 +54,7 @@ export class RadiusToken extends Token {
     name: string,
     description: string,
     value: string,
-    alias: RadiusToken | null,
+    alias: RadiusToken | MeasureToken | null,
     properties: Array<ElementProperty>,
     propertyValues: Array<ElementPropertyValue>
   ): RadiusToken {
@@ -77,49 +77,67 @@ export class RadiusToken extends Token {
       let tokenValue = this.radiusValueFromDefinition(value)
       return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
-      // Aliased value - copy and create raw from reference
-      let tokenValue: RadiusTokenValue = {
-        radius: {
-          unit: alias.value.radius.unit,
-          measure: alias.value.radius.measure,
-          referencedToken: undefined
-        },
-        topLeft: alias.value.topLeft
-          ? {
-              unit: alias.value.topLeft.unit,
-              measure: alias.value.topLeft.measure,
-              referencedToken: undefined
-            }
-          : null,
-        topRight: alias.value.topRight
-          ? {
-              unit: alias.value.topRight.unit,
-              measure: alias.value.topRight.measure,
-              referencedToken: undefined
-            }
-          : null,
-        bottomLeft: alias.value.bottomLeft
-          ? {
-              unit: alias.value.bottomLeft.unit,
-              measure: alias.value.bottomLeft.measure,
-              referencedToken: undefined
-            }
-          : null,
-        bottomRight: alias.value.bottomRight
-          ? {
-              unit: alias.value.bottomRight.unit,
-              measure: alias.value.bottomRight.measure,
-              referencedToken: undefined
-            }
-          : null,
-        referencedToken: alias
+      if (alias instanceof MeasureToken) {
+        // If measure token was referenced, create raw value of radius token from it and discard the reference to at least it gets imported
+        let tokenValue: RadiusTokenValue = {
+          radius: {
+            unit: alias.value.unit,
+            measure: alias.value.measure,
+            referencedToken: undefined
+          },
+          topLeft: null,
+          topRight: null,
+          bottomLeft: null,
+          bottomRight: null,
+          referencedToken: null
+        }
+        return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
+      } else {
+        // Aliased value - copy and create raw from reference
+        let tokenValue: RadiusTokenValue = {
+          radius: {
+            unit: alias.value.radius.unit,
+            measure: alias.value.radius.measure,
+            referencedToken: undefined
+          },
+          topLeft: alias.value.topLeft
+            ? {
+                unit: alias.value.topLeft.unit,
+                measure: alias.value.topLeft.measure,
+                referencedToken: undefined
+              }
+            : null,
+          topRight: alias.value.topRight
+            ? {
+                unit: alias.value.topRight.unit,
+                measure: alias.value.topRight.measure,
+                referencedToken: undefined
+              }
+            : null,
+          bottomLeft: alias.value.bottomLeft
+            ? {
+                unit: alias.value.bottomLeft.unit,
+                measure: alias.value.bottomLeft.measure,
+                referencedToken: undefined
+              }
+            : null,
+          bottomRight: alias.value.bottomRight
+            ? {
+                unit: alias.value.bottomRight.unit,
+                measure: alias.value.bottomRight.measure,
+                referencedToken: undefined
+              }
+            : null,
+          referencedToken: alias
+        }
+        return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
       }
-      return new RadiusToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
+      // Handle references to aliases
     }
   }
 
   static radiusValueFromDefinition(definition: string | number): RadiusTokenValue {
-    if (typeof definition === "number") {
+    if (typeof definition === 'number') {
       return {
         radius: MeasureToken.measureValueFromDefinition(definition),
         topLeft: null,
@@ -178,51 +196,61 @@ export class RadiusToken extends Token {
     let valueObject = !value.referencedToken
       ? {
           radius: {
-            aliasTo: undefined,
-            value: {
-              measure: value.radius.measure,
-              unit: value.radius.unit
-            }
+            aliasTo: value.radius.referencedToken ? value.radius.referencedToken.id : undefined,
+            value: value.radius.referencedToken
+              ? null
+              : {
+                  measure: value.radius.measure,
+                  unit: value.radius.unit
+                }
           },
           topLeft: value.topLeft
             ? {
-                aliasTo: undefined,
-                value: {
-                  measure: value.topLeft.measure,
-                  unit: value.topLeft.unit
-                }
+                aliasTo: value.topLeft.referencedToken ? value.topLeft.referencedToken.id : undefined,
+                value: value.topLeft.referencedToken
+                  ? null
+                  : {
+                      measure: value.topLeft.measure,
+                      unit: value.topLeft.unit
+                    }
               }
             : null,
           topRight: value.topRight
             ? {
-                aliasTo: undefined,
-                value: {
-                  measure: value.topRight.measure,
-                  unit: value.topRight.unit
-                }
+                aliasTo: value.topRight.referencedToken ? value.topRight.referencedToken.id : undefined,
+                value: value.topRight.referencedToken
+                  ? null
+                  : {
+                      measure: value.topRight.measure,
+                      unit: value.topRight.unit
+                    }
               }
             : null,
           bottomLeft: value.bottomLeft
             ? {
-                aliasTo: undefined,
-                value: {
-                  measure: value.bottomLeft.measure,
-                  unit: value.bottomLeft.unit
-                }
+                aliasTo: value.bottomLeft.referencedToken ? value.bottomLeft.referencedToken.id : undefined,
+                value: value.bottomLeft.referencedToken
+                  ? null
+                  : {
+                      measure: value.bottomLeft.measure,
+                      unit: value.bottomLeft.unit
+                    }
               }
             : null,
           bottomRight: value.bottomRight
             ? {
-                aliasTo: undefined,
-                value: {
-                  measure: value.bottomRight.measure,
-                  unit: value.bottomRight.unit
-                }
+                aliasTo: value.bottomRight.referencedToken ? value.bottomRight.referencedToken.id : undefined,
+                value: value.bottomRight.referencedToken
+                  ? null
+                  : {
+                      measure: value.bottomRight.measure,
+                      unit: value.bottomRight.unit
+                    }
               }
             : null
         }
       : undefined
-      
+
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject
