@@ -113,8 +113,8 @@ export class TypographyToken extends Token {
       : GenericToken.genericValueFromDefinition('Regular')
 
     value.font = {
-      family: fontFamily.text,
-      subfamily: fontWeight.text,
+      family: fontFamily?.text ? fontFamily.text : 'Roboto',
+      subfamily: fontWeight?.text ? fontWeight.text : 'Regular',
       referencedToken: undefined
     }
 
