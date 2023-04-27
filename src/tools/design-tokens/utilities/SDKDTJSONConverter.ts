@@ -65,7 +65,6 @@ export class DTJSONConverter {
   // MARK: - Token Conversion
 
   convertNodesToTokens(nodes: Array<DTParsedNode>, brand: Brand): Array<DTProcessedTokenNode> {
-    console.log('1')
     // Compute measures first. Measures can be used to do all types of calculation, so they must be available at the beginning for all other types of tokens
     this.convertNodesToTokensForSupportedNodeTypes(
       [
@@ -87,36 +86,28 @@ export class DTJSONConverter {
     // Other tokens
     // this.convertNodesToTokensForSupportedNodeTypes(['other'], nodes, brand)
 
-    console.log('2')
     // Color tokens
     this.convertNodesToTokensForSupportedNodeTypes(['color'], nodes, brand)
 
-    console.log('3')
     // Radii tokens
     this.convertNodesToTokensForSupportedNodeTypes(['borderRadius'], nodes, brand)
 
-    console.log('4')
     // Shadow tokens
     this.convertNodesToTokensForSupportedNodeTypes(['boxShadow'], nodes, brand)
 
-    console.log('5')
     // Gradient tokens
     this.convertNodesToTokensForSupportedNodeTypes(['gradient'], nodes, brand)
 
-    console.log('6')
     // Typography tokens
     this.convertNodesToTokensForSupportedNodeTypes(['typography'], nodes, brand)
 
-    console.log('7')
     // Border tokens
     this.convertNodesToTokensForSupportedNodeTypes(['border'], nodes, brand)
 
-    console.log('8')
     // Fix nodes so they are aligned with the way Supernova expects root groups to be named
     let processedNodes = this.referenceResolver.unmappedValues()
     this.remapRootNodeKeys(processedNodes)
 
-    console.log('5')
     // Retrieve all tokens
     return processedNodes
   }
@@ -255,7 +246,6 @@ export class DTJSONConverter {
       unprocessedTokens = unprocessedDepthTokens
       depth += 1
       if (depth > maximumDepth) {
-        console.log(unprocessedTokens)
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
             .map(([t, i]) => DTTokenMerger.buildKey(t.path, t.name))
