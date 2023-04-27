@@ -214,15 +214,17 @@ export class TypographyToken extends Token {
                   unit: value.paragraphSpacing.unit
                 }
           },
-          lineHeight: {
-            aliasTo: value.lineHeight.referencedToken ? value.lineHeight.referencedToken.id : undefined,
-            value: value.lineHeight.referencedToken
-              ? null
-              : {
-                  measure: value.lineHeight.measure,
-                  unit: value.lineHeight.unit
-                }
-          },
+          lineHeight: value.lineHeight
+            ? {
+                aliasTo: value.lineHeight.referencedToken ? value.lineHeight.referencedToken.id : undefined,
+                value: value.lineHeight.referencedToken
+                  ? null
+                  : {
+                      measure: value.lineHeight.measure,
+                      unit: value.lineHeight.unit
+                    }
+              }
+            : null,
           textCase: value.textCase,
           textDecoration: value.textDecoration
         }

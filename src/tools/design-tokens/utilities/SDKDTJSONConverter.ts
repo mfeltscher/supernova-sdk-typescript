@@ -246,7 +246,6 @@ export class DTJSONConverter {
       unprocessedTokens = unprocessedDepthTokens
       depth += 1
       if (depth > maximumDepth) {
-        console.log(unprocessedTokens)
         throw new Error(
           `Engine was not able to solve references for the following tokens in a reasonable time: \n\n${unprocessedTokens
             .map(([t, i]) => DTTokenMerger.buildKey(t.path, t.name))
