@@ -99,7 +99,6 @@ export class ColorToken extends Token {
   }
 
   static colorValueFromDefinition(definition: string): ColorTokenValue {
-
     let normalizedDefinition = this.normalizeColor(definition)
     let result = parseColor(normalizedDefinition)
     if (!result || result.hex === undefined) {
@@ -161,7 +160,9 @@ export class ColorToken extends Token {
           })
         }
       } catch (e) {
-        throw new Error(`Unable to parse provided color '${color}'. Supported formats are: \nrgb(r <number>, g <number>, b <number>)\nrgba(r <number>, g <number>, b <number>, a <number | percentage>\nhsl(h <number>, s <percentage>, l <percentage>>\nhsla(h <number>, s <percentage>, l <percentage>, a <number | percentage>\nred | blue | black ...)`)
+        throw new Error(
+          `Unable to parse provided color '${color}'. Supported formats are: \nrgb(r <number>, g <number>, b <number>)\nrgba(r <number>, g <number>, b <number>, a <number | percentage>\nhsl(h <number>, s <percentage>, l <percentage>>\nhsla(h <number>, s <percentage>, l <percentage>, a <number | percentage>\nred | blue | black ...)`
+        )
       }
       return returnedColor
     } catch (e) {
@@ -176,6 +177,16 @@ export class ColorToken extends Token {
       return Number(matched[0].slice(0, -1)) / 100
     }
     return Number(value)
+  }
+
+  static normalizedHex(value: string | null): string | null {
+    if (!value) {
+      return null
+    }
+    if (value.startsWith('#')) {
+      return value
+    }
+    return `#${value}`
   }
 
   static colorValueFromDefinitionOrReference(
@@ -229,7 +240,7 @@ export class ColorToken extends Token {
   }
 
   static valueToWriteObject(value: ColorTokenValue): { aliasTo: string | undefined; value: ColorTokenRemoteValue } {
-    let valueObject = !value.referencedToken ? (value.hex.startsWith('#') ? value.hex : `#${value.hex}`) : undefined
+    let valueObject = !value.referencedToken ? ColorToken.normalizedHex(value.hex) : undefined
     return {
       aliasTo: value.referencedToken ? value.referencedToken.id : undefined,
       value: valueObject

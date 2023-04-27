@@ -22,26 +22,26 @@ export type DTParsedNode = {
 }
 
 export type DTParsedTokenSet = {
-  name: string,
-  id: string,
+  name: string
+  id: string
   contains: Array<DTParsedNode>
 }
 
 export type DTParsedTheme = {
-  name: string,
-  id: string,
+  name: string
+  id: string
   selectedTokenSets: Array<DTParsedThemeSetPriorityPair>
 }
 
 export type DTParsedThemeSetPriorityPair = {
-  set: DTParsedTokenSet,
+  set: DTParsedTokenSet
   priority: DTParsedThemeSetPriority
 }
 
 export enum DTParsedThemeSetPriority {
-  source = "source",
-  enabled = "enabled",
-  disabled = "disabled"
+  source = 'source',
+  enabled = 'enabled',
+  disabled = 'disabled'
 }
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -61,14 +61,15 @@ export class DTJSONParser {
     this.themeBuffer = new Array<DTParsedTheme>()
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Data Parser
 
-  async processPluginDataRepresentation(definition: object): Promise<{
+  async processPluginDataRepresentation(
+    definition: object
+  ): Promise<{
     nodes: Array<DTParsedNode>
     themes: Array<DTParsedTheme>
-    sets: Array<DTParsedTokenSet>  
+    sets: Array<DTParsedTokenSet>
   }> {
     let sets = this.processSets(definition)
     let nodes = this.parseNode([], definition, sets)
@@ -78,9 +79,7 @@ export class DTJSONParser {
 
     console.log(`----- Loaded token data:`)
     console.log(`Nodes: ${nodes.length}`)
-    console.log(
-      `Sets: ${setArray.length}, ${setArray.map(s => `\n | ${s.name}: ${s.contains.length} nodes`)}`
-    )
+    console.log(`Sets: ${setArray.length}, ${setArray.map(s => `\n | ${s.name}: ${s.contains.length} nodes`)}`)
     console.log(
       `Themes: ${themes.length}, ${themes.map(
         t =>
@@ -97,37 +96,37 @@ export class DTJSONParser {
     }
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Theme Parser
 
   private processThemes(definition: object, tokenSets: Map<string, DTParsedTokenSet>): Array<DTParsedTheme> {
-
     let themes: Array<DTParsedTheme> = new Array<DTParsedTheme>()
     let order: Array<string> = []
 
     // Find metadata
-    let metadata = definition["$metadata"]
+    let metadata = definition['$metadata']
     if (metadata) {
-      let setOrder = metadata["tokenSetOrder"]
+      let setOrder = metadata['tokenSetOrder']
       if (setOrder) {
         order = setOrder
       }
     }
 
-    let themeDefinitions = definition["$themes"]// Parse each theme separately
+    let themeDefinitions = definition['$themes'] // Parse each theme separately
     if (themeDefinitions) {
       for (let themeObject of themeDefinitions) {
-        let name = themeObject["name"]
-        let id = themeObject["id"]
-        let selectedTokenSets = themeObject["selectedTokenSets"]
+        let name = themeObject['name']
+        let id = themeObject['id']
+        let selectedTokenSets = themeObject['selectedTokenSets']
         if (!name || !id || !selectedTokenSets) {
           // Skip execution of this theme as it doesn't have correct information provided
-          throw new Error("Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]")
+          throw new Error(
+            'Incorrect theme data structure, missing one of required attributes [name, id, selectedTokenSets]'
+          )
         }
 
         // Process token sets
-        let pairedSets = new Array<{ name: string, pair: any }>()
+        let pairedSets = new Array<{ name: string; pair: any }>()
         for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
           let setName = tokenSetName
           let setPriority = unknownPriority
@@ -144,7 +143,7 @@ export class DTJSONParser {
           // We could have process tokens in reverse orders here, and do not replace tokens at all:
           // i.e. trying to resolve higher priority tokens first and add them in DTTokenReferenceResolver
           // but lower priority tokens still could be resolved earlier, so reverse sort order would not help.
-          pairedSets.sort((a,b) => order.indexOf(a.name) - order.indexOf(b.name))
+          pairedSets.sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name))
         }
 
         let theme: DTParsedTheme = {
@@ -159,19 +158,17 @@ export class DTJSONParser {
     return themes
   }
 
-
   private processSets(definition: object): Map<string, DTParsedTokenSet> {
-
     let sets = new Map<string, DTParsedTokenSet>()
 
     // Parse top level objects as sets, unless they contain $
     // Value is ignored, as that is parsed separately
     for (let [setName, value] of Object.entries(definition)) {
-      if (!setName.startsWith("$")) {
+      if (!setName.startsWith('$')) {
         let set: DTParsedTokenSet = {
           contains: [],
           name: setName,
-          id: setName 
+          id: setName
         }
         sets.set(setName, set)
       }
@@ -180,7 +177,6 @@ export class DTJSONParser {
     return sets
   }
 
-
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Node Parser
 
@@ -188,10 +184,13 @@ export class DTJSONParser {
     let result: Array<DTParsedNode> = []
     for (let [name, value] of Object.entries(objects)) {
       if (typeof value === 'object') {
-        if ((value.hasOwnProperty('value') && value.hasOwnProperty('type')) || (value.hasOwnProperty('$value') && value.hasOwnProperty('$type'))) {
+        if (
+          (value.hasOwnProperty('value') && value.hasOwnProperty('type')) ||
+          (value.hasOwnProperty('$value') && value.hasOwnProperty('$type'))
+        ) {
           // Treat as value
           let entity = {
-            rootKey: path[0], 
+            rootKey: path[0],
             name: name,
             path: path,
             type: value['type'] ?? value['$type'],
@@ -202,9 +201,18 @@ export class DTJSONParser {
           if (!set) {
             throw new Error('Node references unknown set')
           }
+          // Modify entity if it contains color but is really a gradient
+          if (
+            entity.type === 'color' &&
+            (entity.value.includes('linear-gradient') || entity.value.includes('radial-gradient'))
+          ) {
+            console.log('treating as gradient')
+            entity.type = 'gradient'
+          }
+
           set.contains.push(entity)
           result.push(entity)
-        } else if (name.startsWith("$")) {
+        } else if (name.startsWith('$')) {
           // Skipping keys internal to design token plugin because we are currently not using them
         } else {
           // Treat as leaf
@@ -214,7 +222,7 @@ export class DTJSONParser {
         throw new Error('Unable to parse, unsupported structure in token node leaf')
       }
     }
-    
+
     return result
   }
 }
