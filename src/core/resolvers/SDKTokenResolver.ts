@@ -932,7 +932,7 @@ export class TokenResolver {
   /** Resolve token color value - meaning we are not creating new tokens, and require raw tokens to be already present */
   resolveReferencedColorTokenValue(token: ColorTokenRemoteData): ColorTokenValue {
     if (token.aliasTo) {
-      const resolved = this.resolvedTokens.get(token.aliasTo) as ColorToken
+      const resolved = (this.resolvedOverrides.get(token.aliasTo) ?? this.resolvedTokens.get(token.aliasTo)) as ColorToken
       return {
         ...resolved.value,
         referencedToken: resolved
@@ -945,7 +945,7 @@ export class TokenResolver {
   /** Resolve token measure value - meaning we are not creating new tokens, and require raw tokens to be already present */
   resolveReferencedMeasureTokenValue(token: MeasureTokenRemoteData): MeasureTokenValue {
     if (token.aliasTo) {
-      const resolved = this.resolvedTokens.get(token.aliasTo) as MeasureToken
+      const resolved = (this.resolvedOverrides.get(token.aliasTo) ?? this.resolvedTokens.get(token.aliasTo)) as MeasureToken
       return {
         ...resolved.value,
         referencedToken: resolved
@@ -958,7 +958,7 @@ export class TokenResolver {
   /** Resolve token font value - meaning we are not creating new tokens, and require raw tokens to be already present */
   resolveReferencedFontTokenValue(token: FontTokenRemoteData): FontTokenValue {
     if (token.aliasTo) {
-      const resolved = this.resolvedTokens.get(token.aliasTo) as FontToken
+      const resolved = (this.resolvedOverrides.get(token.aliasTo) ?? this.resolvedTokens.get(token.aliasTo)) as FontToken
       return {
         ...resolved.value,
         referencedToken: resolved

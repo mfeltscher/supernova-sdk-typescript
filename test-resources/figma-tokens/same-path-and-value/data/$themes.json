@@ -1,0 +1,28 @@
+[
+  {
+    "id": "079b44a8b28ed46aff5be1542d750aaa13333333",
+    "name": "Default",
+    "selectedTokenSets": {
+      "base": "enabled"
+    },
+    "$figmaStyleReferences": {}
+  },
+  {
+    "id": "079b44a8b28ed46aff5be1542d750aaa13333333",
+    "name": "Forest",
+    "selectedTokenSets": {
+      "base": "enabled",
+      "forest": "enabled"
+    },
+    "$figmaStyleReferences": {}
+  },
+  {
+    "id": "079b44a8b28ed46aff5be1542d750aaa12222222",
+    "name": "Ocean",
+    "selectedTokenSets": {
+      "base": "enabled",
+      "ocean": "enabled"
+    },
+    "$figmaStyleReferences": {}
+  }
+]

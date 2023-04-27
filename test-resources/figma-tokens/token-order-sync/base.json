@@ -1,0 +1,23 @@
+{
+  "ds": {
+    "base": {
+      "color": {
+        "blue": {
+          "value": "#0000FF",
+          "type": "color",
+          "description": "blue"
+        },
+        "snow": {
+          "value": "#FFFAFA",
+          "type": "color",
+          "description": "snow"
+        },
+        "green": {
+          "value": "#00FF00",
+          "type": "color",
+          "description": "green"
+        }
+      }
+    }
+  }
+}

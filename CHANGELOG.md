@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.65] - 2023-26-03
+### Data Views & Element properties
+
+Added data views and properties to tokens, components and documentation pages. All objects are available on `Version` object. More information coming soon!
+
 
 ## [1.8.48] - 2023-08-02
 ### CLI Improvements
@@ -18,6 +23,10 @@ We have fixed additional issues with CLI:
 
 Additionally, we have added several new attributes for new upcoming features, such as Asset sizes, asset meta information about sources or more detailed information about Figma Frames.
 
+## [1.8.46] - 2023-03-03
+### User object
+
+We have added new function to the core `Supernova` object - `.me()` - which retrieves user profile associated with the provided API key.
 
 ## [1.8.45] - 2023-02-02
 ### CLI Improvements

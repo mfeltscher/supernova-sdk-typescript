@@ -1,0 +1,8 @@
+{
+  "tokenSetOrder": [
+    "base",
+    "global",
+    "forest",
+    "ocean"
+  ]
+}

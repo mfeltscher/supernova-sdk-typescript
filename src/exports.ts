@@ -1,5 +1,3 @@
-
-
 // Export main Supernova object
 export { Supernova } from '../src/core/SDKSupernova'
 
@@ -8,15 +6,24 @@ export { Brand } from '../src/core/SDKBrand'
 export { DesignSystem } from '../src/core/SDKDesignSystem'
 export { DesignSystemVersion } from '../src/core/SDKDesignSystemVersion'
 export { Workspace } from '../src/core/SDKWorkspace'
+export { User } from '../src/model/users/SDKUser'
 
 // Exporters
 export { Exporter } from '../src/model/exporters/SDKExporter'
 
 // Exporter / Documentation behavior customization
 export { ExporterCustomBlock, ExporterCustomBlockMode } from './model/exporters/custom_blocks/SDKExporterCustomBlock'
-export { ExporterCustomBlockProperty, ExporterCustomBlockPropertyType, ExporterCustomBlockPropertyInputType } from './model/exporters/custom_blocks/SDKExporterCustomBlockProperty'
+export {
+  ExporterCustomBlockProperty,
+  ExporterCustomBlockPropertyType,
+  ExporterCustomBlockPropertyInputType
+} from './model/exporters/custom_blocks/SDKExporterCustomBlockProperty'
 export { ExporterCustomBlockVariant } from '../src/model/exporters/custom_blocks/SDKExporterCustomBlockVariant'
-export { ExporterConfigurationProperty, ExporterConfigurationPropertyInputType, ExporterConfigurationPropertyType } from '../src/model/exporters/custom_properties/SDKExporterConfigurationProperty'
+export {
+  ExporterConfigurationProperty,
+  ExporterConfigurationPropertyInputType,
+  ExporterConfigurationPropertyType
+} from '../src/model/exporters/custom_properties/SDKExporterConfigurationProperty'
 
 // Assets
 export { Asset } from '../src/model/assets/SDKAsset'
@@ -24,8 +31,18 @@ export { RenderedAsset } from '../src/model/assets/SDKRenderedAsset'
 
 // Components
 export { Component } from '../src/model/components/SDKComponent'
-export { ElementProperty, ElementPropertyLinkElementType, ElementPropertyTargetElementType, ElementPropertyType } from './model/elements/SDKElementProperty'
+export {
+  ElementProperty,
+  ElementPropertyLinkElementType,
+  ElementPropertyTargetElementType,
+  ElementPropertyType
+} from './model/elements/SDKElementProperty'
 export { ElementPropertyOption } from '../src/model/elements/SDKElementPropertyOption'
+export { ElementDataView } from '../src/model/elements/SDKElementDataView'
+export {
+  ElementDataViewColumn,
+  ElementDataViewColumnBasePropertyType
+} from '../src/model/elements/SDKElementDataViewColumn'
 
 // Design Components
 export { DesignComponent } from '../src/model/components/SDKDesignComponent'
@@ -52,7 +69,10 @@ export { DocumentationPageBlockImage } from '../src/model/documentation/blocks/S
 export { DocumentationPageOrderedList } from '../src/model/documentation/blocks/SDKDocumentationPageBlockOrderedList'
 export { DocumentationPageBlockQuote } from '../src/model/documentation/blocks/SDKDocumentationPageBlockQuote'
 export { DocumentationPageBlockRenderCode } from '../src/model/documentation/blocks/SDKDocumentationPageBlockRenderCode'
-export { DocumentationPageBlockShortcut, DocumentationPageBlockShortcutType } from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcut'
+export {
+  DocumentationPageBlockShortcut,
+  DocumentationPageBlockShortcutType
+} from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcut'
 export { DocumentationPageBlockShortcuts } from '../src/model/documentation/blocks/SDKDocumentationPageBlockShortcuts'
 export { DocumentationPageBlockText } from '../src/model/documentation/blocks/SDKDocumentationPageBlockText'
 export { DocumentationPageBlockToken } from '../src/model/documentation/blocks/SDKDocumentationPageBlockToken'
@@ -72,13 +92,13 @@ export { DocumentationPageBlockTableColumn } from '../src/model/documentation/bl
 export { DocumentationItemHeader } from '../src/model/documentation/configuration/SDKDocumentationItemHeader'
 export { DocumentationItemConfiguration } from '../src/model/documentation/configuration/SDKDocumentationItemConfiguration'
 
-
 // Documentation / Main
 export { DocumentationConfiguration } from '../src/model/documentation/SDKDocumentationConfiguration'
 export { DocumentationGroup } from '../src/model/documentation/SDKDocumentationGroup'
 export { DocumentationItem } from '../src/model/documentation/SDKDocumentationItem'
 export { DocumentationPage } from '../src/model/documentation/SDKDocumentationPage'
 export { DocumentationPageBlock } from '../src/model/documentation/SDKDocumentationPageBlock'
+export { DocumentationPageAsset } from '../src/model/documentation/SDKDocumentationPageAsset'
 export { DocumentationRichText } from '../src/model/documentation/SDKDocumentationRichText'
 export { RichTextSpan } from '../src/model/documentation/SDKDocumentationRichTextSpan'
 export { RichTextSpanAttribute } from '../src/model/documentation/SDKDocumentationRichTextSpanAttribute'
@@ -99,6 +119,7 @@ export { DocumentationCalloutType } from '../src/model/enums/SDKDocumentationCal
 export { DocumentationGroupBehavior } from '../src/model/enums/SDKDocumentationGroupBehavior'
 export { DocumentationHeadingType } from '../src/model/enums/SDKDocumentationHeadingType'
 export { DocumentationItemType } from '../src/model/enums/SDKDocumentationItemType'
+export { DocumentationPageAssetType } from '../src/model/enums/SDKDocumentationPageAssetType'
 export { DocumentationPageBlockType } from '../src/model/enums/SDKDocumentationPageBlockType'
 export { DocumentationPageBlockThemeType } from './model/enums/SDKDocumentationPageBlockThemeType'
 export { FrameAlignment } from '../src/model/enums/SDKFrameAlignment'
@@ -132,6 +153,24 @@ export { TypographyToken } from '../src/model/tokens/SDKTypographyToken'
 export { TextToken } from '../src/model/tokens/SDKTextToken'
 export { Token } from '../src/model/tokens/SDKToken'
 
+export {
+  AnyToken,
+  AnyTokenValue,
+  BlurTokenValue,
+  BorderTokenValue,
+  ColorTokenValue,
+  FontTokenValue,
+  GenericTokenValue,
+  GradientStopValue,
+  GradientTokenValue,
+  MeasureTokenValue,
+  RadiusTokenValue,
+  ShadowTokenValue,
+  TextTokenValue,
+  TokenValue,
+  TypographyTokenValue
+} from '../src/model/tokens/SDKTokenValue'
+
 // Themes
 export { TokenTheme } from './model/themes/SDKTokenTheme'
 export { TokenThemeOverride } from './model/themes/SDKTokenThemeOverride'
@@ -140,8 +179,23 @@ export { TokenThemeOverride } from './model/themes/SDKTokenThemeOverride'
 export { TokenJSONBuilder, JSONBuilderNamingOption } from './tools/json-builder/SDKToolsJSONBuilder'
 export { DTProcessedTokenNode } from '../src/tools/design-tokens/utilities/SDKDTJSONConverter'
 export { DTTokenMergeDiff } from '../src/tools/design-tokens/utilities/SDKDTTokenMerger'
-export { DTPluginToSupernovaMap, DTPluginToSupernovaMapType } from '../src/tools/design-tokens/utilities/SDKDTMapLoader'
-export { SupernovaToolsDesignTokensPlugin, SupernovaToolsDesignTokensResult } from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
-export { DocSearch, DocSearchConfiguration, DocSearchResult, DocSearchResultData, DocSearchResultDataType } from '../src/tools/search-index/SDKToolsDocSearch'
+export {
+  DTPluginToSupernovaMap,
+  DTPluginToSupernovaMapType,
+  DTPluginToSupernovaMappingFile,
+  DTPluginToSupernovaMapPack,
+  DTPluginToSupernovaSettings
+} from '../src/tools/design-tokens/utilities/SDKDTMapLoader'
+export {
+  SupernovaToolsDesignTokensPlugin,
+  SupernovaToolsDesignTokensResult
+} from '../src/tools/design-tokens/SDKToolsDesignTokensPlugin'
+export {
+  DocSearch,
+  DocSearchConfiguration,
+  DocSearchResult,
+  DocSearchResultData,
+  DocSearchResultDataType
+} from '../src/tools/search-index/SDKToolsDocSearch'
 export { MarkdownTransform, MarkdownTransformType } from '../src/tools/markdown-transform/SDKToolsMarkdownTransform'
 export { TokenTransform } from '../src/tools/token-transform/SDKToolsTokenTransform'

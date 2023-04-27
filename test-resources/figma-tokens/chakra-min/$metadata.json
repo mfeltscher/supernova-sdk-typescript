@@ -1,0 +1,8 @@
+{
+  "tokenSetOrder": [
+    "core/border",
+    "comp/button",
+    "comp/radio",
+    "default/light"
+  ]
+}

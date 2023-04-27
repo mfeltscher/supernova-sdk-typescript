@@ -9,11 +9,6 @@
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { TokenGroup } from '../../..'
-import { SupernovaError } from '../../../core/errors/SDKSupernovaError'
-import { DTProcessedTokenNode } from './SDKDTJSONConverter'
-import * as fs from 'fs'
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
 
@@ -132,7 +127,7 @@ export class DTJSONParser {
         }
 
         // Process token sets
-        let pairedSets = new Array<any>()
+        let pairedSets = new Array<{ name: string, pair: any }>()
         for (let [tokenSetName, unknownPriority] of Object.entries(selectedTokenSets)) {
           let setName = tokenSetName
           let setPriority = unknownPriority
@@ -141,11 +136,19 @@ export class DTJSONParser {
             priority: setPriority as DTParsedThemeSetPriority,
             set: fetchedSet
           }
-          pairedSets.push(pair)
+          pairedSets.push({ name: setName, pair })
+        }
+
+        // Respect $metadata.json -> tokenSetOrder
+        if (order.length) {
+          // We could have process tokens in reverse orders here, and do not replace tokens at all:
+          // i.e. trying to resolve higher priority tokens first and add them in DTTokenReferenceResolver
+          // but lower priority tokens still could be resolved earlier, so reverse sort order would not help.
+          pairedSets.sort((a,b) => order.indexOf(a.name) - order.indexOf(b.name))
         }
 
         let theme: DTParsedTheme = {
-          selectedTokenSets: pairedSets,
+          selectedTokenSets: pairedSets.map(o => o.pair),
           name: name,
           id: id
         }

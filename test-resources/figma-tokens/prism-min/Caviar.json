@@ -1,0 +1,26 @@
+{
+  "color": {
+    "tokens": {
+      "caviarGrey": {
+        "800": {
+          "value": "#1F2327",
+          "type": "color"
+        }
+      }
+    },
+    "semantics": {
+      "background": {
+        "primaryInverted": {
+          "value": "{color.tokens.caviarGrey.800}",
+          "type": "color"
+        }
+      },
+      "button": {
+        "pressed": {
+          "value": "{color.tokens.caviarGrey.800}",
+          "type": "color"
+        }
+      }
+    }
+  }
+}

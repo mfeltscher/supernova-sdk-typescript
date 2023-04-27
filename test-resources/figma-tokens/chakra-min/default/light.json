@@ -1,0 +1,14 @@
+{
+  "default": {
+    "border-width": {
+      "actions": {
+        "value": "{border-width.1}",
+        "type": "borderWidth"
+      },
+      "inputs": {
+        "value": "{border-width.1}",
+        "type": "borderWidth"
+      }
+   }
+  }
+}

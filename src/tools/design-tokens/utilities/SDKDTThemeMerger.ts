@@ -47,7 +47,12 @@ export class DTThemeMerger {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Merger
 
-  makeTheme(upstreamTokens: Array<Token>, upstreamTheme: TokenTheme, processedNodes: Array<DTProcessedTokenNode>): TokenTheme {
+  makeTheme(
+    upstreamTokens: Array<Token>,
+    upstreamTheme: TokenTheme,
+    processedNodes: Array<DTProcessedTokenNode>,
+    preciseCopy: boolean = false
+  ): TokenTheme {
 
     // Build map of existing tokens using path keys
     let existingOverrides = new Map<string, Token>()
@@ -61,6 +66,8 @@ export class DTThemeMerger {
         let key = this.buildKey(token.path, token.token.name)
         newTokenSet.set(key, token)
     } 
+
+    let tokensInThemeButNotInUpstream = new Map<string, DTProcessedTokenNode>(newTokenSet)
 
     // Create theme replica to fill with tokens
     let themeReplica = new TokenTheme({
@@ -85,18 +92,25 @@ export class DTThemeMerger {
         let key = this.buildKey(this.buildPath(token), token.name)
 
         let incomingThemeOverride = newTokenSet.get(key)
+        let currentThemeOverride = existingOverrides.get(key)
+        tokensInThemeButNotInUpstream.delete(key)
+
         if (incomingThemeOverride) {
             this.replaceIdAcrossAllPossibleReferences(incomingThemeOverride, token.id, processedNodes)
             // console.log(`overriding token from FT for key ${key}`)
+            let incomingThemeDiffersFromBase = !TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)
+            let incomingThemeDiffersFromUpstreamTheme =
+                currentThemeOverride && !TokenComparator.isEqualTokenValue(currentThemeOverride, incomingThemeOverride.token)
             // For any defined override, use the new token, and align its id with the original token, if the token has different value
-            if (!TokenComparator.isEqualTokenValue(token, incomingThemeOverride.token)) {
+            if (incomingThemeDiffersFromBase) {
                 // console.log(`value is not the same for token ${key}, using override`)
                 incomingThemeOverride.token.id = token.id
                 themeReplica.overriddenTokens.push(incomingThemeOverride.token)
+            } else if (incomingThemeDiffersFromUpstreamTheme) {
+                // base same as incoming theme, but differs from existing theme => we should remove override completely
             } else {
                 // console.log(`skipping override`)
                 // Otherwise use override that already exists without modifications
-                let currentThemeOverride = existingOverrides.get(key)
                 if (currentThemeOverride) {
                     // console.log(`overriding token from existing overrides ${key}`)
                     themeReplica.overriddenTokens.push(currentThemeOverride)
@@ -106,8 +120,8 @@ export class DTThemeMerger {
             }
         } else {
             // Otherwise use override that already exists without modifications
-            let currentThemeOverride = existingOverrides.get(key)
-            if (currentThemeOverride) {
+            // Unless preciseCopy = true and we need to remove currentThemeOverride
+            if (currentThemeOverride && !preciseCopy) {
                 // console.log(`overriding token from existing overrides ${key}`)
                 themeReplica.overriddenTokens.push(currentThemeOverride)
             } else {
@@ -116,8 +130,29 @@ export class DTThemeMerger {
         }
     }
 
+    // Process tokens that were not in upstream, but are referenced in this theme
+    this.inlineTokens(themeReplica, tokensInThemeButNotInUpstream)
+
     return themeReplica
   }
+
+  inlineTokens(themeReplica: TokenTheme, tokensInThemeButNotInUpstream: Map<string, DTProcessedTokenNode>) {
+    let idsCandidates = [...tokensInThemeButNotInUpstream.values()]
+    let themeOverrideRefs = themeReplica.overriddenTokens
+        .map(t => (t as AnyToken).value?.referencedToken?.id)
+        .filter(Boolean)
+    let candidates = idsCandidates.filter(c => themeOverrideRefs.includes(c.token.id))
+
+    for (let candidate of candidates) {
+        for (let override of themeReplica.overriddenTokens) {
+            let token = (override as AnyToken)
+            if (token && token.value.referencedToken?.id === candidate.token.id) {
+                // Do we need to copy something else apart from value?
+                token.value = (candidate.token as AnyToken).value
+            }
+        }
+    }
+}
 
   replaceIdAcrossAllPossibleReferences(override: DTProcessedTokenNode, newId: string, allTokens: Array<DTProcessedTokenNode>) {
 

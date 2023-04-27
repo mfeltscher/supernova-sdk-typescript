@@ -66,6 +66,12 @@ export class DocumentationPageBlockCustom extends DocumentationPageBlock {
     // Add overrides
     for (let property of model.customBlockProperties) {
       properties[property.key] = property.value
+
+      // Deprecated. Old image asset type for backward compatibility
+      if (property.value?.asset || property.value?.asset === null) {
+        property.value.assetId = property.value.asset?.id ?? null
+        property.value.assetUrl = property.value.asset?.url ?? null
+      }
     }
     this.properties = properties
   }

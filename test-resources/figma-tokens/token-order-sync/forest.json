@@ -1,0 +1,15 @@
+{
+  "ds": {
+    "sys": {
+      "color": {
+        "primary": {
+          "default": {
+            "value": "{ds.base.color.green}",
+            "type": "color",
+            "description": "forest-primary-default"
+          }
+        }
+      }
+    }
+  }
+}

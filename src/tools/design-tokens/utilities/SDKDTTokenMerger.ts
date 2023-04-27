@@ -138,6 +138,14 @@ export class DTTokenMerger {
       const key = DTTokenMerger.buildKey(node.path, node.token.name)
       if (!extractedMap.has(key)) {
         toDelete.push(node)
+        
+        // Any tokens and theme overrides that were imported from Figma are unlinked (turned into SN tokens)
+        // If preciseCopy = false, we should still unlink Figma tokens, that do not match any tokens from extracted from payload 
+        if (!!node.token.origin) {
+          node.token.origin = null
+          toUpdate.push(node)
+          toCreateOrUpdate.push(node)
+        }
       }
     }
 
