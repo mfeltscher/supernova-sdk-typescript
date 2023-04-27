@@ -1,6 +1,6 @@
 <img src="https://github.com/Supernova-Studio/sdk-typescript/blob/main/readme-icon.png?raw=true" alt="Supernova SDK" style="max-width:100%; margin-bottom: 20px;" />
 
-# Supernova JS/TS SDK [![License](https://img.shields.io/badge/License-MIT-lightgray)](https://raw.githubusercontent.com/Supernova-Studio/sdk-typescript/main/LICENSE.md) [![SDK Status](https://img.shields.io/badge/SDK%20Status-Beta-blue)]() [![Version 1.7.0](https://img.shields.io/badge/Version-1.7.0-success)]()
+# Supernova JS/TS SDK [![License](https://img.shields.io/badge/License-MIT-lightgray)](https://raw.githubusercontent.com/Supernova-Studio/sdk-typescript/main/LICENSE.md) [![SDK Status](https://img.shields.io/badge/SDK%20Status-Beta-blue)]() [![Version 1.8.73](https://img.shields.io/badge/Version-1.8.48-success)]()
 
 The Supernova SDK provides convenient access to the [Supernova.io](https://supernova.io) platform. It allows you to build design system tooling without worrying about building entire necessary infrastructure like syncing data from Figma, Storybook, writing entire documentation systems etc. - instead, you get all of this out of the box, and you can use the data coming from your single source of truth for any other purpose.
 

@@ -7,6 +7,22 @@ All notable changes to this SDK are mentioned here in this changelog.
 
 Added data views and properties to tokens, components and documentation pages. All objects are available on `Version` object. More information coming soon!
 
+
+## [1.8.48] - 2023-08-02
+### CLI Improvements
+
+We have fixed additional issues with CLI:
+
+- Typography tokens are now properly supported, even when they contain complex references
+- Dimensions will now properly compute for lot of obscure scenarios
+- Font families are now supported. Those will get mapped into "Other/Font Family" category as there is no corresponding category in Supernova just yet. This will be changed in the future!
+- Font weigths are now supported. Those will get mapped into "Other/Font Weight" category as there is no corresponding category in Supernova just yet. This will be changed in the future!
+- Font sizes will now properly parse, and work with both `px` and `%` definitions
+- Support for `%` was added to tokens and will also show in the Cloud. It is not yet possible to set unit from the Cloud directly, that improvement is coming
+- More of better logs for debugging issues, and more resilient parsing of data types in general
+
+Additionally, we have added several new attributes for new upcoming features, such as Asset sizes, asset meta information about sources or more detailed information about Figma Frames.
+
 ## [1.8.46] - 2023-03-03
 ### User object
 

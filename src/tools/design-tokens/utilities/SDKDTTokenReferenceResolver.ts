@@ -28,7 +28,7 @@ export class DTTokenReferenceResolver {
   // Keep original index of Token, so we can ignore updating token with same path but lower priority
   // if during processing it is resolved later, than token with higher priority
   private mappedTokens: Map<string, [Token, number]> = new Map<string, [Token, number]>()
-  private nodes: Map<string,DTProcessedTokenNode> = new Map<string, DTProcessedTokenNode>()
+  private nodes: Map<string, DTProcessedTokenNode> = new Map<string, DTProcessedTokenNode>()
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
@@ -41,13 +41,13 @@ export class DTTokenReferenceResolver {
   replaceRefs(existingToken: AnyToken, newToken: AnyToken) {
     for (const [path, [token, index]] of this.mappedTokens) {
       if ((token as AnyToken)?.value?.referencedToken?.id === existingToken.id) {
-        (token as AnyToken).value.referencedToken = newToken
+        ;(token as AnyToken).value.referencedToken = newToken
       }
     }
 
     for (const [path, token] of this.nodes) {
       if ((token.token as AnyToken)?.value?.referencedToken?.id === existingToken.id) {
-        (token.token as AnyToken).value.referencedToken = newToken
+        ;(token.token as AnyToken).value.referencedToken = newToken
       }
     }
   }
@@ -58,8 +58,8 @@ export class DTTokenReferenceResolver {
     // We process tokens in order from $metadata.json, keeping theirs original index.
     // We should update tokens of same path that have higher priority only.
     // And any priority token could be resolved first.
-    // See `test_tooling_design_tokens_order` test 
-    const [existingNode,indexOfExistingNode] = this.mappedTokens.get(nodePath) ?? []
+    // See `test_tooling_design_tokens_order` test
+    const [existingNode, indexOfExistingNode] = this.mappedTokens.get(nodePath) ?? []
     if (!!existingNode && Number.isInteger(indexOfNewNode) && indexOfExistingNode > indexOfNewNode) {
       return
     }
@@ -86,6 +86,12 @@ export class DTTokenReferenceResolver {
 
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Lookup
+
+  tokensOfType(type: TokenType): Array<Token> {
+    return [...this.mappedTokens.values()]
+      .filter(([token, index]) => token.tokenType === type)
+      .map(([token, index]) => token)
+  }
 
   lookupReferencedToken(reference: string): Token | undefined {
     // Find single token reference
@@ -170,7 +176,7 @@ export class DTTokenReferenceResolver {
       case TokenType.measure: {
         let measure = token as MeasureToken
         if (measure.value.unit === Unit.percent) {
-          return (token as MeasureToken).value.measure.toString() + "%"
+          return (token as MeasureToken).value.measure.toString() + '%'
         } else {
           return (token as MeasureToken).value.measure.toString()
         }

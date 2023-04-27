@@ -12,6 +12,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Brand, ElementProperty, TokenType } from '../..'
 import { DesignSystemVersion } from '../../core/SDKDesignSystemVersion'
+import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { GenericTokenRemoteModel, TokenRemoteModel } from './remote/SDKRemoteTokenModel'
 import { TextTokenRemoteValue } from './remote/SDKRemoteTokenValue'
@@ -74,7 +75,7 @@ export class GenericToken extends Token {
 
     if (value) {
       // Raw value
-      let tokenValue = this.measureValueFromDefinition(value)
+      let tokenValue = this.genericValueFromDefinition(value)
       return new GenericToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
     } else if (alias) {
       // Aliased value - copy and create raw from reference
@@ -86,10 +87,46 @@ export class GenericToken extends Token {
     }
   }
 
-  static measureValueFromDefinition(definition: string): GenericTokenValue {
+  static genericValueFromDefinition(definition: string): GenericTokenValue {
     return {
       text: definition ? definition : '',
       referencedToken: null
+    }
+  }
+
+  static genericValueFromDefinitionOrReference(
+    definition: any,
+    referenceResolver: DTTokenReferenceResolver
+  ): GenericTokenValue {
+    if (referenceResolver.valueHasReference(definition)) {
+      if (!referenceResolver.isBalancedReference(definition)) {
+        // Internal syntax of reference corrupted
+        throw new Error(`Invalid reference syntax in token value: ${definition}`)
+      }
+      if (referenceResolver.valueIsPureReference(definition)) {
+        // When color is pure reference, we can immediately resolve it
+        let reference = referenceResolver.lookupReferencedToken(definition) as GenericToken
+        if (!reference) {
+          return undefined
+        }
+        return {
+          referencedToken: reference,
+          text: reference.value.text
+        }
+      } else {
+        // When color is not a pure reference, we must resolve it further before we can resolve it
+        let references = referenceResolver.lookupAllReferencedTokens(definition)
+        if (!references) {
+          // Still unable to solve the reference, continue looking in some other tokens
+          return undefined
+        } else {
+          // Resolved all internal references
+          let resolvedValue = referenceResolver.replaceAllReferencedTokens(definition, references)
+          return this.genericValueFromDefinition(resolvedValue)
+        }
+      }
+    } else {
+      return this.genericValueFromDefinition(definition)
     }
   }
 
