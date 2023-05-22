@@ -104,16 +104,7 @@ export class TokenTheme {
   }
 
   private tokensToOverrides(): Array<TokenThemeOverrideRemoteModel> {
-    // return this.overriddenTokens.map(o => this.toWriteOverrideObject(o))
-    let counter = 0
-    let result = new Array<TokenThemeOverrideRemoteModel>()
-    for (let override of this.overriddenTokens) {
-      if (override.tokenType === TokenType.color) {
-        result.push(this.toWriteOverrideObject(override))
-      }
-      counter++
-    }
-    return result
+    return this.overriddenTokens.map(o => this.toWriteOverrideObject(o))
   }
 
 
