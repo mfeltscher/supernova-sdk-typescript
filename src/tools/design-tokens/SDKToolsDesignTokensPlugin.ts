@@ -126,7 +126,17 @@ export class SupernovaToolsDesignTokensPlugin {
         throw new Error(`Unknown brand ${map.bindToBrand} provided in binding.\n\nAvailable brands in this design system: [${brands.map(b => `${b.name} (id: ${b.persistentId})`)}]`)
       }
       // Find the destination theme
-      let theme = themes.find(t => t.id === map.bindToTheme || (map.bindToTheme.toLowerCase().trim()) === t.name.toLowerCase().trim())
+      let matchedThemes = themes.filter(
+        t =>
+          t.brandId === brand.id &&
+          (t.id === map.bindToTheme ||
+            map.bindToTheme.toLowerCase().trim() === t.name.toLowerCase().trim() ||
+            map.bindToTheme.toLowerCase().trim() === t.codeName.toLowerCase().trim())
+      )
+      if (matchedThemes.length > 1) {
+        throw new Error(`Ambiguous theme ${map.bindToTheme} provided in binding.\n\nPlease, use unique name in mapping or rename theme name or code in Supernova.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
+      }
+      let theme = matchedThemes[0]
       if (!theme) {
         throw new Error(`Unknown theme ${map.bindToTheme} provided in binding.\n\nAvailable themes in this design system: ${brands.map(b => `Brand: ${b.name} (id: ${b.persistentId})\n${themes.filter(th => th.brandId == b.persistentId).map(t => `    Theme: ${t.name} (id: ${t.id})`)}`)}`)
       }
