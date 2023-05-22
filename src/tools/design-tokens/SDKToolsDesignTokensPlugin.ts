@@ -128,7 +128,7 @@ export class SupernovaToolsDesignTokensPlugin {
       // Find the destination theme
       let matchedThemes = themes.filter(
         t =>
-          t.brandId === brand.id &&
+          t.brandId === brand.persistentId &&
           (t.id === map.bindToTheme ||
             map.bindToTheme.toLowerCase().trim() === t.name.toLowerCase().trim() ||
             map.bindToTheme.toLowerCase().trim() === t.codeName.toLowerCase().trim())
