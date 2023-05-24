@@ -19,6 +19,7 @@ import { DocumentationItemConfiguration, DocumentationItemConfigurationModel } f
 
 export interface DocumentationItemModel {
   persistentId: string
+  shortPersistentId: string
   id: string
   designSystemVersionId: string
   title: string
@@ -39,6 +40,7 @@ export class DocumentationItem {
 
   id: string
   persistentId: string
+  shortPersistentId: string
   type: DocumentationItemType
   title: string
   configuration: DocumentationItemConfiguration
@@ -55,6 +57,7 @@ export class DocumentationItem {
   constructor(model: DocumentationItemModel) {
     this.id = model.id
     this.persistentId = model.persistentId
+    this.shortPersistentId = model.shortPersistentId
     this.type = model.type
     this.configuration = new DocumentationItemConfiguration(model.configuration)
 
