@@ -1,27 +1,26 @@
 //
 //  DocumentationPage.ts
-//  SDKSupernova 
+//  SDKSupernova
 //
 //  Created by Jiri Trecak.
 //  Copyright © 2021 Supernova. All rights reserved.
 //
 
-
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
 
-import { DocumentationBlockBuilder } from "./builder/SDKDocumentationBlockBuilder"
-import { ExporterCustomBlock } from "../exporters/custom_blocks/SDKExporterCustomBlock"
-import { DocumentationConfiguration } from "./SDKDocumentationConfiguration"
-import { DocumentationGroup } from "./SDKDocumentationGroup"
-import { DocumentationItemModel, DocumentationItem } from "./SDKDocumentationItem"
-import { DocumentationPageBlockModel, DocumentationPageBlock } from "./SDKDocumentationPageBlock"
-
+import { DocumentationBlockBuilder } from './builder/SDKDocumentationBlockBuilder'
+import { ExporterCustomBlock } from '../exporters/custom_blocks/SDKExporterCustomBlock'
+import { DocumentationConfiguration } from './SDKDocumentationConfiguration'
+import { DocumentationGroup } from './SDKDocumentationGroup'
+import { DocumentationItemModel, DocumentationItem } from './SDKDocumentationItem'
+import { DocumentationPageBlockModel, DocumentationPageBlock } from './SDKDocumentationPageBlock'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Definitions
 
 export interface DocumentationPageModel extends DocumentationItemModel {
+  path: string
   blocks?: Array<DocumentationPageBlockModel>
 }
 
@@ -42,7 +41,7 @@ export class DocumentationPage extends DocumentationItem {
   deployedUrl: string | null
 
   /** Internal */
-  relativeUrl: string | null
+  relativeUrl: string
 
   /** Internal */
   editorUrl: string | null
@@ -50,13 +49,17 @@ export class DocumentationPage extends DocumentationItem {
   // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
   // MARK: - Constructor
 
-  constructor(model: DocumentationPageModel, customBlocks: Array<ExporterCustomBlock>, configuration: DocumentationConfiguration) {
+  constructor(
+    model: DocumentationPageModel,
+    customBlocks: Array<ExporterCustomBlock>,
+    configuration: DocumentationConfiguration
+  ) {
     super(model)
     if (model.blocks) {
       this.blocks = model.blocks.map(b => DocumentationBlockBuilder.fromGenericModel(b, customBlocks, configuration))
     }
     this.deployedUrl = null
-    this.relativeUrl = null
+    this.relativeUrl = model.path
     this.editorUrl = null
   }
 
@@ -64,10 +67,9 @@ export class DocumentationPage extends DocumentationItem {
   // MARK: - Convenience
 
   /** Internal: Modifies object with new paths. Don't use outside SDK environment as it doesn't propagate the data back to source */
-  internalOverridePaths(deployed: string | null, editor: string | null, relative: string | null) {
+  internalOverridePaths(deployed: string | null, editor: string | null) {
     this.editorUrl = editor
     this.deployedUrl = deployed
-    this.relativeUrl = relative
   }
 
   /** Internal: Sets new parent. Used when manipulating with object internally. Don't use outside SDK environment */
