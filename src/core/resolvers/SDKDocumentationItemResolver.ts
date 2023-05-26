@@ -91,8 +91,7 @@ export class DocumentationItemResolver {
       if (item instanceof DocumentationPage) {
         const deployed: string | null = this.deployedUrl(item)
         const editor: string | null = this.editorUrl(item)
-        const relative: string | null = this.pageUrl(item)
-        item.internalOverridePaths(deployed, editor, relative)
+        item.internalOverridePaths(deployed, editor)
       } else if (item instanceof DocumentationGroup) {
         const relative: string | null = this.pageUrl(item)
         let deployed: string | null = null
@@ -184,17 +183,17 @@ export class DocumentationItemResolver {
   /** Create URL pointing to the deployed documentation page hosted on Supernova side. Will be empty if there was nothing deployed, or if not hosted at Supernova */
   private deployedUrl(page: DocumentationPage): string | null {
     if (this.docsUrl) {
-      const pageUrl = this.pageUrl(page)
-      if (pageUrl) {
-        return this.docsUrl + "/" + pageUrl
+      const relativeUrl = page.relativeUrl;
+      if (relativeUrl) {
+        return this.docsUrl + "/" + relativeUrl
       }
     }
     return null
   }
 
-  /** Create editor URL pointing to editable page. Since Supernova doesn't link to pages directly yet, this will for now open the editor */
+  /** Create editor URL pointing to editable page. */
   private editorUrl(item: DocumentationItem): string | null {
-    return `https://cloud.supernova.io/ws/${this.workspaceHandle}/ds/${this.designSystem.id}-${this.slugify(this.designSystem.name)}/${this.version.id}/documentation/editor`
+    return `https://cloud.supernova.io/ws/${this.workspaceHandle}/ds/${this.designSystem.id}-${this.slugify(this.designSystem.name)}/${this.version.id}/documentation/editor/${item.id}`
   }
 
   /** Create page URL or group URL pointing to the first contained page */
