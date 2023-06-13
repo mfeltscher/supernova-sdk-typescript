@@ -49,6 +49,7 @@ import { WorkspaceNPMRegistry, WorkspaceNPMRegistryModel } from '../../model/sup
 import { TokenTheme, TokenThemeRemoteModel } from '../../model/themes/SDKTokenTheme'
 import { ElementDataView, ElementDataViewRemoteModel } from '../../model/elements/SDKElementDataView'
 import { Brand, ElementProperty, ElementPropertyTargetElementType } from '../..'
+import { DocumentationEnvironment } from '../../model/enums/SDKDocumentationEnvironment'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Function Definition
@@ -1198,6 +1199,7 @@ export class DataCore {
 
   async documetationJobs(
     version: DesignSystemVersion,
+    environment: DocumentationEnvironment,
     limit: number = 10
   ): Promise<
     Array<{
@@ -1206,13 +1208,14 @@ export class DataCore {
       exporterId: string | null
     }>
   > {
-    const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs?designSystemVersionId=${version.id}&destinations[]=documentation&offset=0&limit=${limit}`
+    const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs?designSystemVersionId=${version.id}&destinations[]=documentation&docsEnvironment=${environment}&offset=0&limit=${limit}`
     let jobs = (await this.bridge.getDSMGenericDataFromEndpoint(endpoint)).result.jobs as any
     return jobs
   }
 
   async publishDocumentation(
-    version: DesignSystemVersion
+    version: DesignSystemVersion,
+    environment: DocumentationEnvironment
   ): Promise<{
     status: 'Queued' | 'InProgress' | 'Failure'
     jobId: string | null
@@ -1221,7 +1224,8 @@ export class DataCore {
     const endpoint = `codegen/workspaces/${version.designSystem.workspaceId}/jobs/documentation`
     const payload = {
       designSystemId: version.designSystem.id,
-      designSystemVersionId: version.id
+      designSystemVersionId: version.id,
+      environment
     }
 
     let result: {
