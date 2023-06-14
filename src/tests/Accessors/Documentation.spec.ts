@@ -14,6 +14,7 @@ import { DocumentationPageBlockType } from '../../exports'
 import { DocumentationConfiguration } from '../../model/documentation/SDKDocumentationConfiguration'
 import { DocumentationGroup } from '../../model/documentation/SDKDocumentationGroup'
 import { testInstance } from '../helpers'
+import { DocumentationEnvironment } from '../../model/enums/SDKDocumentationEnvironment'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Tests
@@ -149,7 +150,7 @@ test('test_documentation_publish', async t => {
   let documentation = await version.documentation()
 
   // Publish docs
-  let publishingResult = await documentation.publish()
+  let publishingResult = await documentation.publish(DocumentationEnvironment.live)
   t.true(publishingResult.status === 'Queued' || publishingResult.status === 'InProgress')
 })
 
@@ -162,7 +163,7 @@ test('test_documentation_is_publishing', async t => {
   let documentation = await version.documentation()
 
   // Publish docs
-  let isPublishing = await documentation.isPublishing()
+  let isPublishing = await documentation.isPublishing(DocumentationEnvironment.live)
   t.true(isPublishing.status === 'InProgress' || isPublishing.status === 'Idle')
 })
 
