@@ -537,7 +537,7 @@ export class TokenResolver {
 
     // Each token has some value, let's use it
     let value = (referencedToken as AnyToken).value
-    ;(replica as AnyToken).value = value
+    ;(replica as AnyToken).value = value && ({ ...value, referencedToken } as AnyTokenValue)
 
     return replica
   }
