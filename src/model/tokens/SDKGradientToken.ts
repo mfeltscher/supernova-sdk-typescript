@@ -118,6 +118,9 @@ export class GradientToken extends Token {
     // Parse raw gradient pieces
     const [gradientDegrees, ...colorStops] = definition
       .substring(definition.indexOf('(') + 1, definition.lastIndexOf(')'))
+      // There could be commas inside color def
+      // linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%)
+      .replace(/, (?=[^()]*\))/g, ',')
       .split(', ')
 
     // Rotate 90 degrees

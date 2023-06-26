@@ -73,7 +73,7 @@ export class GenericToken extends Token {
       customPropertyOverrides: []
     }
 
-    if (value) {
+    if (value !== undefined && value !== null) {
       // Raw value
       let tokenValue = this.genericValueFromDefinition(value)
       return new GenericToken(version, baseToken, tokenValue, undefined, properties, propertyValues)
@@ -89,7 +89,7 @@ export class GenericToken extends Token {
 
   static genericValueFromDefinition(definition: string): GenericTokenValue {
     return {
-      text: definition ? definition : '',
+      text: definition ? `${definition}` : '',
       referencedToken: null
     }
   }

@@ -16,7 +16,8 @@ import { AnyToken } from "../../../model/tokens/SDKTokenValue"
 import { TokenTheme } from "../../../model/themes/SDKTokenTheme"
 import { Token } from "../../../model/tokens/SDKToken"
 import { TokenComparator } from "../../../model/tokens/SDKTokenCompator"
-import { BlurToken, BorderToken, GradientToken, RadiusToken, ShadowToken, TypographyToken } from "../../.."
+import { AnyTokenValue, BlurToken, BorderToken, GradientToken, RadiusToken, ShadowToken, TokenType, TypographyToken } from "../../.."
+import _ from "lodash"
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Types
@@ -138,21 +139,148 @@ export class DTThemeMerger {
 
   inlineTokens(themeReplica: TokenTheme, tokensInThemeButNotInUpstream: Map<string, DTProcessedTokenNode>) {
     let idsCandidates = [...tokensInThemeButNotInUpstream.values()]
-    let themeOverrideRefs = themeReplica.overriddenTokens
-        .map(t => (t as AnyToken).value?.referencedToken?.id)
+    let themeOverrideRefs = _.flatMap(themeReplica.overriddenTokens,
+        t => [(t as AnyToken).value?.referencedToken?.id, ...this.getRefIdsFromComplexTokens(t as AnyToken)])
         .filter(Boolean)
     let candidates = idsCandidates.filter(c => themeOverrideRefs.includes(c.token.id))
-
+  
     for (let candidate of candidates) {
         for (let override of themeReplica.overriddenTokens) {
             let token = (override as AnyToken)
-            if (token && token.value.referencedToken?.id === candidate.token.id) {
+            if (!token) {
+                continue
+            }
+  
+            if (token.value.referencedToken?.id === candidate.token.id) {
                 // Do we need to copy something else apart from value?
                 token.value = (candidate.token as AnyToken).value
             }
+            this.inlineValueIntoComplexTokens(token, candidate.token.id, (candidate.token as AnyToken).value)
         }
     }
-}
+  }
+  
+  getRefIdsFromComplexTokens(token: AnyToken) {
+    switch (token.tokenType) {
+        case TokenType.blur: return [(token as BlurToken).value?.radius?.referencedToken?.id]
+        case TokenType.border: {
+            const value = (token as BorderToken)?.value;
+            const refs = [value?.color, value?.width];
+            return refs.map(r => r?.referencedToken?.id).filter(Boolean);
+        }
+        case TokenType.gradient: {
+            const stops = (token as GradientToken)?.value?.stops ?? [];
+            return stops.map(r => r?.color?.referencedToken?.id).filter(Boolean);
+        }
+        case TokenType.radius: {
+            const value = (token as RadiusToken)?.value;
+            const refs = [value?.radius, value?.topLeft, value?.topRight, value?.bottomLeft, value?.bottomRight];
+            return refs.map(r => r?.referencedToken?.id).filter(Boolean);
+        }
+        case TokenType.shadow: {
+            const value = (token as ShadowToken)?.value;
+            const refs = [value?.radius, value?.color, value?.spread, value?.x, value?.y];
+            return refs.map(r => r?.referencedToken?.id).filter(Boolean);
+        }
+        case TokenType.typography: {
+            const value = (token as TypographyToken)?.value;
+            const refs = [value?.fontSize, value?.letterSpacing, value?.lineHeight, value?.paragraphIndent, value?.paragraphSpacing, value?.font];
+            return refs.map(r => r?.referencedToken?.id).filter(Boolean);
+        }
+        default: return []
+    }
+  }
+  
+  inlineValueIntoComplexTokens(token: AnyToken, candidateId: string, candidateValueToInline: AnyTokenValue) {
+    switch (token.tokenType) {
+        case TokenType.blur: {
+            const t = (token as BlurToken);
+            if (t?.value?.radius?.referencedToken?.id === candidateId) {
+                t.value.radius = candidateValueToInline as any;
+            }
+            break;
+        }
+        case TokenType.border: {
+            const t = (token as BorderToken);
+            if (t?.value?.color?.referencedToken?.id === candidateId) {
+                t.value.color = candidateValueToInline as any;
+            }
+            if (t?.value?.width?.referencedToken?.id === candidateId) {
+                t.value.width = candidateValueToInline as any;
+            }
+            break;
+        }
+        case TokenType.gradient: {
+            const stops = (token as GradientToken)?.value?.stops ?? [];
+            for (const stop of stops) {
+                if (stop?.color?.referencedToken?.id === candidateId) {
+                    stop.color = candidateValueToInline as any;
+                }
+            }
+            break;
+        }
+        case TokenType.radius: {
+            const t = (token as RadiusToken);
+            if (t?.value?.radius?.referencedToken?.id === candidateId) {
+                t.value.radius = candidateValueToInline as any;
+            }
+            if (t?.value?.topLeft?.referencedToken?.id === candidateId) {
+                t.value.topLeft = candidateValueToInline as any;
+            }
+            if (t?.value?.topRight?.referencedToken?.id === candidateId) {
+                t.value.topRight = candidateValueToInline as any;
+            }
+            if (t?.value?.bottomLeft?.referencedToken?.id === candidateId) {
+                t.value.bottomLeft = candidateValueToInline as any;
+            }
+            if (t?.value?.bottomRight?.referencedToken?.id === candidateId) {
+                t.value.bottomRight = candidateValueToInline as any;
+            }
+            break;
+        }
+        case TokenType.shadow: {
+            const t = (token as ShadowToken);
+            if (t?.value?.radius?.referencedToken?.id === candidateId) {
+                t.value.radius = candidateValueToInline as any;
+            }
+            if (t?.value?.color?.referencedToken?.id === candidateId) {
+                t.value.color = candidateValueToInline as any;
+            }
+            if (t?.value?.spread?.referencedToken?.id === candidateId) {
+                t.value.spread = candidateValueToInline as any;
+            }
+            if (t?.value?.x?.referencedToken?.id === candidateId) {
+                t.value.x = candidateValueToInline as any;
+            }
+            if (t?.value?.y?.referencedToken?.id === candidateId) {
+                t.value.y = candidateValueToInline as any;
+            }
+            break;
+        }
+        case TokenType.typography: {
+            const t = (token as TypographyToken);
+            if (t?.value?.fontSize?.referencedToken?.id === candidateId) {
+                t.value.fontSize = candidateValueToInline as any;
+            }
+            if (t?.value?.letterSpacing?.referencedToken?.id === candidateId) {
+                t.value.letterSpacing = candidateValueToInline as any;
+            }
+            if (t?.value?.lineHeight?.referencedToken?.id === candidateId) {
+                t.value.lineHeight = candidateValueToInline as any;
+            }
+            if (t?.value?.paragraphIndent?.referencedToken?.id === candidateId) {
+                t.value.paragraphIndent = candidateValueToInline as any;
+            }
+            if (t?.value?.paragraphSpacing?.referencedToken?.id === candidateId) {
+                t.value.paragraphSpacing = candidateValueToInline as any;
+            }
+            if (t?.value?.font?.referencedToken?.id === candidateId) {
+                t.value.font = candidateValueToInline as any;
+            }
+            break;
+        }
+    }
+  }
 
   replaceIdAcrossAllPossibleReferences(override: DTProcessedTokenNode, newId: string, allTokens: Array<DTProcessedTokenNode>) {
 

@@ -22,6 +22,7 @@ import { DesignSystem } from './SDKDesignSystem'
 import { WorkspaceNPMRegistry } from '../model/support/SDKWorkspaceNPMRegistry'
 import { ElementProperty, ElementPropertyTargetElementType } from '..'
 import { ElementDataView } from '../model/elements/SDKElementDataView'
+import { DocumentationEnvironment } from '../model/enums/SDKDocumentationEnvironment'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: - Imports
@@ -139,15 +140,15 @@ export class Documentation {
   }
 
   /** Publish documentation. This queues a build on Supernova's server that will be processed by the asynchronous CI/CD pipeline. You can request status of the build with associated `isBeingPublished` method. */
-  async publish(): Promise<{
+  async publish(environment: DocumentationEnvironment): Promise<{
     status: 'Queued' | 'InProgress' | 'Failure'
     jobId: string | null
     exporterId: string | null
   }> {
     // Check if doc is being published by downloading the latest documentation job. If so, prevent publishing
-    let lastJob = await this.isPublishing()
+    let lastJob = await this.isPublishing(environment)
     if (lastJob.status === 'Idle') {
-      return await this.version.dataCore.publishDocumentation(this.version)
+      return await this.version.dataCore.publishDocumentation(this.version, environment)
     } else {
       return {
         status: 'InProgress',
@@ -158,12 +159,12 @@ export class Documentation {
   }
 
   /** Publish documentation. This queues a build on Supernova's server that will be processed by the asynchronous CI/CD pipeline. You can request status of the build with associated `isBeingPublished` method. */
-  async isPublishing(): Promise<{
+  async isPublishing(environment: DocumentationEnvironment): Promise<{
     status: 'InProgress' | 'Idle'
     jobId: string | null
     exporterId: string | null
   }> {
-    let jobs = await this.version.dataCore.documetationJobs(this.version, 1)
+    let jobs = await this.version.dataCore.documetationJobs(this.version, environment, 1)
     if (jobs.length === 0) {
       // Nothing published just yet
       return {
