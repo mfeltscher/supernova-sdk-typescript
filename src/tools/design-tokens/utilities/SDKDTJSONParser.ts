@@ -202,13 +202,7 @@ export class DTJSONParser {
             throw new Error('Node references unknown set')
           }
           // Modify entity if it contains color but is really a gradient
-          if (
-            entity.type === 'color' &&
-            (entity.value.includes('linear-gradient') || entity.value.includes('radial-gradient'))
-          ) {
-            console.log('treating as gradient')
-            entity.type = 'gradient'
-          }
+          entity = this.modifyEntityForParse(entity)
 
           set.contains.push(entity)
           result.push(entity)
@@ -224,5 +218,35 @@ export class DTJSONParser {
     }
 
     return result
+  }
+
+  private modifyEntityForParse(entity: DTParsedNode): DTParsedNode {
+    // Modify some entities to be parsed correctly by directly manipulating their values
+    // Workaround for differentiating between color and gradient - as they are both defined as color in TS
+    if (entity.type === 'color') {
+      if (entity.value.includes('linear-gradient')) {
+        entity.type = 'gradient'
+        entity.value = entity.value.replace('linear-gradient', '')
+      } else if (entity.value.includes('radial-gradient')) {
+        entity.type = 'gradient'
+        entity.value = entity.value.replace('radial-gradient', '')
+      }
+    }
+
+    // Workaround for opacity not being defined as percentage
+    if (entity.type === 'opacity') {
+      try {
+        const entityValue = entity.value
+        const opacity = parseFloat(entity.value)
+        const isUnitless = !Number.isNaN(Number(entity.value))
+        if (isUnitless && (opacity >= 0 || opacity <= 1)) {
+          entity.value = `${opacity * 100}%`
+        }
+      } catch (e) {
+        // Do nothing here
+      }
+    }
+
+    return entity
   }
 }
