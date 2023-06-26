@@ -21,6 +21,7 @@ import { SupernovaError } from '../../core/errors/SDKSupernovaError'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { ElementPropertyValue } from '../elements/values/SDKElementPropertyValue'
 import { ColorTokenRemoteData } from './remote/SDKRemoteTokenData'
+import colorString from 'color-string'
 
 import parseColor from 'parse-color'
 import { parseToRgba, toHex } from 'color2k'
@@ -100,18 +101,21 @@ export class ColorToken extends Token {
 
   static colorValueFromDefinition(definition: string): ColorTokenValue {
     let normalizedDefinition = this.normalizeColor(definition)
-    let result = parseColor(normalizedDefinition)
-    if (!result || result.hex === undefined) {
-      throw SupernovaError.fromSDKError(
-        `Unable to parse provided color value '${definition}'. Hex, RGB, HSL, HSV or CMYK are supported`
+    // let result = parseColor(normalizedDefinition)
+    let result = colorString.get(normalizedDefinition)
+    if (!result || result.model === undefined || result.value === undefined) {
+      console.log(
+        `Unable to parse provided color value '${definition}'. Hex, RGB, HSL, HSV or CMYK are supported. Fix the error to import the color value properly.`
       )
+      result = colorString.get('#000000')
     }
+    const hex = colorString.to.hex(result.value)
     return {
-      hex: result.hex.length === 7 ? result.hex + 'ff' : result.hex,
-      r: result.rgba[0],
-      g: result.rgba[1],
-      b: result.rgba[2],
-      a: Math.max(0, Math.min(255, Math.round(result.rgba[3] * 255))),
+      hex: hex.length === 7 ? `${hex}ff` : hex,
+      r: result.value[0],
+      g: result.value[1],
+      b: result.value[2],
+      a: Math.max(0, Math.min(255, Math.round(result.value[3] * 255))),
       referencedToken: null
     }
   }
@@ -184,9 +188,9 @@ export class ColorToken extends Token {
       return null
     }
     if (value.startsWith('#')) {
-      return value
+      return value.toLowerCase()
     }
-    return `#${value}`
+    return `#${value}`.toLowerCase()
   }
 
   static colorValueFromDefinitionOrReference(

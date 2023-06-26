@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { DTTokenReferenceResolver } from '../../tools/design-tokens/utilities/SDKDTTokenReferenceResolver'
 import { Matrix, inverse } from 'ml-matrix'
 import { GradientTokenRemoteValue } from './remote/SDKRemoteTokenValue'
+import { StringUtils } from '../../utils/StringUtils'
 
 // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 // MARK: -  Object Definition
@@ -116,12 +117,16 @@ export class GradientToken extends Token {
     referenceResolver: DTTokenReferenceResolver
   ): GradientTokenValue {
     // Parse raw gradient pieces
-    const [gradientDegrees, ...colorStops] = definition
-      .substring(definition.indexOf('(') + 1, definition.lastIndexOf(')'))
+    let d = definition.trim()
+    d = StringUtils.replaceAll(d, '( ', '(')
+    d = StringUtils.replaceAll(d, ', ', ',')
+    d = StringUtils.replaceAll(d, ' ,', ',')
+    d = d
+      .substring(d.indexOf('(') + 1, d.lastIndexOf(')'))
       // There could be commas inside color def
       // linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%)
       .replace(/, (?=[^()]*\))/g, ',')
-      .split(', ')
+    const [gradientDegrees, ...colorStops] = StringUtils.splitIgnoringQuotedBracketedContent(d, ',')
 
     // Rotate 90 degrees
     const degreesAsNumber = parseFloat(gradientDegrees.split('deg').join(''))

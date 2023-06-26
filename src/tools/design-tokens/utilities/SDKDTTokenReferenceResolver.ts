@@ -105,13 +105,15 @@ export class DTTokenReferenceResolver {
         token: Token
         key: string
         location: number
+        dollarTypeReference: boolean
       }>
     | undefined {
-    let findings = this.findBracketStrings(reference)
+    let findings = [...this.findBracketStrings(reference), ...this.findDollarStrings(reference)]
     let result: Array<{
       token: Token
       key: string
       location: number
+      dollarTypeReference: boolean
     }> = []
     for (let finding of findings) {
       let fullkey = `{${finding.value}}`
@@ -120,7 +122,8 @@ export class DTTokenReferenceResolver {
         result.push({
           token: this.mappedTokens.get(fullkey)?.[0],
           key: finding.value,
-          location: finding.index
+          location: finding.index,
+          dollarTypeReference: finding.dollarTypeReference
         })
       } else {
         // Skip as there is a reference that doesn't exist
@@ -137,6 +140,7 @@ export class DTTokenReferenceResolver {
       token: Token
       key: string
       location: number
+      dollarTypeReference: boolean
     }>
   ): string {
     // Seek from the last position so we don't have to deal with repositioning
@@ -153,19 +157,19 @@ export class DTTokenReferenceResolver {
           `Invalid reference ${reference} in computed token. Only measures, colors or generic/text tokens can be used as partial reference (fe. rgba({value}, 10%), however was ${r.token.tokenType}`
         )
       }
-      finalReference = this.replaceToken(finalReference, r.token, r.key, r.location)
+      finalReference = this.replaceToken(finalReference, r.token, r.key, r.location, r.dollarTypeReference)
     }
 
     return finalReference
   }
 
-  replaceToken(base: string, token: Token, key: string, location: number): string {
-    let fullkey = `{${key}}`
+  replaceToken(base: string, token: Token, key: string, location: number, dollarTypeReference: boolean): string {
+    let fullkey = dollarTypeReference ? `$${key}` : `{${key}}`
     let value = this.replacableValue(token)
-    return this.replaceAt(base, fullkey, value, location)
+    return this.replaceAt(base, fullkey, value, location, dollarTypeReference)
   }
 
-  replaceAt(s: string, what: string, replacement: string, index: number): string {
+  replaceAt(s: string, what: string, replacement: string, index: number, dollarTypeReference: boolean): string {
     return s.substring(0, index) + replacement + s.substring(index + what.length)
   }
 
@@ -206,7 +210,7 @@ export class DTTokenReferenceResolver {
       return false
     }
 
-    return value.includes('{') || value.includes('}')
+    return value.includes('{') || value.includes('}') || value.includes('$')
   }
 
   valueIsPureReference(value: string | object): boolean {
@@ -218,10 +222,11 @@ export class DTTokenReferenceResolver {
 
     // If there is more than one opening or closing bracket, it is not a pure reference. Must also open and close the syntax
     return (
-      trimmed.startsWith('{') &&
-      trimmed.endsWith('}') &&
-      this.countCharacter(trimmed, '{') === 1 &&
-      this.countCharacter(trimmed, '}') === 1
+      (trimmed.startsWith('{') &&
+        trimmed.endsWith('}') &&
+        this.countCharacter(trimmed, '{') === 1 &&
+        this.countCharacter(trimmed, '}') === 1) ||
+      this.isDollarIdentifier(trimmed)
     )
   }
 
@@ -259,7 +264,7 @@ export class DTTokenReferenceResolver {
     return '{' + [...newPath, name].join('.') + '}'
   }
 
-  findBracketStrings(str: string): { index: number; value: string }[] {
+  findBracketStrings(str: string): { index: number; value: string; dollarTypeReference: boolean }[] {
     const results = []
     let currentIndex = 0
 
@@ -284,7 +289,8 @@ export class DTTokenReferenceResolver {
       const bracketString = str.substring(openBracketIndex + 1, closeBracketIndex)
       results.push({
         index: openBracketIndex,
-        value: bracketString
+        value: bracketString,
+        dollarTypeReference: false
       })
 
       // Continue searching after the closing bracket
@@ -292,5 +298,37 @@ export class DTTokenReferenceResolver {
     }
 
     return results
+  }
+
+  findDollarStrings(str: string): { index: number; value: string; dollarTypeReference: boolean }[] {
+    const results = []
+    let match
+
+    // Use a regex to find strings that start with $ and extend until a non-alphanumeric and non-dot character
+    const regex = /\$([a-zA-Z0-9\.\-\_]+)/g
+
+    // Use exec to find all matches in the string
+    // tslint:disable-next-line: no-conditional-assignment
+    while ((match = regex.exec(str)) !== null) {
+      results.push({
+        index: match.index,
+        value: match[1], // Exclude the leading $
+        dollarTypeReference: true
+      })
+    }
+
+    /*
+    if (results.length > 0) {
+      console.log(`dollar strings`)
+      console.log(results)
+    }
+    */
+    return results
+  }
+
+  isDollarIdentifier(value: string): boolean {
+    // This regex ensures the string starts with a $, is followed by the identifier defined by the regex, and nothing else
+    const regex = /^\$([a-zA-Z0-9\.\-\_]+)$/
+    return regex.test(value)
   }
 }
