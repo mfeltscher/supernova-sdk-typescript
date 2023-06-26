@@ -2,6 +2,11 @@
 
 All notable changes to this SDK are mentioned here in this changelog.
 
+## [1.8.66] - 2023-26-06
+### Token Studio support + $sign support
+
+We have fixed all remaining issues with Token Studio, and added support for $-sign references.
+
 ## [1.8.65] - 2023-26-03
 ### Data Views & Element properties
 

@@ -134,6 +134,41 @@ test('test_tooling_design_tokens_load_and_merge_from_file', async t => {
   )
 })
 
+test('test_tooling_design_tokens_load_and_merge_from_file_dollars', async t => {
+  // Fetch specific design system version
+  let version = await testInstance.designSystemVersion(
+    process.env.TEST_DB_DESIGN_SYSTEM_ID_EDIT,
+    process.env.TEST_DB_DESIGN_SYSTEM_VERSION_ID_EDIT
+  )
+
+  // Path to file
+  let dataFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'single-file-sync-dollars',
+    'tokens.json'
+  )
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'single-file-sync-dollars',
+    'supernova.settings.json'
+  )
+
+  // Get Figma Tokens synchronization tool
+  let syncTool = new SupernovaToolsDesignTokensPlugin(version)
+  let dataLoader = new FigmaTokensDataLoader()
+  let tokenDefinition = await dataLoader.loadTokensFromPath(dataFilePath)
+  let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
+
+  // Run sync
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
+})
+
 test('test_tooling_design_tokens_load_and_merge_from_file_using_names', async t => {
   // Fetch specific design system version
   let version = await testInstance.designSystemVersion(
@@ -261,7 +296,13 @@ test('test_tooling_design_tokens_prism', async t => {
 
   // Path to file
   let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min')
-  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'prism-min', 'supernova.settings.json')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'prism-min',
+    'supernova.settings.json'
+  )
 
   // Get Figma Tokens synchronization tool
   let syncTool = new SupernovaToolsDesignTokensPlugin(version)
@@ -270,7 +311,9 @@ test('test_tooling_design_tokens_prism', async t => {
   let configDefinition = dataLoader.loadConfigFromPath(mappingFilePath)
 
   // Run sync
-  await t.notThrowsAsync(syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings))
+  await t.notThrowsAsync(
+    syncTool.synchronizeTokensFromData(tokenDefinition, configDefinition.mapping, configDefinition.settings)
+  )
 })
 
 // TODO: Add minimal test case data to reproduce
@@ -283,7 +326,13 @@ test('test_tooling_design_tokens_elli', async t => {
 
   // Path to file
   let dataFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'elli-full', 'tokens')
-  let mappingFilePath = path.join(process.cwd(), 'test-resources', 'figma-tokens', 'elli-full', 'supernova.settings.json')
+  let mappingFilePath = path.join(
+    process.cwd(),
+    'test-resources',
+    'figma-tokens',
+    'elli-full',
+    'supernova.settings.json'
+  )
 
   // Get Figma Tokens synchronization tool
   let syncTool = new SupernovaToolsDesignTokensPlugin(version)
@@ -297,13 +346,14 @@ test('test_tooling_design_tokens_elli', async t => {
   const validateDeepTokenRef = (tokens: Token[], description: string, hex: string, name: string) => {
     const token = tokens.filter(t => t.description === description)[0] as ColorToken
     t.true(!!token)
-    const ref = token.value.referencedToken as ColorToken;
+    const ref = token.value.referencedToken as ColorToken
     t.true(!!ref)
     t.is(token.value.hex, hex)
     t.is(ref.value.hex, hex)
 
     let d = 50
-    let c = token, r = ref
+    let c = token,
+      r = ref
     while (d-- > 0 && c && r) {
       c = r
       r = c?.value?.referencedToken as ColorToken
