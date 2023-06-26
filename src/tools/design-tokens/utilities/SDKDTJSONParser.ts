@@ -238,7 +238,8 @@ export class DTJSONParser {
       try {
         const entityValue = entity.value
         const opacity = parseFloat(entity.value)
-        if (opacity === 0 || opacity <= 1) {
+        const isUnitless = !Number.isNaN(Number(entity.value))
+        if (isUnitless && (opacity >= 0 || opacity <= 1)) {
           entity.value = `${opacity * 100}%`
         }
       } catch (e) {
