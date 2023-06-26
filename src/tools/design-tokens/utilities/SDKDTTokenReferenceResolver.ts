@@ -94,8 +94,13 @@ export class DTTokenReferenceResolver {
   }
 
   lookupReferencedToken(reference: string): Token | undefined {
+    let ref = reference
+    if (reference.includes('$')) {
+      // Convert $ reference to {}-type of reference as keys are all defined as {}
+      ref = `{${reference.substring(1)}}`
+    }
     // Find single token reference
-    return this.mappedTokens.get(reference)?.[0]
+    return this.mappedTokens.get(ref)?.[0]
   }
 
   lookupAllReferencedTokens(
@@ -130,7 +135,6 @@ export class DTTokenReferenceResolver {
         return undefined
       }
     }
-
     return result
   }
 
@@ -219,7 +223,6 @@ export class DTTokenReferenceResolver {
     }
 
     let trimmed = value.trim()
-
     // If there is more than one opening or closing bracket, it is not a pure reference. Must also open and close the syntax
     return (
       (trimmed.startsWith('{') &&
@@ -317,12 +320,6 @@ export class DTTokenReferenceResolver {
       })
     }
 
-    /*
-    if (results.length > 0) {
-      console.log(`dollar strings`)
-      console.log(results)
-    }
-    */
     return results
   }
 
