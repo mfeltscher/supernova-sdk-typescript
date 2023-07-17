@@ -395,7 +395,14 @@ export class TokenResolver {
      */
 
     let theme = new TokenTheme(data, this.version)
-    theme.overriddenTokens = Array.from(this.resolvedOverrides.values())
+
+    const themeOverrides = Array.from(this.resolvedOverrides.values())
+
+    this.fixMultilayerShadowTokens(themeOverrides.filter(t => t.tokenType === TokenType.shadow) as Array<ShadowToken>)
+    this.fixMultilayerGradientTokens(themeOverrides.filter(t => t.tokenType === TokenType.gradient) as Array<GradientToken>)
+    this.fixMultilayerBlurTokens(themeOverrides.filter(t => t.tokenType === TokenType.blur) as Array<BlurToken>)
+
+    theme.overriddenTokens = themeOverrides
     return theme
   }
 
